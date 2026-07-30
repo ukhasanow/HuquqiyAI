@@ -100,6 +100,15 @@
 
   // ---- Render funksiyalari ----
 
+  function avatarYarat() {
+    const a = el("div", "avatar");
+    const img = document.createElement("img");
+    img.src = "/static/logo-192.png";
+    img.alt = "";
+    a.appendChild(img);
+    return a;
+  }
+
   function el(tag, cls, matn) {
     const d = document.createElement(tag);
     if (cls) d.className = cls;
@@ -131,7 +140,7 @@
 
   function kutishQosh() {
     const x = el("div", "xabar bot");
-    x.appendChild(el("div", "avatar", "⚖️"));
+    x.appendChild(avatarYarat());
     const ich = el("div", "xabar-ich");
     const k = el("span", "kutish");
     for (let i = 0; i < 3; i++) k.appendChild(el("span"));
@@ -144,7 +153,7 @@
 
   function botXatoQosh(matn) {
     const x = el("div", "xabar bot");
-    x.appendChild(el("div", "avatar", "⚖️"));
+    x.appendChild(avatarYarat());
     const ich = el("div", "xabar-ich");
     ich.appendChild(el("p", "xato-xabar", "⚠️ " + matn));
     x.appendChild(ich);
@@ -157,7 +166,7 @@
   // orqali, hech qanday o'zgartirishsiz.
   function botJavobQosh(data, savol) {
     const x = el("div", "xabar bot");
-    x.appendChild(el("div", "avatar", "⚖️"));
+    x.appendChild(avatarYarat());
     const ich = el("div", "xabar-ich");
 
     // 1-QISM: QONUN MODDASI
