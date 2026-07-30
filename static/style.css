@@ -1,0 +1,430 @@
+/* HuquqiyAI — asosiy uslublar (Claude uslubidagi iliq palitra) */
+:root {
+  --asosiy: #29261b;
+  --urgu: #c15f3c;
+  --urgu-toq: #a04d2e;
+  --fon: #faf9f5;
+  --karta: #ffffff;
+  --krem: #f0eee6;
+  --chiziq: #e5e3d9;
+  --matn: #3d3a2f;
+  --sokin: #8a8577;
+  --yashil: #1e7d4f;
+  --sariq: #b7791f;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--fon);
+  color: var(--matn);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sarlavha */
+.sarlavha {
+  background: rgba(250, 249, 245, .92);
+  backdrop-filter: blur(8px);
+  color: var(--asosiy);
+  border-bottom: 1px solid var(--chiziq);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.sarlavha-ich {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.logo { font-size: 1.2rem; font-weight: 600; letter-spacing: -.01em; }
+.logo b { color: var(--urgu); }
+
+.sarlavha-ong { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.baza-chip {
+  font-size: .75rem;
+  color: var(--sokin);
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.baza-chip:empty { display: none; }
+
+.rejim-tanlash {
+  display: flex;
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 999px;
+  padding: 3px;
+}
+.rejim-tugma {
+  border: 0;
+  background: transparent;
+  color: var(--sokin);
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: .88rem;
+}
+.rejim-tugma.faol {
+  background: #fff;
+  color: var(--asosiy);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(41, 38, 27, .1);
+}
+
+/* Chat */
+.asosiy {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.chat { flex: 1; display: flex; flex-direction: column; gap: 22px; padding-bottom: 24px; }
+
+.xabar { display: flex; animation: paydo .35s ease; }
+.xabar.user { justify-content: flex-end; }
+@keyframes paydo {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Bot avatari */
+.xabar.bot { gap: 10px; }
+.avatar {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--chiziq);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .95rem;
+  margin-top: 2px;
+  box-shadow: 0 1px 3px rgba(41, 38, 27, .06);
+}
+
+/* Claude uslubi: assistent javobi bublesiz, fonda toza matn */
+.xabar.bot .xabar-ich {
+  max-width: 100%;
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  line-height: 1.65;
+}
+/* Foydalanuvchi xabari — yumshoq krem buble */
+.xabar.user .xabar-ich {
+  max-width: 85%;
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  color: var(--matn);
+  border-radius: 18px;
+  padding: 10px 16px;
+  line-height: 1.55;
+}
+.xabar-ich p + p, .xabar-ich ol { margin-top: 8px; }
+.xabar-ich ol { padding-left: 20px; }
+
+.misollar { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.misol {
+  border: 1px solid var(--chiziq);
+  color: var(--matn);
+  background: #fff;
+  border-radius: 10px;
+  padding: 7px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: .88rem;
+  transition: background .15s, border-color .15s;
+}
+.misol:hover { background: var(--krem); border-color: var(--sokin); }
+
+/* Uch qismli javob bloklari */
+.qism-sarlavha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--urgu);
+  margin: 16px 0 8px;
+}
+.qism-sarlavha::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--chiziq);
+}
+.qism-sarlavha:first-child { margin-top: 0; }
+
+/* 1-qism: modda iqtibos-kartasi */
+.modda-karta {
+  border: 1px solid var(--chiziq);
+  border-left: 4px solid var(--urgu);
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(41, 38, 27, .05);
+  transition: box-shadow .15s;
+}
+.modda-karta:hover { box-shadow: 0 3px 10px rgba(41, 38, 27, .09); }
+.modda-karta .qonun-nomi { font-size: .8rem; color: var(--sokin); }
+.modda-karta .modda-sarlavha { font-weight: 700; margin: 4px 0 6px; }
+.modda-karta .modda-matn { white-space: pre-line; font-size: .93rem; }
+.modda-karta .modda-past {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: .82rem;
+}
+.modda-karta a { color: var(--urgu); }
+.belgi {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.belgi.verified { background: #e2f3ea; color: var(--yashil); }
+.belgi.needs_verification { background: #fdf1dc; color: var(--sariq); }
+
+/* 3-qism: murojaat kartasi */
+.organ-karta {
+  background: #fff;
+  border: 1px solid var(--chiziq);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.organ-karta .organ-nomi { font-weight: 700; }
+.organ-karta .organ-qator { margin-top: 4px; font-size: .9rem; }
+.organ-karta a { color: var(--urgu); }
+
+.disclaimer { margin-top: 12px; font-size: .78rem; color: var(--sokin); }
+
+/* Ariza qoralamasi bloki */
+.yashirin { display: none !important; }
+.ariza-blok { margin-top: 14px; }
+.ariza-och {
+  border: 1px solid var(--urgu);
+  background: #fff;
+  color: var(--urgu);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: .88rem;
+}
+.ariza-och:hover { background: var(--krem); }
+.ariza-forma {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ariza-forma input {
+  flex: 1 1 180px;
+  border: 1px solid var(--chiziq);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: inherit;
+  background: #fff;
+}
+.ariza-tuz {
+  border: 0;
+  background: var(--urgu);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ariza-tuz:hover { background: var(--urgu-toq); }
+.ariza-natija { margin-top: 10px; }
+.ariza-matn {
+  width: 100%;
+  border: 1px solid var(--chiziq);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .85rem;
+  background: #fff;
+  resize: vertical;
+}
+.ariza-yuklab {
+  margin-top: 8px;
+  border: 1px solid var(--chiziq);
+  background: #fff;
+  color: var(--matn);
+  border-radius: 10px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: .85rem;
+}
+.ariza-yuklab:hover { background: var(--krem); }
+
+/* Kutish animatsiyasi */
+.kutish { display: inline-flex; gap: 4px; }
+.kutish span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sokin);
+  animation: pulsatsiya 1s infinite ease-in-out;
+}
+.kutish span:nth-child(2) { animation-delay: .18s; }
+.kutish span:nth-child(3) { animation-delay: .36s; }
+@keyframes pulsatsiya { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+
+/* Kiritish paneli — bitta yaxlit yozish oynasi (Claude kompozeri uslubida) */
+.kiritish {
+  display: flex;
+  flex-direction: column;
+  background: var(--karta);
+  border: 1px solid var(--chiziq);
+  border-radius: 20px;
+  padding: 12px 14px 10px;
+  position: sticky;
+  bottom: 12px;
+  box-shadow: 0 4px 18px rgba(41, 38, 27, .08);
+}
+.kiritish:focus-within {
+  border-color: var(--urgu);
+  box-shadow: 0 4px 18px rgba(41, 38, 27, .08), 0 0 0 3px rgba(193, 95, 60, .12);
+}
+::selection { background: rgba(193, 95, 60, .22); }
+.kiritish textarea {
+  width: 100%;
+  border: 0;
+  resize: none;
+  font: inherit;
+  color: var(--matn);
+  background: transparent;
+  padding: 2px 2px 8px;
+  outline: none;
+  max-height: 140px;
+}
+.kiritish textarea::placeholder { color: var(--sokin); }
+.kiritish-qator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fayl-tugma {
+  cursor: pointer;
+  font-size: 1.05rem;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--chiziq);
+  color: var(--sokin);
+  transition: background .15s;
+}
+.fayl-tugma:hover { background: var(--krem); }
+.fayl-nomi {
+  font-size: .78rem;
+  color: var(--urgu);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yubor-tugma {
+  margin-left: auto;
+  border: 0;
+  background: var(--urgu);
+  color: #fff;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s;
+}
+.yubor-tugma:hover { background: var(--urgu-toq); }
+.yubor-tugma:disabled { opacity: .5; cursor: default; }
+.pastki-eslatma { text-align: center; font-size: .75rem; color: var(--sokin); margin-top: 8px; }
+.pastki-eslatma a { color: var(--urgu); }
+
+/* Admin sahifa */
+.admin-oyna { max-width: 860px; margin: 0 auto; padding: 20px 16px; width: 100%; }
+.admin-karta {
+  background: var(--karta);
+  border: 1px solid var(--chiziq);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.admin-karta h2 { font-size: 1.05rem; margin-bottom: 10px; }
+.admin-karta label { display: block; font-size: .85rem; margin: 8px 0 3px; color: #52606d; }
+.admin-karta input, .admin-karta textarea, .admin-karta select {
+  width: 100%;
+  border: 1px solid var(--chiziq);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+.admin-karta textarea { min-height: 120px; }
+.admin-tugma {
+  margin-top: 12px;
+  border: 0;
+  background: var(--urgu);
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.modda-royxat-qator {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--chiziq);
+  font-size: .9rem;
+  flex-wrap: wrap;
+}
+.modda-royxat-qator:last-child { border-bottom: 0; }
+.tahrir-tugma {
+  border: 1px solid var(--urgu);
+  background: #fff;
+  color: var(--urgu);
+  border-radius: 7px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: .82rem;
+}
+.xato-xabar { color: #b32d2d; font-size: .85rem; margin-top: 8px; }
+.ok-xabar { color: var(--yashil); font-size: .85rem; margin-top: 8px; }
+
+@media (max-width: 640px) {
+  .xabar-ich { max-width: 100%; }
+  .sarlavha-ich { justify-content: center; }
+  .baza-chip { display: none; }
+  .avatar { flex-basis: 26px; width: 26px; height: 26px; font-size: .8rem; }
+}

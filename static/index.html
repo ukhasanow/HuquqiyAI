@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HuquqiyAI — Huquqiy yordamchi</title>
+  <link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+<body>
+  <header class="sarlavha">
+    <div class="sarlavha-ich">
+      <div class="logo">⚖️ <span>Huquqiy<b>AI</b></span></div>
+      <div class="sarlavha-ong">
+        <span id="baza-chip" class="baza-chip" title="Bazadagi tekshirilgan moddalar soni"></span>
+        <div class="rejim-tanlash" role="radiogroup" aria-label="Rejim">
+          <button id="rejim-oddiy" class="rejim-tugma faol" data-rejim="oddiy">Oddiy odam</button>
+          <button id="rejim-pro" class="rejim-tugma" data-rejim="pro">Advokat / Pro</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="asosiy">
+    <div id="chat" class="chat">
+      <div class="xabar bot">
+        <div class="avatar">⚖️</div>
+        <div class="xabar-ich">
+          <p><b>Assalomu alaykum!</b> Men — HuquqiyAI, O'zbekiston qonunlari bo'yicha yordamchingizman.</p>
+          <p>Savolingizni yozing yoki hujjat (PDF/DOCX) yuklang. Har bir javobda:</p>
+          <ol>
+            <li><b>Qonun moddasi</b> — asl matn, lex.uz havolasi bilan</li>
+            <li><b>Umumiy tavsiya</b> — nima qilish kerakligi</li>
+            <li><b>Qayerga murojaat qilish</b> — organ va kontaktlar</li>
+          </ol>
+          <p class="misollar">Masalan: <button class="misol">Ish beruvchi meni asossiz ishdan bo'shatmoqchi, nima qilay?</button>
+          <button class="misol">Sotib olgan telefonim nuqsonli chiqdi, qaytarib bera olamanmi?</button>
+          <button class="misol">Ajrashganda bola alimenti qanday undiriladi?</button></p>
+        </div>
+      </div>
+    </div>
+
+    <form id="forma" class="kiritish">
+      <textarea id="savol" rows="1" placeholder="Huquqiy savolingizni yozing..." maxlength="4000"></textarea>
+      <div class="kiritish-qator">
+        <label class="fayl-tugma" title="PDF yoki DOCX hujjat yuklash">
+          📎<input type="file" id="fayl" accept=".pdf,.docx,.txt" hidden>
+        </label>
+        <span id="fayl-nomi" class="fayl-nomi"></span>
+        <button type="submit" id="yubor" class="yubor-tugma" aria-label="Yuborish" title="Yuborish">↑</button>
+      </div>
+    </form>
+    <p class="pastki-eslatma">HuquqiyAI professional huquqiy maslahat o'rnini bosmaydi. Manba: <a href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a></p>
+  </main>
+
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>

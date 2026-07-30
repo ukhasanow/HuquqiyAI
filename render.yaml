@@ -1,0 +1,21 @@
+# Render.com bepul tierga deploy (Blueprint)
+# render.com -> New + -> Blueprint -> shu repo'ni tanlang.
+# ANTHROPIC_API_KEY va ADMIN_PASSWORD qiymatlari dashboard'da so'raladi.
+services:
+  - type: web
+    name: huquqiyai
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: MODEL
+        value: claude-sonnet-4-5
+      - key: PYTHON_VERSION
+        value: 3.12.6

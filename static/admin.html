@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HuquqiyAI — Admin</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="sarlavha">
+    <div class="sarlavha-ich">
+      <div class="logo">⚖️ <span>Huquqiy<b>AI</b></span> · Admin</div>
+      <a href="/" style="color:#dbe7f3">← Chatga qaytish</a>
+    </div>
+  </header>
+
+  <main class="admin-oyna">
+    <!-- Parol -->
+    <div class="admin-karta" id="parol-karta">
+      <h2>🔐 Kirish</h2>
+      <label for="parol">Admin parol</label>
+      <input type="password" id="parol" placeholder="Parolni kiriting">
+      <button class="admin-tugma" id="kirish-tugma">Kirish</button>
+      <div id="parol-xato" class="xato-xabar"></div>
+    </div>
+
+    <!-- Moddalar ro'yxati -->
+    <div class="admin-karta" id="royxat-karta" hidden>
+      <h2>📚 Qonun moddalari bazasi</h2>
+      <div id="moddalar-royxati"></div>
+    </div>
+
+    <!-- Qo'shish / tahrirlash -->
+    <div class="admin-karta" id="forma-karta" hidden>
+      <h2 id="forma-sarlavha">➕ Yangi modda qo'shish</h2>
+      <label>ID (masalan: mehnat-105)</label>
+      <input id="f-id" placeholder="qonun-moddaraqami">
+      <label>Qonun nomi</label>
+      <input id="f-qonun" placeholder="O'zbekiston Respublikasining ... kodeksi">
+      <label>Modda raqami</label>
+      <input id="f-raqam" placeholder="105-modda">
+      <label>Sarlavha</label>
+      <input id="f-sarlavha" placeholder="105-modda. ...">
+      <label>Asl matn (lex.uz'dan o'zgartirilmasdan ko'chiring)</label>
+      <textarea id="f-matn"></textarea>
+      <label>lex.uz havolasi</label>
+      <input id="f-url" placeholder="https://lex.uz/docs/...">
+      <label>Teglar (vergul bilan)</label>
+      <input id="f-teglar" placeholder="mehnat, ta'til">
+      <label>Holat</label>
+      <select id="f-holat">
+        <option value="needs_verification">needs_verification — matn tekshirilmagan</option>
+        <option value="verified">verified — asl matn tekshirilgan</option>
+      </select>
+      <button class="admin-tugma" id="saqlash-tugma">Saqlash</button>
+      <div id="forma-xabar"></div>
+    </div>
+  </main>
+
+  <script src="/static/admin.js"></script>
+</body>
+</html>

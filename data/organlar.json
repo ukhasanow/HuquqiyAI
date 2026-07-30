@@ -1,0 +1,62 @@
+[
+  {
+    "mavzu": "mehnat",
+    "nomi": "Davlat mehnat inspeksiyasi (Bandlik va mehnat munosabatlari vazirligi huzurida)",
+    "tavsif": "Mehnat huquqlari buzilishi, noqonuniy ishdan bo'shatish, ish haqi bo'yicha nizolar",
+    "manzil": "Toshkent sh., Abay ko'chasi, 6-uy",
+    "telefon": "1176 (ishonch telefoni)",
+    "sayt": "https://mehnat.uz",
+    "onlayn_murojaat": "https://dmi.mehnat.uz",
+    "kontakt_holati": "verified"
+  },
+  {
+    "mavzu": "iste'molchi",
+    "nomi": "Raqobatni rivojlantirish va iste'molchilar huquqlarini himoya qilish qo'mitasi",
+    "tavsif": "Nuqsonli tovar, sifatsiz xizmat, sotuvchi bilan nizolar",
+    "manzil": "Toshkent sh., Islom Karimov ko'chasi, 2-uy",
+    "telefon": "1159 (ishonch telefoni)",
+    "sayt": "https://raqobat.gov.uz",
+    "onlayn_murojaat": "https://raqobat.gov.uz",
+    "kontakt_holati": "verified"
+  },
+  {
+    "mavzu": "oila",
+    "nomi": "FHDYo (Fuqarolik holati dalolatnomalarini yozish organi) — tumandagi bo'lim",
+    "tavsif": "Nikohdan ajralishni qayd etish (o'zaro rozilik, voyaga yetmagan bola bo'lmaganda), guvohnomalar",
+    "manzil": "Yashash joyidagi tuman (shahar) FHDYo bo'limi",
+    "telefon": "1008 (Adliya vazirligi call-markazi)",
+    "sayt": "https://adliya.uz",
+    "onlayn_murojaat": "https://fhdyo.adliya.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "oila-sud",
+    "tavsif": "Nikohdan ajratish (nizoli holatlar), aliment undirish",
+    "nomi": "Fuqarolik ishlari bo'yicha tumanlararo sud",
+    "manzil": "Yashash joyidagi tumanlararo sud",
+    "telefon": "kontakt tekshirilsin",
+    "sayt": "https://sud.uz",
+    "onlayn_murojaat": "https://my.sud.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "fuqarolik",
+    "nomi": "Fuqarolik ishlari bo'yicha tumanlararo sud",
+    "tavsif": "Shartnoma nizolari, zarar undirish, fuqarolik-huquqiy nizolar",
+    "manzil": "Yashash joyidagi tumanlararo sud",
+    "telefon": "kontakt tekshirilsin",
+    "sayt": "https://sud.uz",
+    "onlayn_murojaat": "https://my.sud.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "umumiy",
+    "nomi": "Adliya vazirligi — bepul yuridik maslahat",
+    "tavsif": "Umumiy huquqiy savollar, qaysi organga murojaat qilishni aniqlash",
+    "manzil": "Toshkent sh., Sayilgoh ko'chasi, 5-uy",
+    "telefon": "1008 (call-markaz)",
+    "sayt": "https://adliya.uz",
+    "onlayn_murojaat": "https://murojaat.gov.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  }
+]
