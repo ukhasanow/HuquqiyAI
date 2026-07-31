@@ -1,0 +1,31 @@
+{
+  "jami_sorovlar": 9,
+  "javob_topildi": 8,
+  "javob_topilmadi": 1,
+  "rejimlar": {
+    "oddiy": 7,
+    "pro": 2
+  },
+  "mavzular": {
+    "fuqarolik": 5,
+    "oila-sud": 2,
+    "mehnat": 2
+  },
+  "kunlik": {
+    "2026-07-31": {
+      "jami": 9,
+      "topildi": 8
+    }
+  },
+  "foydalanuvchilar": [
+    "anon-test-1",
+    "anon-test-2",
+    "anon-ms8th0sp-9f2ynlh6"
+  ],
+  "topilmagan_savollar": [
+    {
+      "sana": "2026-07-31",
+      "savol": "Onalik/otalikni belgilash: Bolaning otasini aniqlash yoki otalikni tan olmaslik."
+    }
+  ]
+}
