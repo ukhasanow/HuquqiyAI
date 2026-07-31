@@ -29,9 +29,11 @@ class OrganJavob(BaseModel):
     nomi: str
     tavsif: str
     manzil: str
+    ish_vaqti: Optional[str] = None
     telefon: str
     sayt: str
     onlayn_murojaat: Optional[str] = None
+    hududiy_havola: Optional[str] = None
     kontakt_holati: str
 
 

@@ -661,5 +661,1124 @@
    "qayd etish"
   ],
   "holat": "verified"
+ },
+ {
+  "id": "mehnat-21",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "21-modda",
+  "sarlavha": "21-modda. Xodimning huquqlari",
+  "matn": "Xodim quyidagi huquqlarga ega:\nushbu Kodeksda va boshqa qonunlarda belgilangan tartibda hamda shartlarda mehnat shartnomasini tuzish, oʻzgartirish va bekor qilish;\nmehnat shartnomasida shartlashilgan ish bilan ish beruvchi tomonidan taʼminlanish;\nmehnatni muhofaza qilish talablariga mos keladigan ish joyiga ega boʻlish;\noʻz malakasiga, mehnatning murakkabligiga, bajarilgan ishning miqdori va sifatiga muvofiq oʻz vaqtida hamda toʻliq hajmda ish haqi olish;\nish vaqti davomiyligining chegarasini, ayrim kasblardagi va toifalardagi xodimlar uchun qisqartirilgan ish vaqtini belgilash, har haftalik dam olish kunlari, ishlanmaydigan bayram kunlari, shuningdek yillik mehnat taʼtillari berish orqali taʼminlanadigan dam olish;\nxavfsizlik va gigiyena talablariga javob beradigan mehnat sharoitlariga ega boʻlish, shuningdek ish joyidagi mehnat sharoitlari va mehnatni muhofaza qilish talablari toʻgʻrisida toʻliq va ishonchli axborot olish;\nmehnat toʻgʻrisidagi qonunchilikka, mehnat haqidagi boshqa huquqiy hujjatlarga, mehnat shartnomasiga muvofiq kasbga tayyorlash, qayta tayyorlash va malakasini oshirish;\noʻz mehnat huquqlari, erkinliklari va qonuniy manfaatlarini ifodalash hamda himoya qilish uchun kasaba uyushmalariga va boshqa tashkilotlarga birlashish;\njamoa kelishuvlari va jamoa shartnomasi, shuningdek ular shartlarining bajarilishi toʻgʻrisida axborot olish, shu jumladan oʻz vakillari orqali olish;\nmehnat toʻgʻrisidagi qonunchilikda belgilangan tartibda xodimga mehnat vazifalarini bajarishi munosabati bilan yetkazilgan moddiy zararning oʻrnini qoplash va maʼnaviy ziyonni kompensatsiya qilish;\noʻz mehnat huquqlari, erkinliklari va qonuniy manfaatlarini qonun bilan taqiqlanmagan barcha usullar bilan himoya qilish;\nmehnat nizolarini ushbu Kodeksda, boshqa qonunlarda belgilangan tartibda hal qilish.\nXodim mehnat toʻgʻrisidagi qonunchilikka, mehnat toʻgʻrisidagi boshqa huquqiy hujjatlarga va mehnat shartnomasiga muvofiq boshqa huquqlarga ham ega boʻlishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6257916",
+  "teglar": [
+   "mehnat",
+   "xodim huquqlari",
+   "ish sharoiti",
+   "ish haqi"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-106",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "106-modda",
+  "sarlavha": "106-modda. Mehnat shartnomasining shakli",
+  "matn": "Mehnat shartnomasi bir xil kuchga ega boʻlgan kamida ikki nusxada yozma (qogʻozda yoki elektron) shaklda tuzilib, ularning har biri taraflar tomonidan imzolanadi.\nElektron shakldagi mehnat shartnomasi qonunchilikda belgilangan tartibda “Yagona milliy mehnat tizimi” idoralararo dasturiy-apparat majmuida rasmiylashtiriladi.\nMehnat shartnomasining har bir nusxasi xodimning va ishga qabul qilish huquqiga ega boʻlgan mansabdor shaxsning imzolari bilan mustahkamlanadi.\nIsh beruvchida muhr mavjud boʻlgan taqdirda mansabdor shaxsning mehnat shartnomasining barcha nusxalaridagi imzosi muhr bilan tasdiqlanadi.\nMehnat shartnomasining bir nusxasi xodimga beriladi, boshqasi (boshqalari) ish beruvchida saqlanadi. Mehnat shartnomasining nusxasi xodim tomonidan olinganligi ish beruvchida saqlanadigan mehnat shartnomasi nusxasidagi xodim mehnat shartnomasining nusxasini olganligi toʻgʻrisidagi alohida imzosi bilan tasdiqlanadi.\nMehnat shartnomasida shartnomaning ushbu Kodeksning 107-moddasida nazarda tutilgan rekvizitlari koʻrsatiladi.\nIsh beruvchilar va xodimlarga mehnat shartnomalarini tuzishda amaliy yordam koʻrsatish maqsadida Oʻzbekiston Respublikasi Vazirlar Mahkamasi tomonidan Ijtimoiy-mehnat masalalari boʻyicha respublika uch tomonlama komissiyasi bilan kelishuvga koʻra tavsiyaviy xususiyatga ega boʻlgan mehnat shartnomalarining namunaviy shakllari ishlab chiqiladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6260169",
+  "teglar": [
+   "mehnat",
+   "mehnat shartnomasi",
+   "yozma shakl",
+   "ishga kirish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-110",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "110-modda",
+  "sarlavha": "110-modda. Mehnat shartnomasining muddati",
+  "matn": "Mehnat shartnomasi:\nnomuayyan muddatga;\nuch yildan koʻp boʻlmagan muayyan muddatga (muddatli mehnat shartnomasi) tuzilishi mumkin.\nAgar mehnat shartnomasida uning amal qilish muddati shartlashilmagan boʻlsa, shartnoma nomuayyan muddatga tuzilgan deb hisoblanadi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6260215",
+  "teglar": [
+   "mehnat",
+   "mehnat shartnomasi",
+   "muddat",
+   "muddatli"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-111",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "111-modda",
+  "sarlavha": "111-modda. Xodim bilan muddatli mehnat shartnomasini tuzishning asosliligi",
+  "matn": "Agar muddatli mehnat shartnomasi ushbu Kodeksning 112 yoki 113-moddasi qoidalarini hisobga olgan holda tuzilgan boʻlsa, xodim bilan ushbu shartnomani tuzish asoslidir.\nAgar yakka tartibdagi mehnatga oid munosabatlar boʻlajak ishning xususiyatini yoki uni bajarish shartlarini hisobga olgan holda nomuayyan muddatga belgilanishi mumkin boʻlmasa, ushbu Kodeksning 112-moddasiga muvofiq muddatli mehnat shartnomasi tuziladi.\nUshbu Kodeksning 113-moddasida nazarda tutilgan hollarda muddatli mehnat shartnomasi mehnat shartnomasi taraflarining kelishuvi boʻyicha boʻlajak ishning xususiyatini va uni bajarish shartlarini hisobga olmasdan tuzilishi mumkin.\nBelgilangan muddatga tuzilgan mehnat shartnomasi buning uchun ushbu Kodeksning 112 yoki 113-moddasida nazarda tutilgan yetarli asoslar mavjud boʻlmaganda nomuayyan muddatga tuzilgan deb hisoblanadi.\nMuddatli shartnomani tuzish sabablari boʻlib xizmat qilgan holatlarga oʻrin qolmagan taqdirda, shuningdek yuz berishi mehnat shartnomasi muddatining tugashi bilan bogʻliq boʻlgan hodisa sodir boʻlganiga uch yildan oshgan boʻlsa, shartnoma nomuayyan muddatga uzaytirilgan deb hisoblanadi.\nNomuayyan muddatga tuzilgan mehnat shartnomasi xodimning roziligisiz belgilangan muddatga qayta tuzilishi mumkin emas.\nAgar qonunda boshqacha qoida nazarda tutilmagan boʻlsa, muddatli mehnat shartnomasining muddati tugaganidan keyin, ushbu Kodeksning 112 yoki 113-moddasida nazarda tutilgan asoslar mavjud boʻlganda taraflar uning amal qilish muddatini uzaytirishga haqli. Bunda muddatli mehnat shartnomasining jami muddati besh yildan oshmasligi kerak. Agar muddatli mehnat shartnomasining umumiy muddati u uzaytirilishidan oldin va keyin besh yildan oshgan boʻlsa, mehnat shartnomasi nomuayyan muddatga tuzilgan deb topiladi, bundan qonunda nazarda tutilgan hollar mustasno.\nOʻzi bilan nomuayyan muddatga mehnat shartnomasi tuzilayotgan xodimlar uchun nazarda tutilgan huquqlar va kafolatlarni berishdan bosh tortish maqsadida muddatli mehnat shartnomalarini tuzish taqiqlanadi.\nYakka tartibdagi mehnat nizolarini koʻrib chiqish chogʻida muddatli mehnat shartnomasini tuzishning asosliligini isbotlash vazifasi ish beruvchining zimmasiga yuklatiladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6260222",
+  "teglar": [
+   "mehnat",
+   "muddatli shartnoma",
+   "asoslilik",
+   "ishga qabul"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-125",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "125-modda",
+  "sarlavha": "125-modda. Mehnat daftarchasi",
+  "matn": "Lozim darajada tasdiqlangan qogʻoz yoki elektron shaklidagi mehnat daftarchasi xodimning mehnat stajini tasdiqlovchi va jismoniy shaxsning mehnat faoliyati toʻgʻrisidagi verifikatsiya qilingan maʼlumotlarni oʻz ichiga olgan asosiy hujjatdir.\nElektron shakldagi mehnat daftarchasi mehnat shartnomasini roʻyxatga olish, tuzish, unga oʻzgartish va qoʻshimchalar kiritish, shuningdek uni bekor qilish chogʻida avtomatik rejimda “Yagona milliy mehnat tizimi” idoralararo dasturiy-apparat kompleksida shakllantiriladi.\nIshga qabul qilish, bajariladigan ish, boshqa ishga oʻtkazish va mehnat shartnomasini bekor qilish toʻgʻrisidagi maʼlumotlarni oʻz ichiga oladigan, xodimning mehnat faoliyati va mehnat staji haqidagi axborot mehnat faoliyati toʻgʻrisidagi maʼlumotlardir.\nIsh beruvchi (bundan jismoniy shaxslar boʻlgan ish beruvchilar mustasno) tashkilotda besh kundan ortiq ishlagan barcha xodimlar uchun mehnat daftarchalarini yuritishi shart.\nIsh beruvchi ishga qabul qilish, boshqa ishga doimiy oʻtkazish va mehnat shartnomasini bekor qilish toʻgʻrisidagi maʼlumotlarni mehnat daftarchasiga hamda “Yagona milliy mehnat tizimi” idoralararo dasturiy-apparat kompleksiga kiritishi shart. Xodimning yozma arizasiga koʻra asosiy ish joyidagi ish beruvchi mehnat daftarchasiga oʻrindoshlik asosida ishlagan va vaqtincha boshqa ish beruvchiga xizmat safariga yuborilgan davrlar haqidagi yozuvlarni kiritadi. Mehnat shartnomasini bekor qilish asoslari (sabablari) mehnat daftarchasiga yozilmaydi.\nElektron mehnat daftarchasini shakllantirish va xodimning mehnat faoliyati toʻgʻrisidagi maʼlumotlarni verifikatsiya qilish tartibi qonunchilikda belgilanadi.\nXodim mehnat faoliyati haqidagi maʼlumotlarni:\noxirgi ish joyidagi ish beruvchidan ushbu ish beruvchida ishlagan davr uchun — lozim darajada tasdiqlangan qogʻozda yoki ish beruvchining elektron raqamli imzosi bilan imzolangan elektron hujjat tarzida;\nmehnat organida — lozim darajada tasdiqlangan qogʻozda yoki vakolatli shaxsning elektron raqamli imzosi bilan imzolangan elektron hujjat shaklidagi elektron tashuvchida olishga haqlidir.\nIsh beruvchi xodimga ish beruvchida ishlagan davri uchun mehnat faoliyati toʻgʻrisidagi maʼlumotlarni xodimning yozma shaklda berilgan yoki ish beruvchining elektron pochta manziliga yuborilgan arizasida koʻrsatilgan usulda (lozim darajada tasdiqlangan qogʻozda yoki ish beruvchining elektron raqamli imzosi bilan imzolangan elektron hujjat tarzida) quyidagicha taqdim etishi shart:\nishlash davrida — ushbu ariza berilgan kundan eʼtiboran uch ish kunidan kechiktirmay;\nmehnat shartnomasini bekor qilishda — shartnoma bekor qilingan kunda.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6260586",
+  "teglar": [
+   "mehnat",
+   "mehnat daftarchasi",
+   "ish staji",
+   "hujjat"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-137",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "137-modda",
+  "sarlavha": "137-modda. Ish beruvchining mehnat shartlarini xodimning roziligisiz oʻzgartirish huquqi",
+  "matn": "Agar texnologiyadagi, ishlab chiqarish va mehnatni tashkil etishdagi oʻzgarishlar, ishlar (mahsulot, xizmatlar) hajmlarining qisqarganligi munosabati bilan avvalgi mehnat shartlari saqlab qolinishi mumkin boʻlmasa, ish beruvchi xodim mehnat shartnomasida shart qilib koʻrsatilgan mehnat vazifasini davom ettirayotganida xodimning roziligisiz mehnat shartlarini oʻzgartirishga haqli.\nAgar ushbu Kodeksda boshqacha qoida nazarda tutilmagan boʻlsa, ish beruvchi mehnat shartlarining kelgusidagi oʻzgarishi haqida xodimni kamida ikki oy oldin yozma shaklda, imzo qoʻydirib ogohlantirishi shart. Koʻrsatilgan muddatni qisqartirishga faqat xodim va ish beruvchi oʻrtasidagi kelishuvga koʻra yoʻl qoʻyiladi.\nIsh beruvchi mehnat shartlarining kelgusidagi oʻzgarishi toʻgʻrisida xodimni ogohlantirishning ikki haftadan ortiq boʻlgan muddatini mutanosib pulli kompensatsiya bilan almashtirishga haqli. Bunda xodimni ogohlantirish paytidan eʼtiboran ikki haftalik ogohlantirish muddati faqat xodimning roziligi bilan pulli kompensatsiya bilan almashtirilishi mumkin.\nAgar ushbu moddaning ikkinchi va uchinchi qismlarida nazarda tutilgan ogohlantirish muddati tugagach xodim yangi mehnat shartlarida mehnat qilishni rad etsa, xodim bilan tuzilgan mehnat shartnomasi xodim yangi mehnat shartlarida ishni davom ettirishni rad etganligi munosabati bilan unga ushbu Kodeksning 173-moddasiga muvofiq ishdan boʻshatish nafaqasi toʻlangan va 100-moddasida nazarda tutilgan kafolatlar taqdim etilgan holda bekor qilinishi mumkin.\nAgar oʻzining mehnat shartlari oʻzgartirilayotgan xodimlar soni ushbu Kodeksning 98-moddasi ikkinchi qismida nazarda tutilgan miqdorga teng boʻlsa yoki undan oshadigan boʻlsa, ish beruvchi xodimlar uchun mehnat shartlarining oʻzgartirilishi xususida kasaba uyushmasi qoʻmitasi bilan dastlabki maslahatlashuvlar oʻtkazadi.\nMehnat shartlari noqulay tarzda oʻzgargan taqdirda, ish beruvchi, agar mehnat shartlari yomonlashayotgan xodimlar soni ushbu Kodeksning 98-moddasi ikkinchi qismida nazarda tutilgan miqdorga teng boʻlsa yoki undan oshadigan boʻlsa, mahalliy mehnat organiga, shuningdek kasaba uyushmalarining hududiy yoki tarmoq birlashmasiga bunday oʻzgarishlarning sabablari toʻgʻrisida axborot taqdim etishi shart.\nXodim ish beruvchi tomonidan mehnat shartlari oʻzgartirilganligi ustidan shikoyat qilishga haqli. Yakka tartibdagi mehnat nizosini koʻrish chogʻida avvalgi mehnat shartlarini saqlab qolish imkoniyati yoʻqligini isbotlab berish majburiyati ish beruvchining zimmasiga yuklatiladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6260925",
+  "teglar": [
+   "mehnat",
+   "mehnat shartlari",
+   "o'zgartirish",
+   "ish beruvchi"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-151",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "151-modda",
+  "sarlavha": "151-modda. Xodimni ishdan chetlashtirish hollari",
+  "matn": "Ishdan chetlashtirish xodimni mehnat majburiyatlarini, qoida tariqasida, ish haqi saqlanmagan holda bajarishga vaqtincha yoʻl qoʻymaslikdir.\nIsh beruvchi quyidagi hollarda xodimni ishdan chetlashtirishi shart:\nqonunchilikka muvofiq vakolatli davlat organlarining talabiga koʻra;\nalkogolli ichimlikdan, giyohvandlik yoki toksik modda taʼsiridan mastlik holatida ishga kelganida yoki ishda boʻlganida;\nmehnatni muhofaza qilish sohasida oʻquvdan hamda bilim va koʻnikmalari tekshiruvdan oʻtmaganda;\nmajburiy tibbiy koʻrikdan oʻtmaganda;\nxodim tomonidan mehnat shartnomasida shart qilib koʻrsatilgan ishni bajarish uchun tibbiy xulosaga muvofiq qarshi koʻrsatmalar aniqlanganda;\ntibbiy xulosaga muvofiq sogʻligʻining holatiga koʻra toʻrt oygacha muddatga vaqtincha boshqa ishga oʻtkazishga muhtoj boʻlgan xodimni oʻtkazish rad etilganda yoxud ish beruvchida ish mavjud emasligi munosabati bilan bunday xodimga tegishli ishni taklif etish mumkin boʻlmaganda;\nxodim mehnat toʻgʻrisidagi qonunchilikka yoki mehnatni muhofaza qilish qoidalariga muvofiq foydalanilishi shart boʻlgan shaxsiy va (yoki) jamoaviy himoya vositalaridan foydalanmaganda.\nXodim karantinli va odam uchun xavfli boʻlgan boshqa yuqumli kasalliklar tarqalishi tahdidi mavjud boʻlganda Oʻzbekiston Respublikasi Bosh davlat sanitariya vrachining qarori asosida qonunchilikda belgilangan tartibda joriy etiladigan profilaktik emlashdan oʻtishni rad etgan taqdirda (sogʻligʻining holatiga koʻra qarshi koʻrsatmalar mavjud boʻlmaganda) ish beruvchi uni ishdan chetlashtirishga haqli.\nXizmat tekshiruvi oʻtkazilgan taqdirda ham, agar muayyan xodimning ishda boʻlishi xizmat tekshiruvini oʻtkazishga xalaqit beradi deb taxmin qilish uchun asosli sabablar mavjud boʻlsa, ish beruvchi xodimni ishdan chetlashtirishga haqli.\nIsh beruvchi xodimni ishdan chetlashtirish uchun asos boʻlgan holatlar bartaraf etilguniga qadar butun davrga uni ishdan chetlashtiradi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6261331",
+  "teglar": [
+   "mehnat",
+   "ishdan chetlashtirish",
+   "chetlatish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-165",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "165-modda",
+  "sarlavha": "165-modda. Mehnat shartnomasini ish beruvchining tashabbusiga koʻra bekor qilish toʻgʻrisida ogohlantirish",
+  "matn": "Ish beruvchi oʻzining mehnat shartnomasini bekor qilish niyati haqida xodimni quyidagi muddatlarda yozma shaklda (imzo qoʻydirib) ogohlantirishi shart:\n1) mehnat shartnomasi:\ntashkilot (uning alohida boʻlinmasi) oʻz muassislarining (ishtirokchilarining) yoxud taʼsis hujjatlari bilan bunga vakolat berilgan yuridik shaxs organining qaroriga binoan tugatilganligi;\ntexnologiyaning, ishlab chiqarish va mehnatni tashkil etishning oʻzgarishiga, ishlar (mahsulot, xizmatlar) hajmining qisqarishiga bogʻliq boʻlgan tashkilot xodimlarining soni yoki shtati oʻzgarganligi;\ntashkilot rahbariga, uning oʻrinbosarlariga, bosh buxgalterga va tashkilotning alohida boʻlinmasi rahbariga nisbatan tashkilot mulkdorining oʻzgarganligi munosabati bilan bekor qilinganda kamida ikki oy oldin;\n2) mehnat shartnomasi xodimning malakasi yetarli boʻlmaganligi tufayli bajarayotgan ishiga muvofiq emasligi munosabati bilan bekor qilinganda kamida ikki hafta oldin;\n3) mehnat shartnomasi xodimning aybli harakatlari (harakatsizligi) munosabati bilan bekor qilinganda kamida uch kun oldin.\nXodimni mehnat shartnomasini ish beruvchining tashabbusiga koʻra kelgusida bekor qilish toʻgʻrisida ogohlantirishning ushbu moddaning birinchi qismida nazarda tutilgan muddatlari barcha hollarda qoʻllaniladi, bundan ushbu Kodeksning VI boʻlimida ayrim toifadagi xodimlarga nisbatan boshqa ogohlantirish muddatlari belgilangan hollar mustasno.\nIsh beruvchi ushbu moddaning birinchi qismida nazarda tutilgan xodimni ogohlantirish muddatlarini ogohlantirish muddatining davomiyligiga muvofiq keladigan pulli kompensatsiya bilan almashtirishga haqlidir. Xodimga ogohlantirish muddatiga mutanosib pulli kompensatsiya toʻlash ish beruvchini qonunchilikda nazarda tutilgan boshqa toʻlovlarni amalga oshirish majburiyatidan, shuningdek oʻzga toʻlovlarni, agar ular mehnat haqidagi boshqa huquqiy hujjatlarda yoki mehnat shartnomasida nazarda tutilgan boʻlsa, amalga oshirishdan ozod etmaydi.\nXodimni ogohlantirish muddati ichida, bundan mehnatga oid munosabatlarni uning aybli harakatlari (harakatsizligi) munosabati bilan tugatish toʻgʻrisidagi ogohlantirish mustasno, xodimga boshqa ish qidirish uchun haftada kamida bir kun shu vaqt uchun ish haqi saqlangan holda ishga chiqmaslik huquqi beriladi.\nXodimni ogohlantirish muddatiga xodimning vaqtincha mehnatga qobiliyatsizlik davrlari, shuningdek uning davlat yoki jamoat majburiyatlarini bajargan vaqti kiritilmaydi, bundan mehnatga oid munosabatlarning tashkilot (uning alohida boʻlinmasi) tugatilganligi munosabati bilan tugatilishi mustasno.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6261634",
+  "teglar": [
+   "mehnat",
+   "ishdan bo'shatish",
+   "ogohlantirish",
+   "muddat"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-168",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "168-modda",
+  "sarlavha": "168-modda. Mehnat shartnomasini taraflarning xohish-irodasiga bogʻliq boʻlmagan holatlarga koʻra bekor qilish",
+  "matn": "Mehnat shartnomasini taraflarning xohish-irodasiga bogʻliq boʻlmagan holatlarga koʻra bekor qilish asoslari quyidagilardan iborat:\n1) xodimning harbiy yoki muqobil xizmatga chaqirilganligi;\n2) shu ishni ilgari bajarib kelgan xodimning avvalgi ishga tiklanganligi;\n3) xodim sudning qaysi hukmi bilan avvalgi ishini davom ettirish imkoniyatini istisno etadigan jazoga hukm qilingan boʻlsa, oʻsha sud hukmining qonuniy kuchga kirganligi, shuningdek sudning qaroriga binoan xodimning ixtisoslashtirilgan davolash-profilaktika muassasasiga yuborilganligi;\n4) ishga qabul qilishga doir belgilangan qoidalarning buzilganligi, agar yoʻl qoʻyilgan qoidabuzarlikni bartaraf etish imkoni boʻlmasa va u ishni davom ettirishga toʻsqinlik qilsa;\n5) qonunchilikka muvofiq mehnatga oid munosabatlarni davom ettirishga monelik qiladigan holatlar yuzaga kelganligi (xodimning belgilangan tartibda berilgan tibbiy xulosaga muvofiq mehnat faoliyatiga toʻliq qobiliyatsiz deb eʼtirof etilganligi, shuningdek davlat sirlaridan foydalanish huquqi bekor qilinganligi, agar bajarilayotgan ish shunday foydalanish huquqini talab qilsa, muayyan ishni bajarishga doir ruxsatnomadan yoki litsenziyadan mahrum etilganligi va boshqalar);\n6) tashkilotni tugatish yoki ish beruvchi boʻlgan yakka tartibdagi tadbirkor faoliyatini tugatish toʻgʻrisidagi sud qarorining qonuniy kuchga kirganligi;\n7) xodimni ishga tiklash haqidagi sud qarori bekor qilinganligi yoki Oʻzbekiston Respublikasi Kambagʻallikni qisqartirish va bandlik vazirligi Davlat mehnat inspeksiyasining qarori bekor qilinganligi (qonunga xilof deb eʼtirof etilganligi);\n8) xodim vafot etganligi, shuningdek sud tomonidan xodimning bedarak yoʻqolgan deb eʼtirof etilganligi yoki vafot etgan deb eʼlon qilinganligi;\n9) Oʻzbekiston Respublikasi Oliy Majlisi Qonunchilik palatasi deputatining, shuningdek Oʻzbekiston Respublikasi Oliy Majlisi Senatida doimiy asosda ishlagan Senat aʼzosining vakolatlari muddati tugaganligi yoki Oʻzbekiston Respublikasi Oliy Majlisining Qonunchilik palatasi va Senati tarqatib yuborilganligi munosabati bilan avvalgi lavozimiga (ishiga) qaytganligi;\n10) qonunda nazarda tutilgan boshqa hollar.\nMehnat shartnomasi quyidagi hollarda bekor qilingan deb hisoblanadi:\njismoniy shaxs boʻlgan ish beruvchi vafot etganda, shuningdek jismoniy shaxs boʻlgan ish beruvchi sud tomonidan vafot etgan yoki bedarak yoʻqolgan deb eʼtirof etilganda;\nxodim yoki jismoniy shaxs boʻlgan ish beruvchi sud tomonidan muomalaga layoqatsiz yoki muomala layoqati cheklangan deb eʼtirof etilganda, agar bu jismoniy shaxsning ish beruvchining vazifalarini bajarish, xodimning esa avvalgi ishini davom ettirish imkoniyatini istisno etadigan boʻlsa.\nIsh beruvchi ushbu moddaning birinchi qismining 6-bandida nazarda tutilgan asos boʻyicha xodimni mehnat shartnomasi bekor qilinganligi toʻgʻrisida kamida ikki oy oldin yozma ravishda (imzo qoʻydirib) ogohlantirishi yoki xodimga ogohlantirish muddatining davomiyligiga mos keladigan pul kompensatsiyasini toʻlashi shart.\nAgar xodimning yozma roziligi bilan uni ish beruvchida mavjud boʻlgan boshqa ishga oʻtkazish mumkin boʻlmasa, mehnat shartnomasini ushbu modda birinchi qismining 2 va 9-bandlarida nazarda tutilgan asoslar boʻyicha bekor qilishga yoʻl qoʻyiladi.\nAgar ish beruvchi tomonidan xodimning yozma roziligi bilan uni ish beruvchida mavjud boʻlgan boshqa ishga oʻtkazish boʻyicha choralar koʻrilgan, lekin xodim bunday oʻtkazishni rad etgan boʻlsa, ishga qabul qilishning belgilangan qoidalari xodimning aybisiz buzilgan hollarda mehnat shartnomasini ushbu modda birinchi qismining 4-bandida nazarda tutilgan asoslar boʻyicha bekor qilishga yoʻl qoʻyiladi.\nAgar ish beruvchi tomonidan xodimning yozma roziligi bilan uni ish beruvchida mavjud boʻlgan boshqa ishga oʻtkazish boʻyicha choralar koʻrilgan, lekin xodim bunday oʻtkazishni rad etgan boʻlsa, mehnatga oid munosabatlarni davom ettirishga toʻsqinlik qiluvchi holatlar xodimning aybisiz yuzaga kelgan hollarda (bundan xodimni tibbiy xulosaga muvofiq mehnat faoliyatiga toʻliq layoqatsiz deb eʼtirof etish mustasno) mehnat shartnomasini ushbu modda birinchi qismining 5-bandida nazarda tutilgan asoslar boʻyicha bekor qilishga yoʻl qoʻyiladi.\nXodimni ushbu moddaning toʻrtinchi, beshinchi va oltinchi qismlarida nazarda tutilgan boshqa ishga oʻtkazish ushbu Kodeksning 144-moddasiga muvofiq amalga oshiriladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6261674",
+  "teglar": [
+   "mehnat",
+   "ishdan bo'shatish",
+   "chaqiruv",
+   "holatlar",
+   "shartnoma bekor"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-174",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "174-modda",
+  "sarlavha": "174-modda. Mehnat shartnomasini qonunga xilof ravishda bekor qilishning huquqiy oqibatlari",
+  "matn": "Oʻzi bilan mehnat shartnomasi qonunga xilof ravishda bekor qilingan deb hisoblaydigan xodim bevosita ish beruvchiga murojaat qilishi yoki mehnat shartnomasining bekor qilinishi ustidan belgilangan tartibda, shu jumladan sud tartibida ham shikoyat qilishi mumkin.\nOʻzi bilan mehnat shartnomasi qonunga xilof ravishda bekor qilingan xodimning unga avvalgi ishini taqdim etish hamda oʻziga yetkazilgan moddiy zararning oʻrnini qoplash va maʼnaviy ziyonni (agar mehnat shartnomasi qonunga xilof ravishda bekor qilinganligi natijasida xodimga maʼnaviy yoki jismoniy azoblar yetkazilgan boʻlsa) kompensatsiya qilish toʻgʻrisidagi talablari qanoatlantirilishi lozim.\nXodim bilan mehnat shartnomasi bekor qilinganligini qonunga xilof deb eʼtirof etgan ish beruvchi xodimni avvalgi ishiga (lavozimiga) tiklashi hamda xodimning oʻziga yetkazilgan moddiy zararning oʻrnini qoplash va maʼnaviy ziyonni kompensatsiya qilish toʻgʻrisidagi talablarini qanoatlantirishi shart. Bunday holda xodimga tegishli boʻlgan moddiy zararning oʻrnini qoplash va maʼnaviy ziyonni kompensatsiya qilish miqdori toʻgʻrisidagi masala xodim va ish beruvchi oʻrtasidagi kelishuvga koʻra hal etiladi. Bunda xodimga moddiy zararning oʻrnini qoplash ushbu Kodeksda nazarda tutilgan miqdordan kam boʻlishi mumkin emas. Agar mehnat shartnomasining taraflari xodimga moddiy zararning oʻrnini qoplash va (yoki) maʼnaviy ziyonni kompensatsiya qilish miqdori haqida kelishuvga erisha olmagan boʻlsa, ish beruvchi xodimga shak-shubhasiz tegadigan summani toʻlashi shart, yakka tartibdagi mehnat nizosi esa ushbu Kodeksning VII boʻlimida nazarda tutilgan tartibda mediatsiya tartib-taomilidan foydalangan holda yoki sudda hal etiladi (tartibga solinadi).\nXodim bilan mehnat shartnomasi taraflarning ixtiyoriga bogʻliq boʻlmagan holatlarga koʻra, davlat organlarining gʻayriqonuniy qarorlari, ular mansabdor shaxslarining harakatlari (harakatsizligi) natijasida, shu jumladan xodimning qonunga xilof ravishda hukm qilinishi natijasida bekor qilingan taqdirda, unga yetkazilgan moddiy zararning oʻrnini qoplash va maʼnaviy ziyonni kompensatsiya qilish qonunchilikda belgilangan tartibda amalga oshiriladi.\nMehnat shartnomasi qonunga xilof ravishda bekor qilinganligi oqibatida xodimga yetkazilgan moddiy zararning oʻrnini qoplash:\nmajburiy progul vaqti uchun haqni majburiy ravishda toʻlashdan;\nmehnat shartnomasi bekor qilinganligi ustidan shikoyat qilish bilan bogʻliq qoʻshimcha xarajatlarni (mutaxassislarning maslahatlari, ish yuritishga doir xarajatlar va boshqalar) kompensatsiya qilishdan iborat.\nMaʼnaviy ziyonni kompensatsiya qilish miqdori ish beruvchining harakatlarini baholashni hisobga olgan holda sud tomonidan belgilanadi, lekin bu miqdor xodimning oʻrtacha oylik ish haqidan kam boʻlishi mumkin emas.\nSud ishga tiklash oʻrniga xodimning iltimosiga koʻra uning foydasiga uch oylik ish haqidan kam boʻlmagan miqdorda qoʻshimcha tovon (ushbu moddaning toʻrtinchi qismida nazarda tutilganidan tashqari) undirishi mumkin.\nNizolarni koʻrib chiqish chogʻida mehnat shartnomasi bekor qilinishining qonuniyligini isbotlash vazifasi ish beruvchining zimmasiga yuklatiladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6261768",
+  "teglar": [
+   "mehnat",
+   "noqonuniy ishdan bo'shatish",
+   "ishga tiklash",
+   "kompensatsiya"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-227",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "227-modda",
+  "sarlavha": "227-modda. Birinchi ish yili uchun har yilgi mehnat taʼtilini berish tartibi",
+  "matn": "Birinchi ish yili uchun har yilgi mehnat taʼtilidan foydalanish huquqi xodimda u ushbu ish beruvchida uzluksiz ishlagan olti oy oʻtganidan keyin yuzaga keladi. Mehnat shartnomasi taraflarining kelishuviga koʻra xodimga ishlagan olti oy oʻtguniga qadar ham mehnat taʼtili berilishi mumkin.\nBirinchi bor tashkil etilgan tashkilotlar uchun xodimlarga birinchi ish yili uchun har yilgi mehnat taʼtili birinchi ish yili tugaguniga qadar ushbu taʼtilni berish sharti bilan olti oy ishlamasidan ilgari yoki undan keyin berilishi mumkin.\nOlti oy oʻtguniga qadar xodimning xohishiga koʻra quyidagilarga har yilgi mehnat taʼtili beriladi:\nayollarga — homiladorlik va tugʻish taʼtilidan oldin yoki undan keyin;\noʻn toʻrt yoshga toʻlmagan bitta yoki undan ortiq bolani (oʻn olti yoshga toʻlmagan nogironligi boʻlgan bolani) tarbiyalayotgan shaxslarga (yolgʻiz ota-onaga, shu jumladan beva ayollarga, beva erkaklarga, nikohdan ajralganlarga, muddatli harbiy xizmatdagi harbiy xizmatchilarning xotinlariga, ota-onaning oʻrnini bosuvchi shaxslarga);\noʻn sakkiz yoshdan kichik boʻlgan shaxslarga;\nrezervga boʻshatilganidan keyin uch oydan kechiktirmay ishga kirgan muddatli harbiy xizmatni oʻtagan sobiq harbiy xizmatchilarga;\n1941 — 1945-yillardagi urush qatnashchilariga va imtiyozlari boʻyicha ularga tenglashtirilgan shaxslarga;\nI va II guruh nogironligi boʻlgan xodimlarga;\nishdan ajralmagan holda taʼlim tashkilotlarida oʻqiyotganlarga, agar ular oʻzining har yilgi mehnat taʼtilini imtihonlar, sinovlar (zachyotlar) topshirish, bitiruv malakaviy ishlarini, magistrlik dissertatsiyalarini, kurs, laboratoriya ishlarini va boshqa oʻquv ishlarini bajarish vaqtiga toʻgʻrilab olishni xohlasa;\njamoa kelishuvlarida, shuningdek jamoa shartnomasida yoxud ichki hujjatlarda belgilangan boshqa hollarda boshqa xodimlarga.\nUshbu moddaning birinchi, ikkinchi va uchinchi qismlarida nazarda tutilgan hollarda har yilgi mehnat taʼtili toʻliq davomiylikda va toʻliq haq toʻlangan holda beriladi.\nOlti oydan kam ishlagan oʻrindoshlarga birinchi ish yili uchun har yilgi mehnat taʼtili ularning xohishiga koʻra asosiy ish boʻyicha har yilgi mehnat taʼtili bilan bir vaqtda oʻrindoshlik asosida ishdagi taʼtil uchun ishlab berilgan vaqtga mutanosib ravishda haq toʻlangan holda beriladi. Olti oy va undan ortiq ishlagan oʻrindoshlarga birinchi ish yili uchun oʻrindoshlik asosidagi ishda beriladigan har yilgi mehnat taʼtiliga, shuningdek ikkinchi va keyingi ish yillari uchun ushbu toifadagi xodimlarning mehnat taʼtiliga, ushbu taʼtil ish yili davomida qaysi vaqtda berilishidan qatʼi nazar, toʻliq haq toʻlanadi.\nHar yilgi mehnat taʼtili oʻquvchilarning yozgi taʼtili davrida beriladigan taʼlim tashkilotlarining oʻqituvchilar tarkibiga birinchi ish yilidagi har yilgi mehnat taʼtili oʻquvchilarning yozgi taʼtili davrida toʻliq davomiylikda, ular ushbu taʼlim tashkilotiga ishga kirgan vaqtidan qatʼi nazar, ishlab bergan vaqtiga mutanosib ravishda haq toʻlangan holda beriladi. Mazkur toifadagi xodimlarga ikkinchi va keyingi ish yillari uchun beriladigan mehnat taʼtiliga, ushbu taʼtil ish yili davomida qaysi vaqtda berilishidan qatʼi nazar, toʻliq haq toʻlanadi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6263096",
+  "teglar": [
+   "mehnat",
+   "ta'til",
+   "birinchi ish yili",
+   "olti oy"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-232",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "232-modda",
+  "sarlavha": "232-modda. Xodimni har yilgi mehnat taʼtilidan chaqirib olish",
+  "matn": "Har yilgi mehnat taʼtilidan chaqirib olishga taʼtilning istalgan vaqtida faqat xodimning roziligi bilan yoʻl qoʻyiladi. Shu munosabat bilan taʼtilning foydalanilmay qolgan qismi xodimga mazkur ish yili davomida boshqa vaqtda berilishi yoki ushbu Kodeksning 230 va 231-moddalarida nazarda tutilgan talablarga rioya etilgan holda keyingi ish yilida berilishi kerak.\nOʻn sakkiz yoshga toʻlmagan xodimlarni, homilador ayollarni va mehnat sharoitlari oʻta zararli va oʻta ogʻir ishlarda band boʻlgan xodimlarni har yilgi mehnat taʼtilidan chaqirib olishga yoʻl qoʻyilmaydi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6263194",
+  "teglar": [
+   "mehnat",
+   "ta'til",
+   "chaqirib olish",
+   "rozilik"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-257",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "257-modda",
+  "sarlavha": "257-modda. Oʻrtacha ish haqi va uni hisoblab chiqarish tartibi",
+  "matn": "Ushbu Kodeksda va qonunchilikda nazarda tutilgan barcha hollar uchun oʻrtacha ish haqi u hisoblanadigan oydan oldingi oʻn ikki oyni tashkil etuvchi hisob-kitob davri yoxud agar xodim oʻn ikki oydan kam ishlagan boʻlsa, amalda ishlangan davr uchun xodimga hisoblangan ish haqidan kelib chiqqan holda belgilanadi. Bunda tegishli oyning 1-kunidan 30 (31)-kuniga qadar (fevralda — 28 (29)-kunga qadar) boʻlgan davr oxirgi kunni ham qoʻshganda kalendar oy deb hisoblanadi.\nOʻrtacha ish haqini hisoblab chiqarish uchun xodimga hisoblangan ish haqining tarkibiga soliq toʻgʻrisidagi qonunchilikda nazarda tutilgan, soliq solinishi lozim boʻlgan, ish beruvchi tomonidan haqiqatda toʻlangan mehnatga haq toʻlash tarzidagi barcha daromadlar kiritiladi.\nMehnatga haq toʻlashning barcha tizimlaridagi xodimlarning oʻrtacha ish haqi xodimning oʻrtacha ish haqi saqlanib qoladigan oydan oldingi oʻn ikki kalendar oy uchun xodimga hisoblangan mehnatga haq toʻlash tarzidagi barcha daromadlar summasining oʻn ikkidan bir qismi miqdorida belgilanadi.\nOʻrtacha ish haqi hisoblab chiqarilayotganda hisob-kitob davridan vaqt, shuningdek ushbu vaqtda hisoblangan summalar chiqarib tashlanadi, agar:\nqonunchilikka muvofiq xodimning oʻrtacha ish haqi saqlanib qolgan boʻlsa, bundan ushbu Kodeksning 407-moddasida nazarda tutilgan bolani ovqatlantirish uchun tanaffuslar mustasno;\nxodim vaqtincha mehnatga qobiliyatsizlik nafaqasini yoki homiladorlik va tugʻish nafaqasini olgan boʻlsa;\nxodim ish beruvchiga va xodimga bogʻliq boʻlmagan sabablarga koʻra bekor turib qolish munosabati bilan ishlamagan boʻlsa;\nxodimga ushbu Kodeksning 399-moddasiga muvofiq nogironligi boʻlgan bolalarni va bolalikdan nogironligi boʻlgan shaxslarni parvarishlash uchun qoʻshimcha haq toʻlanadigan dam olish kunlari berilgan boʻlsa;\nxodim qonunchilikda belgilangan boshqa hollarda ish haqi toʻliq yoki qisman saqlanadigan yoki haq toʻlanmaydigan ishdan ozod etilgan boʻlsa.\nAgar xodim hisob-kitob davri uchun va hisob-kitob davri boshlanguniga qadar haqiqatda hisoblangan ish haqiga yoki ishlab berilgan kunlarga ega boʻlmagan boʻlsa, oʻrtacha ish haqi xodim tomonidan oʻrtacha ish haqining saqlanib qolishi bilan bogʻliq boʻlgan hodisa yuz bergan oyda haqiqatda ishlab berilgan kunlar uchun hisoblangan ish haqi miqdoridan kelib chiqqan holda belgilanadi.\nAgar xodim hisob-kitob davri uchun, hisob-kitob davri boshlanguniga qadar va oʻrtacha ish haqining saqlanib qolishi bilan bogʻliq boʻlgan hodisa yuz berguniga qadar haqiqatda hisoblangan ish haqiga yoki haqiqatda ishlab berilgan kunlarga ega boʻlmagan boʻlsa, oʻrtacha ish haqi unga belgilangan tarif stavkasidan (maoshidan) kelib chiqqan holda aniqlanadi.\nAgar hisob-kitob davrining bir oyi yoki bir necha oyi toʻliq ishlab berilmagan yoki ushbu moddaning toʻrtinchi qismiga muvofiq undan vaqt chiqarib tashlangan boʻlsa, oʻrtacha kunlik ish haqi hisob-kitob davri uchun haqiqatda hisoblangan ish haqi summasini toʻliq kalendar oylar soniga hamda toʻliq boʻlmagan kalendar oylardagi kalendar kunlar soniga koʻpaytirilgan ish kunlarining oʻrtacha oylik sonining (25,3) summasiga boʻlish orqali hisoblab chiqariladi. Toʻliq boʻlmagan kalendar oydagi ish kunlarining soni ish kunlarining oʻrtacha oylik sonini (25,3) ushbu oydagi ish kunlarining haqiqiy soniga boʻlish hamda mazkur oyda ishlab berilgan vaqtga toʻgʻri keladigan ish kunlari soniga koʻpaytirish orqali hisoblab chiqiladi.\nOʻrtacha kunlik ish haqi uni hisoblab chiqarishning barcha hollarida ushbu moddaning uchinchi, toʻrtinchi va beshinchi qismlariga muvofiq hisoblab chiqarilgan oʻrtacha ish haqi summasini ish kunlarining oʻrtacha oylik soniga (25,3) boʻlish orqali belgilanadi.\nOʻrtacha soatlik ish haqi uni hisoblab chiqarishning barcha hollarida ushbu moddaning uchinchi, toʻrtinchi va beshinchi qismlariga muvofiq hisoblab chiqarilgan oʻrtacha ish haqi summasini xodimning oʻrtacha ish haqi saqlanib qoladigan oydan oldingi oxirgi kalendar oyda ishlab berilgan soatlar soniga boʻlish orqali belgilanadi.\nAlohida hollar (ish vaqti jamlab hisobga olinganda, uni hisoblab chiqarish uchun qabul qilingan davrda ish vaqti toʻliq ishlab berilmaganda, ushbu davrda ish haqi boʻlmaganda va boshqa hollarda) uchun xodimlarning oʻrtacha ish haqini hisoblab chiqarishning oʻziga xos xususiyatlari Oʻzbekiston Respublikasi Vazirlar Mahkamasi tomonidan belgilanadi.\nBarcha hollarda ish vaqtining oylik normasini ishlab bergan va mehnat shartnomasida belgilangan mehnat vazifasini bajargan xodimning oʻrtacha oylik ish haqi qonunchilikda belgilangan hisoblash kunidagi mehnatga haq toʻlashning eng kam miqdoridan kam boʻlishi mumkin emas.\nHisob-kitob davrida tariflarni qayta koʻrib chiqish chogʻida oʻrtacha oylik ish haqi oʻzgartirilgan tarifni hisobga olgan holda qayta hisob-kitob qilinishi lozim.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6263844",
+  "teglar": [
+   "mehnat",
+   "o'rtacha ish haqi",
+   "hisoblash",
+   "ta'til puli"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-263",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "263-modda",
+  "sarlavha": "263-modda. Dam olish kunlarida yoki ishlanmaydigan bayram kunlarida mehnatga haq toʻlash",
+  "matn": "Dam olish kunlaridagi yoki ishlanmaydigan bayram kunlaridagi ish uchun quyidagilarga kamida ikki hissa miqdorida haq toʻlanadi:\nishbay ishlovchilarga — kamida ikki hissali ishbay baholar boʻyicha;\nmehnatiga kunbay va soatbay tarif stavkalari boʻyicha haq toʻlanadigan xodimlarga — kunbay yoki soatbay tarif stavkasining kamida ikki hissasi miqdorida;\nmaosh oladigan xodimlarga — har bir ishlangan kun yoki soat uchun maoshdan tashqari kunbay yoki soatbay stavkasining kamida bir hissasi miqdorida.\nJamoa shartnomasida, ish beruvchi tomonidan kasaba uyushmasi qoʻmitasi bilan kelishuvga koʻra qabul qilingan ichki hujjatda, mehnat shartnomasida dam olish kunlaridagi yoki ishlanmaydigan bayram kunlaridagi ish uchun qoʻshimcha toʻlovlarning yuqoriroq miqdorlari nazarda tutilishi mumkin.\nDam olish kunidagi yoki ishlanmaydigan bayram kunidagi ish xodimning xohishiga koʻra boshqa dam olish kunini berish bilan kompensatsiya qilinishi mumkin. Dam olish kunidagi yoki ishlanmaydigan bayram kunidagi ish boshqa dam olish kunini berish bilan kompensatsiya qilingan taqdirda, bunday ish uchun haq toʻlash kamida bir hissa miqdorida amalga oshiriladi, dam olish kuni uchun esa haq toʻlanmaydi.\nAgar xodim jadvalga yoki mehnat shartnomasiga muvofiq umumiy belgilangan dam olish kunlarida (besh kunlik ish haftasida shanba yoki yakshanba kunlari yoki olti kunlik ish haftasida yakshanba kuni) mehnat qilgan boʻlsa, dam olish kunlari esa unga ish haftasining boshqa kunlarida berilgan boʻlsa, umumiy belgilangan dam olish kunlaridagi ish uchun bir hissa miqdorida haq toʻlanadi.\nIshlanmaydigan bayram kunlaridagi ish uchun, ushbu ish jadvalga binoan amalga oshirilganligidan yoki xodim mazkur Kodeksning 210-moddasiga muvofiq ishlanmaydigan bayram kuni ishga jalb etilganligidan qatʼi nazar, kamida ikki hissa miqdorida haq toʻlanadi yoxud xodimning xohishiga koʻra boshqa dam olish kunini berish va bir hissa miqdorida haq toʻlash orqali kompensatsiya qilinadi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6264054",
+  "teglar": [
+   "mehnat",
+   "dam olish kuni",
+   "bayram",
+   "ikki baravar",
+   "haq to'lash"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-270",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "270-modda",
+  "sarlavha": "270-modda. Ish haqidan ushlab qolish miqdorlarini cheklash",
+  "matn": "Har bir toʻlov chogʻida ish haqidan ushlab qolingan mablagʻlarning umumiy summasi xodimga haqiqatda hisoblangan ish haqining ellik foizidan oshishi mumkin emas.\nUshbu moddaning birinchi qismida belgilangan cheklov aliment majburiyatlari boʻyicha qarzdorlikni, shuningdek axloq tuzatish ishlari tarzida jazo tayinlangan xodimning ish haqini ushlab qolishga nisbatan tatbiq etilmaydi. Bunday hollarda jazodan va aliment majburiyatlari boʻyicha qarzdorlikdan ushlab qolish miqdori xodimga haqiqatda hisoblangan ish haqining yetmish foizidan oshishi mumkin emas.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6264112",
+  "teglar": [
+   "mehnat",
+   "ish haqi",
+   "ushlab qolish",
+   "ellik foiz"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-300",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "300-modda",
+  "sarlavha": "300-modda. Xodimning intizomiy javobgarligi",
+  "matn": "Intizomiy javobgarlik xodim tomonidan intizomiy qilmish (ushbu Kodeks 301-moddasining ikkinchi qismi) sodir etilganligi uchun yuzaga keladigan va ushbu xodimga nisbatan intizomiy jazo chorasi qoʻllanilishida ifodalanadigan yuridik javobgarlikdir.\nIntizomiy javobgarlikning turlari umumiy va maxsus intizomiy javobgarlikdan iboratdir.\nUmumiy intizomiy javobgarlik ushbu Kodeks va ichki mehnat tartibi qoidalari bilan tartibga solinadigan javobgarlik boʻlib, u xodimga nisbatan ushbu Kodeksning 312-moddasida nazarda tutilgan intizomiy jazo choralaridan birini qoʻllashdan iborat va barcha xodimlarga nisbatan tatbiq etiladi, bundan oʻzi uchun maxsus intizomiy javobgarlik belgilangan shaxslar mustasno.\nMaxsus intizomiy javobgarlik xodimlarning faqat alohida toifalari uchun qonunda, shuningdek intizom toʻgʻrisidagi ustavlar va nizomlarda nazarda tutilgan hamda xodimga nisbatan tegishli qonunda, intizom haqidagi ustavda va nizomda nazarda tutilgan intizomiy choralarni qoʻllashdan iborat javobgarlikdir.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6264616",
+  "teglar": [
+   "mehnat",
+   "intizomiy javobgarlik",
+   "hayfsan",
+   "jazo"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-333",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "333-modda",
+  "sarlavha": "333-modda. Xodimga ish haqi toʻlashni va unga toʻlanishi lozim boʻlgan boshqa toʻlovlarni kechiktirganlik uchun ish beruvchining moddiy javobgarligi",
+  "matn": "Ish beruvchi ish haqini, taʼtil toʻlovlarini, mehnat shartnomasi bekor qilingandagi toʻlovlarni va (yoki) xodimga toʻlanishi lozim boʻlgan boshqa toʻlovlarni toʻlash muddatini buzgan taqdirda, ularni toʻlov muddatidan keyingi kundan eʼtiboran to haqiqatda hisob-kitob qilingan kunni oʻz ichiga olgan muddatgacha har bir kechiktirilgan kun uchun Oʻzbekiston Respublikasi Markaziy bankining oʻsha vaqtda amalda boʻlgan qayta moliyalashtirish stavkasidan kelib chiqqan holda foizlar (pulli kompensatsiya) bilan birga toʻlashi shart.\nXodimga toʻlanishi lozim boʻlgan pulli kompensatsiyaning miqdori Oʻzbekiston Respublikasi Markaziy banki qayta moliyalash stavkasining oʻn foizi miqdorida belgilanadi.\nUshbu moddaning ikkinchi qismida belgilangan, xodimga toʻlanadigan pulli kompensatsiyaning miqdori jamoa shartnomasi, ichki hujjat yoki mehnat shartnomasi bilan oshirilishi mumkin. Mazkur pulli kompensatsiyani toʻlash majburiyati ish beruvchining oylik ish haqini yoki xodimga toʻlanishi lozim boʻlgan boshqa toʻlovlarni toʻlashning kechiktirilishida aybi bor-yoʻqligidan qatʼi nazar yuzaga keladi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6265195",
+  "teglar": [
+   "mehnat",
+   "ish haqi kechikishi",
+   "javobgarlik",
+   "penya",
+   "to'lov"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-404",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "404-modda",
+  "sarlavha": "404-modda. Homiladorlik va tugʻish taʼtili",
+  "matn": "Ayolga tugʻruqqacha yetmish kalendar kun hamda tugʻruqdan keyin ellik olti kalendar kun (tugʻish qiyin kechgan yoxud ikki yoki undan ortiq bola tugʻilgan taqdirda yetmish kalendar kun) homiladorlik va tugʻish taʼtili berilib, qonunchilikda belgilangan, lekin oʻrtacha oylik ish haqining yetmish besh foizidan kam boʻlmagan miqdorda nafaqa toʻlanadi.\nHomiladorlik va tugʻish taʼtili ayolga jamlangan holda hisoblab chiqarilib, tugʻruqqacha haqiqatda foydalanilgan kunlar sonidan qatʼi nazar, toʻliq beriladi.\nHomiladorlik va tugʻish nafaqasini tayinlash hamda toʻlash tartibi Oʻzbekiston Respublikasi Vazirlar Mahkamasi tomonidan belgilanadi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6266498",
+  "teglar": [
+   "mehnat",
+   "homiladorlik",
+   "tug'ish ta'tili",
+   "dekret",
+   "ayollar"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "mehnat-405",
+  "qonun_nomi": "O'zbekiston Respublikasining Mehnat kodeksi",
+  "modda_raqami": "405-modda",
+  "sarlavha": "405-modda. Bolani ikki va uch yoshga toʻlguniga qadar parvarishlash taʼtillari",
+  "matn": "Homiladorlik va tugʻish taʼtili tugaganidan keyin, ayolning xohishiga koʻra, unga bolasi ikki yoshga toʻlguniga qadar bolani parvarishlash taʼtili berilib, bu davr uchun Oʻzbekiston Respublikasi Vazirlar Mahkamasi tomonidan belgilanadigan tartibda nafaqa toʻlanadi.\nAyolga uning xohishiga koʻra, bolasi uch yoshga toʻlguniga qadar uni parvarishlash uchun ish haqi saqlanmagan holda qoʻshimcha taʼtil ham beriladi.\nUshbu moddaning birinchi va ikkinchi qismlarida koʻrsatilgan bolani parvarishlash taʼtillaridan bolaning otasi, buvisi, buvasi yoki bolani haqiqatda parvarishlayotgan boshqa qarindoshlari ham, shuningdek vasiysi ham toʻliq yoki qismlarga boʻlib foydalanishi mumkin.\nAyol yoki ushbu moddaning uchinchi qismida koʻrsatilgan shaxslar xohishiga koʻra, bolani parvarishlash taʼtili vaqtida toʻliqsiz ish vaqti shartlari asosida yoki ish beruvchi bilan kelishuv boʻyicha uyda ishlashi mumkin. Bunda ushbu moddaning birinchi qismiga muvofiq ularning nafaqa olish huquqi saqlab qolinadi.\nBolani parvarishlash taʼtillari davrida xodimning ish joyi (lavozimi) saqlanadi. Bu taʼtillarning koʻpi bilan olti yili mehnat stajiga qoʻshiladi, shu jumladan mutaxassisligi boʻyicha ish stajiga ham qoʻshib hisoblanadi.\nKelgusidagi yillik mehnat taʼtilini olish huquqini beruvchi ish stajiga, agar jamoa shartnomasida, shuningdek tashkilotning ichki hujjatida yoxud mehnat shartnomasida boshqacha tartib nazarda tutilmagan boʻlsa, bolani parvarishlash taʼtillari vaqti kiritilmaydi.",
+  "lex_url": "https://lex.uz/acts/-6257288#-6266505",
+  "teglar": [
+   "mehnat",
+   "bola parvarishi",
+   "ta'til",
+   "uch yosh",
+   "dekret"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-13",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "13-modda",
+  "sarlavha": "13-modda. Nikoh tuzish tartibi",
+  "matn": "Nikoh fuqarolik holati dalolatnomalarini qayd etish organlarida tuziladi.\nDiniy rasm-rusumlarga binoan tuzilgan nikoh huquqiy ahamiyatga ega emas.\nNikoh tuzish nikohlanuvchilarning fuqarolik holati dalolatnomalarini qayd etish organlariga ariza berganlaridan keyin bir oy oʻtgach, shaxsan ularning ishtirokida amalga oshiriladi.\nUzrli sabablar boʻlganda fuqarolik holati dalolatnomalarini qayd etish organi bir oy oʻtgunga qadar nikoh tuzishga ruxsat berishi mumkin.\nAlohida hollar (homiladorlik, bola tugʻilishi, bir tarafning kasalligi va boshqalar)da nikoh ariza berilgan kuni tuzilishi mumkin.\nNikoh tuzish fuqarolik holati dalolatnomalarini davlat roʻyxatidan oʻtkazish uchun belgilangan tartibda amalga oshiriladi.\nFuqarolik holati dalolatnomalarini qayd etish organi nikohni roʻyxatga olishni rad etganda, shikoyat bilan bevosita sudga yoki boʻysunishiga koʻra yuqori turuvchi organga murojaat qilinishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-104720#-158603",
+  "teglar": [
+   "oila",
+   "nikoh",
+   "turmush qurish",
+   "FHDYo",
+   "bir oy"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-15",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "15-modda",
+  "sarlavha": "15-modda. Nikoh yoshi",
+  "matn": "Nikoh yoshi erkaklar va ayollar uchun oʻn sakkiz yosh etib belgilanadi.\nUzrli sabablar boʻlganida, alohida hollarda (homiladorlik, bola tugʻilishi, voyaga yetmagan shaxsning toʻla muomalaga layoqatli deb eʼlon qilinishi (emansipatsiya), nikohga kirishni xohlovchilarning iltimosiga koʻra nikoh davlat roʻyxatidan oʻtkaziladigan joydagi tuman, shahar hokimi nikoh yoshini koʻpi bilan bir yilga kamaytirishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-104720#-158633",
+  "teglar": [
+   "oila",
+   "nikoh yoshi",
+   "o'n sakkiz yosh"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-16",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "16-modda",
+  "sarlavha": "16-modda. Nikoh tuzishga monelik qiladigan holatlar",
+  "matn": "Nikoh tuzishga:\nloaqal bittasi roʻyxatga olingan boshqa nikohda turgan shaxslar oʻrtasida;\nnasl-nasab shajarasi boʻyicha toʻgʻri tutashgan qarindoshlar oʻrtasida, tugʻishgan va oʻgay aka-ukalar bilan opa-singillar oʻrtasida, shuningdek farzandlikka oluvchilar bilan farzandlikka olinganlar oʻrtasida;\nloaqal bittasi ruhiyat buzilishi (ruhiy kasalligi yoki aqli zaifligi) sababli sud tomonidan muomalaga layoqatsiz deb topilgan shaxslar oʻrtasida yoʻl qoʻyilmaydi.",
+  "lex_url": "https://lex.uz/acts/-104720#-158639",
+  "teglar": [
+   "oila",
+   "nikoh",
+   "monelik",
+   "taqiq",
+   "qarindosh"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-31",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "31-modda",
+  "sarlavha": "31-modda. Nikoh shartnomasining mazmuni",
+  "matn": "Er va xotin nikoh shartnomasiga koʻra birgalikdagi umumiy mulkning qonunda belgilangan (ushbu Kodeksning 23-moddasi) tartibini oʻzgartirishga, er va xotinning barcha mol-mulkiga, uning ayrim turlariga yoxud er va xotindan har birining mol-mulkiga nisbatan birgalikdagi, ulushli yoki alohida egalik qilish tartibini oʻrnatishga haqlidir.\nNikoh shartnomasi er va xotinning mavjud mol-mulkiga nisbatan ham, boʻlgʻusi mol-mulkiga nisbatan ham tuzilishi mumkin.\nEr va xotin nikoh shartnomasida oʻzaro moddiy taʼminot berish, oila xarajatlarini koʻtarish, bir-birining daromadida ishtirok etish, boshqa shaxslar bilan mulkiy shartnomalar tuzish, birgalikda tadbirkorlik faoliyati bilan shugʻullanish boʻyicha oʻz huquq va majburiyatlarini belgilab olishga, nikohdan ajralganda er va xotindan har biriga beriladigan mulkni aniqlab olishga, shuningdek nikoh shartnomasiga er va xotinning mulkiy munosabatlariga oid boshqa qoidalar kiritishga haqli.\nNikoh shartnomasida nazarda tutilgan huquq va majburiyatlar muayyan muddat bilan cheklanishi yoki muayyan shart-sharoitning yuzaga kelishi yoxud kelmasligiga bogʻliq qilib qoʻyilishi mumkin.\nNikoh shartnomasi er-xotinning huquq layoqati yoki muomala layoqatini, ularning oʻz huquqlarini himoya qilish uchun sudga murojaat qilish huquqlarini cheklashni, er-xotin oʻrtasidagi shaxsiy nomulkiy munosabatlarni, er-xotinning bolalarga nisbatan boʻlgan huquq va majburiyatlarini tartibga solishni, mehnatga layoqatsiz taʼminot olishga muhtoj er yoki xotinning huquqini cheklovchi qoidalarni, er va xotindan birini oʻta noqulay holatga solib qoʻyuvchi yoxud oila toʻgʻrisidagi qonunchilikning normalariga zid keluvchi boshqa shartlarni nazarda tuta olmaydi.",
+  "lex_url": "https://lex.uz/acts/-104720#-158783",
+  "teglar": [
+   "oila",
+   "nikoh shartnomasi",
+   "mol-mulk",
+   "mazmun"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-38",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "38-modda",
+  "sarlavha": "38-modda. Nikohdan ajratish tartibi",
+  "matn": "Nikohdan ajratish sud tartibida, ushbu Kodeksning 42 va 43-moddalarida nazarda tutilgan hollarda esa, fuqarolik holati dalolatnomalarini qayd etish organlarida amalga oshiriladi.",
+  "lex_url": "https://lex.uz/acts/-104720#-158836",
+  "teglar": [
+   "oila",
+   "ajralish",
+   "nikohdan ajratish",
+   "tartib",
+   "sud",
+   "FHDYo"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-40",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "40-modda",
+  "sarlavha": "40-modda. Nikohdan sud tartibida ajratish",
+  "matn": "Nikohdan ajratish toʻgʻrisidagi ishlar sud tomonidan Oʻzbekiston Respublikasi Fuqarolik protsessual kodeksida daʼvo ishlarini hal qilish uchun belgilangan tartibda koʻrib chiqiladi.\nSud ishning koʻrilishini keyinga qoldirib, er-xotinga yarashish uchun olti oygacha muhlat tayinlashga haqli.\nSud er-xotinga yarashish uchun muhlat tayinlab, ishning koʻrilishini keyinga qoldirgan taqdirda, er-xotinning birga yashash joyidagi fuqarolar yigʻinining yarashtirish komissiyasini, agar ular birga yashamayotgan boʻlsa, har birining yashash joyidagi fuqarolar yigʻinining yarashtirish komissiyasini er-xotinni yarashtirish boʻyicha tegishli choralar koʻrish uchun uch kundan kechiktirmasdan yozma ravishda xabardor qilishi kerak.\nSud oilaviy (maishiy) zoʻravonlikdan jabrlangan shaxsning talabiga koʻra yarashish uchun muhlat tayinlamaydi.",
+  "lex_url": "https://lex.uz/acts/-104720#-158840",
+  "teglar": [
+   "oila",
+   "ajralish",
+   "sud tartibida",
+   "yarashtirish",
+   "nizoli"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-100",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "100-modda",
+  "sarlavha": "100-modda. Ota-onaning voyaga yetgan bolalariga aliment toʻlashi",
+  "matn": "Ota-ona voyaga yetgan mehnatga layoqatsiz, yordamga muhtoj bolalariga taʼminot berishi shartdir.\nVoyaga yetgan mehnatga layoqatsiz, yordamga muhtoj bolalariga taʼminot berish ota-onaning kelishuviga binoan amalga oshiriladi. Ota-ona oʻrtasida bunday kelishuvga erishilmagan taqdirda nizo sud tartibida hal qilinadi.",
+  "lex_url": "https://lex.uz/acts/-104720#-159210",
+  "teglar": [
+   "oila",
+   "aliment",
+   "voyaga yetgan",
+   "mehnatga layoqatsiz",
+   "bolalar"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-102",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "102-modda",
+  "sarlavha": "102-modda. Ota-onadan bolalarga undiriladigan aliment miqdorini aniqlash tartibi",
+  "matn": "Ota-onadan bolalarga undiriladigan aliment miqdori aliment toʻlovchining oylik ish haqiga va (yoki) boshqa daromadiga nisbatan ulushlar hisobida yoki pul bilan toʻlanadigan qatʼiy summada belgilanishi mumkin.\nAliment toʻlashi shart boʻlgan ota-onaning ish haqi va (yoki) boshqa daromadi doimo bir xilda boʻlmay, oʻzgarib tursa yoxud daromadining bir qismini natura tarzida oladigan boʻlsa, shuningdek daromaddan ulush tarzida aliment undirish imkoniyati boʻlmasa yoinki ota-ona rasman belgilangan ish haqi yoki daromadga ega boʻlmasa, voyaga yetmagan bolalarning taʼminoti uchun toʻlanishi lozim boʻlgan aliment miqdori har oyda pul bilan toʻlanadigan qatʼiy summada belgilanishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-104720#-159222",
+  "teglar": [
+   "oila",
+   "aliment",
+   "miqdor",
+   "aniqlash",
+   "undirish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-104",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "104-modda",
+  "sarlavha": "104-modda. Aliment undirishda hisobga olinadigan daromadlar",
+  "matn": "Aliment Oʻzbekiston Respublikasi hududida va uning tashqarisida pul yoki natura tarzida olingan barcha turdagi daromadlardan ushlab qolinadi.\nChet el valyutasida olinadigan daromadlar aliment undiriladigan kunda amalda boʻlgan Oʻzbekiston Respublikasi Markaziy bankining rasmiy kursi boʻyicha soʻmlarda hisoblanadi.",
+  "lex_url": "https://lex.uz/acts/-104720#-159234",
+  "teglar": [
+   "oila",
+   "aliment",
+   "daromad",
+   "hisobga olish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-109",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "109-modda",
+  "sarlavha": "109-modda. Voyaga yetgan, mehnatga layoqatli bolalarning ota-onasiga taʼminot berish majburiyati",
+  "matn": "Voyaga yetgan, mehnatga layoqatli bolalar mehnatga layoqatsiz, yordamga muhtoj oʻz ota-onasiga taʼminot berishlari va ular toʻgʻrisida gʻamxoʻrlik qilishlari shart.\nOta-onasining davlat va nodavlat muassasalari qaramogʻida ekanligi voyaga yetgan mehnatga layoqatli bolalarni ota-ona haqida gʻamxoʻrlik qilish va ularga moddiy yordam koʻrsatish majburiyatidan ozod qilmaydi.",
+  "lex_url": "https://lex.uz/acts/-104720#-159255",
+  "teglar": [
+   "oila",
+   "aliment",
+   "ota-onaga ta'minot",
+   "keksa",
+   "farzand majburiyati"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-117",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "117-modda",
+  "sarlavha": "117-modda. Er-xotinning bir-biriga taʼminot berish majburiyatlari",
+  "matn": "Er-xotin bir-biriga moddiy yordam berishi shart. Bunday yordam berishdan bosh tortilgan taqdirda, yordamga muhtoj, mehnatga layoqatsiz er yoki xotin, shuningdek xotin homiladorlik davrida va oʻrtada bola tugʻilgan kundan eʼtiboran uch yil davomida, oʻrtadagi nogironligi boʻlgan bolani u oʻn sakkiz yoshga toʻlguniga qadar parvarishlashni yoki bolalikdan I guruh nogironligi boʻlgan oʻrtadagi bolani parvarishlashni amalga oshirgan, yordamga muhtoj boʻlgan er (xotin) yordam berishga qodir boʻlgan xotindan (erdan) sud tartibida taʼminot (aliment) olish huquqiga ega.",
+  "lex_url": "https://lex.uz/acts/-104720#-159283",
+  "teglar": [
+   "oila",
+   "aliment",
+   "er-xotin",
+   "ta'minot",
+   "homilador"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-118",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "118-modda",
+  "sarlavha": "118-modda. Nikohdan ajralganidan keyin sobiq er (xotin)ning taʼminot olish huquqi",
+  "matn": "Yetarli mablagʻga ega boʻlgan sobiq er (xotin)dan:\nsobiq xotin homiladorlik davrida va oʻrtada bola tugʻilgan kundan boshlab uch yil davomida;\noʻrtadagi nogironligi boʻlgan bolani u oʻn sakkiz yoshga toʻlguniga qadar parvarishlashni yoki bolalikdan I guruh nogironligi boʻlgan bolani parvarishlashni amalga oshirgan, yordamga muhtoj boʻlgan sobiq xotin (er);\nnikohdan ajralgunga qadar yoki nikohdan ajralgan paytdan boshlab bir yil davomida mehnatga layoqatsiz boʻlib qolgan yordamga muhtoj sobiq xotin (er);\nnikohdan ajralgan paytdan boshlab besh yil ichida pensiya yoshiga yetgan yordamga muhtoj xotin (er), agar er-xotin uzoq vaqt nikohda turishgan boʻlsa, sud tartibida aliment talab qilish huquqiga egadir.\nNikohdan ajralgandan keyin sobiq er yoki xotinga toʻlanadigan aliment miqdori va uni toʻlash tartibi sobiq er-xotin oʻrtasidagi kelishuv bilan belgilanishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-104720#-159286",
+  "teglar": [
+   "oila",
+   "aliment",
+   "sobiq er",
+   "sobiq xotin",
+   "ajralgandan keyin"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-136",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "136-modda",
+  "sarlavha": "136-modda. Alimentni sud tartibida undirish",
+  "matn": "Aliment olish huquqiga ega boʻlgan shaxs, aliment talab qilish huquqi vujudga kelganidan soʻng qancha muddat oʻtganidan qatʼi nazar, xohlagan vaqtda aliment undirish toʻgʻrisidagi talab bilan sudga murojaat qilishga haqlidir.\nMazkur shaxs, nizo boʻlmagan taqdirda, voyaga yetmagan bolalar uchun aliment undirish toʻgʻrisidagi ariza bilan sudga murojaat etishga haqli boʻlib, bu ariza buyruq tartibida ish yuritish tarzida koʻrib chiqiladi.\nAliment sudga murojaat etilgan paytdan boshlab undiriladi.\nAgar taʼminot uchun mablagʻ olish choralari sudga murojaat qilingunga qadar koʻrilganligi, ammo aliment toʻlashi shart boʻlgan shaxsning uni toʻlashdan bosh tortganligi oqibatida aliment olinmaganligi sud tomonidan aniqlansa, oʻtgan davr uchun aliment sudga murojaat etilgan paytdan boshlab uch yillik muddat doirasida undirib olinishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-104720#-159404",
+  "teglar": [
+   "oila",
+   "aliment",
+   "sud",
+   "undirish",
+   "ariza",
+   "da'vo"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-139",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "139-modda",
+  "sarlavha": "139-modda. Aliment qarzini undirish",
+  "matn": "Aliment qarzi aliment toʻlashi shart boʻlgan shaxsning ish haqi va (yoki) boshqa daromadidan undiriladi. Ish haqi va (yoki) boshqa daromad yetarli boʻlmaganda, aliment toʻlashi shart boʻlgan shaxsning banklar va boshqa kredit tashkilotlaridagi hisobvaraqlarida turgan pul mablagʻidan, tijorat va tijoratchi boʻlmagan tashkilotlarga shartnoma asosida oʻtkazilgan pul mablagʻidan undiriladi, mulk huquqining oʻtishiga olib keluvchi shartnomalar bundan mustasno. Bu mablagʻ yetarli boʻlmaganda undirish aliment toʻlashi shart boʻlgan shaxsning qonun boʻyicha undirish qaratilishi mumkin boʻlgan har qanday mol-mulkiga qaratiladi.\nUndirish aliment toʻlashi shart boʻlgan shaxsning hisobvaraqlaridagi pul mablagʻiga va uning boshqa mol-mulkiga qonunchilikda belgilangan tartibda qaratiladi.\nAliment toʻlash toʻgʻrisidagi notarial tartibda tasdiqlangan kelishuv yoki ijro varaqasi asosida oʻtgan davrdagi aliment qarzi ijro varaqasi yoki aliment toʻlash toʻgʻrisidagi kelishuv aliment undirish uchun taqdim qilingunga qadar oʻtgan uch yildan ortiq boʻlmagan muddat uchun undiriladi.\nAlimentlar ijro varaqasi yoki aliment toʻlash toʻgʻrisidagi notarial tartibda tasdiqlangan kelishuv boʻyicha aliment toʻlashi shart boʻlgan shaxsning aybi bilan undirilmagan boʻlsa, alimentlar ushbu moddaning uchinchi qismida koʻrsatilgan uch yillik muddatdan qatʼi nazar, oʻtgan barcha vaqt uchun undiriladi.",
+  "lex_url": "https://lex.uz/acts/-104720#-159414",
+  "teglar": [
+   "oila",
+   "aliment qarzi",
+   "undirish",
+   "qarzdorlik"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "oila-142",
+  "qonun_nomi": "O'zbekiston Respublikasining Oila kodeksi",
+  "modda_raqami": "142-modda",
+  "sarlavha": "142-modda. Alimentni oʻz vaqtida toʻlamaganlik uchun javobgarlik",
+  "matn": "Aliment toʻlash toʻgʻrisidagi kelishuvga muvofiq aliment toʻlashi shart boʻlgan shaxsning aybi bilan qarz vujudga kelgan boʻlsa, aybdor shaxs ushbu kelishuvda belgilangan tartibda javobgar boʻladi.\nSudning hal qiluv qaroriga koʻra aliment toʻlashi shart boʻlgan shaxsning aybi bilan qarz vujudga kelgan boʻlsa, aybdor shaxs kechiktirilgan har bir kun uchun toʻlanmay qolgan aliment summasining oʻndan bir foizi miqdorida aliment oluvchiga neustoyka toʻlaydi.\nAliment oluvchi aliment oʻz vaqtida toʻlanmaganligida aybdor aliment toʻlashi shart boʻlgan shaxsdan aliment toʻlash majburiyatlarini oʻz vaqtida bajarmaganlik oqibatida yetkazilgan barcha zararlarning neustoyka bilan qoplanmagan qismini undirishga ham haqlidir.",
+  "lex_url": "https://lex.uz/acts/-104720#-159426",
+  "teglar": [
+   "oila",
+   "aliment",
+   "kechiktirish",
+   "javobgarlik",
+   "penya"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-100",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "100-modda",
+  "sarlavha": "100-modda. Shaʼn, qadr-qimmat va ishchanlik obroʻsini himoya qilish",
+  "matn": "Fuqaro oʻzining shaʼni, qadr-qimmati yoki ishchanlik obroʻsiga putur yetkazuvchi maʼlumotlar yuzasidan, basharti bunday maʼlumotlarni tarqatgan shaxs ularning haqiqatga toʻgʻri kelishini isbotlay olmasa, sud yoʻli bilan raddiya talab qilishga haqli.\nManfaatdor shaxslarning talabiga koʻra fuqaroning shaʼni va qadr-qimmatini uning vafotidan keyin ham himoya qilishga yoʻl qoʻyiladi.\nBasharti, fuqaroning shaʼni, qadr-qimmati yoki ishchanlik obroʻsiga putur yetkazuvchi maʼlumotlar ommaviy-axborot vositalarida tarqatilgan boʻlsa, ayni shu ommaviy-axborot vositalarida raddiya berilishi lozim.\nBasharti, bunday maʼlumotlar tashkilotdan olingan hujjatda uchrasa, bunday hujjat almashtirilishi yoki chaqirib olinishi kerak.\nBoshqa hollarda raddiya berish tartibi sud tomonidan belgilanadi.\nFuqaro ommaviy axborot vositalarida uning huquqlari yoki qonun bilan qoʻriqlanadigan manfaatlarini kamsituvchi maʼlumotlar eʼlon qilinganda u ayni oʻsha ommaviy axborot vositalari orqali chiqib, oʻzini himoya qilish huquqiga ega.\nBasharti, sudning hal qiluv qarori bajarilmasa, sud qoidabuzarga qonunchilikda belgilangan miqdorda va tartibda undiriladigan jarima solishga haqlidir. Jarimani toʻlash qoidabuzarni sudning hal qiluv qarorida nazarda tutilgan harakatlarni bajarish vazifasidan ozod etmaydi.\nOʻzining shaʼni, qadr-qimmati yoki ishchanlik obroʻsiga putur yetkazuvchi maʼlumotlar tarqatilgan fuqaro bunday maʼlumotlar rad etilishi bilan bir qatorda ularni tarqatish oqibatida yetkazilgan zararlar va maʼnaviy ziyonning oʻrnini qoplashni talab qilishga haqlidir.\nUshbu moddadagi fuqaroning ishchanlik obroʻsini himoya qilish toʻgʻrisidagi qoidasi yuridik shaxsning ishchanlik obroʻsini himoya etishga nisbatan ham tegishli yoʻsinda tatbiq etiladi.",
+  "lex_url": "https://lex.uz/acts/-111189#-152927",
+  "teglar": [
+   "fuqarolik",
+   "sha'n",
+   "qadr-qimmat",
+   "obro'",
+   "tuhmat",
+   "raddiya"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-134",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "134-modda",
+  "sarlavha": "134-modda. Ishonchnoma",
+  "matn": "Bir shaxs (ishonch bildiruvchi) tomonidan ikkinchi shaxsga (ishonchli vakilga) uchinchi shaxslar oldida vakillik qilish uchun berilgan yozma vakolat ishonchnoma hisoblanadi. Ishonchli vakil oʻziga ishonchnoma bilan berilgan vakolatlar doirasida ish olib boradi.\nYuridik shaxs nomidan, shuningdek yuridik shaxsga ham ishonchnoma faqat yuridik shaxsning ustavida (nizomida) koʻrsatilgan faoliyat maqsadlariga zid boʻlmagan bitimlarni tuzish uchungina berilishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-111189#-153566",
+  "teglar": [
+   "fuqarolik",
+   "ishonchnoma",
+   "vakillik",
+   "vakolat"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-149",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "149-modda",
+  "sarlavha": "149-modda. Daʼvo muddati tushunchasi",
+  "matn": "Daʼvo muddati — shaxs oʻzining buzilgan huquqini daʼvo qoʻzgʻatish yoʻli bilan himoya qilishi mumkin boʻlgan muddatdir.",
+  "lex_url": "https://lex.uz/acts/-111189#-153700",
+  "teglar": [
+   "fuqarolik",
+   "da'vo muddati",
+   "muddat",
+   "sud"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-153",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "153-modda",
+  "sarlavha": "153-modda. Daʼvo muddatini qoʻllash",
+  "matn": "Buzilgan huquqni himoya qilish talabi daʼvo muddatining oʻtganligidan qatʼi nazar, sudda koʻrib chiqish uchun qabul qilinadi.\nDaʼvo muddati sud tomonidan faqat nizodagi tarafning sud qaror chiqargunicha bergan arizasiga muvofiq qoʻllanadi.\nQoʻllanish toʻgʻrisida nizodagi taraf bayon qilgan daʼvo muddatining oʻtishi sudning daʼvoni rad etish haqida qaror chiqarishi uchun asos boʻladi.",
+  "lex_url": "https://lex.uz/acts/-111189#-153710",
+  "teglar": [
+   "fuqarolik",
+   "da'vo muddati",
+   "qo'llash",
+   "uch yil",
+   "sud"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-154",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "154-modda",
+  "sarlavha": "154-modda. Daʼvo muddatining oʻta boshlashi",
+  "matn": "Daʼvo muddati shaxs oʻzining huquqi buzilganligini bilgan yoki bilishi lozim boʻlgan kundan oʻta boshlaydi. Bu qoidadan istisnolar ushbu Kodeks va boshqa qonunlar bilan belgilanadi.\nMuayyan ijro muddatiga ega boʻlgan majburiyatlar boʻyicha daʼvo muddati ijro muddati tamom boʻlganidan keyin oʻta boshlaydi.\nIjro etish muddati belgilanmagan yoki talab qilish payti ijro etish muddati bilan belgilangan majburiyatlar boʻyicha daʼvo muddati kreditorda majburiyatni bajarish toʻgʻrisida talab qoʻyish huquqi paydo boʻlgan vaqtdan oʻta boshlaydi, bordi-yu, qarzdorga bunday talabni bajarish uchun imtiyozli muddat berilsa, daʼvo muddati imtiyozli muddat tamom boʻlganidan keyin hisoblana boshlaydi.\nRegress majburiyatlar boʻyicha daʼvo muddati asosiy majburiyat bajarilgan paytdan oʻta boshlaydi.",
+  "lex_url": "https://lex.uz/acts/-111189#-153714",
+  "teglar": [
+   "fuqarolik",
+   "da'vo muddati",
+   "boshlanishi",
+   "hisoblash"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-228",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "228-modda",
+  "sarlavha": "228-modda. Mol-mulkni boshqa shaxsning qonunsiz egaligidan talab qilib olish (vindikatsiya)",
+  "matn": "Mulkdor oʻz mol-mulkini boshqa shaxsning qonunsiz egaligidan talab qilib olishga haqli (vindikatsiya).",
+  "lex_url": "https://lex.uz/acts/-111189#-154310",
+  "teglar": [
+   "fuqarolik",
+   "vindikatsiya",
+   "mol-mulk qaytarish",
+   "qonunsiz egalik"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-260",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "260-modda",
+  "sarlavha": "260-modda. Neustoyka tushunchasi",
+  "matn": "Qonunchilik yoki shartnoma bilan belgilangan, qarzdor majburiyatni bajarmagan yoki lozim darajada bajarmagan taqdirda kreditorga toʻlashi shart boʻlgan pul summasi neustoyka hisoblanadi.\nNeustoyka toʻlash haqidagi talab boʻyicha kreditor oʻziga yetkazilgan zararni isbotlashga majbur emas.\nNeustoyka bilan faqat haqiqiy talab taʼminlanadi.\nAgar qarzdor majburiyat bajarilmaganligi yoki lozim darajada bajarilmaganligi uchun javobgar boʻlmasa, kreditor neustoyka toʻlashni talab qilishga haqli emas.",
+  "lex_url": "https://lex.uz/acts/-111189#-154438",
+  "teglar": [
+   "fuqarolik",
+   "neustoyka",
+   "jarima",
+   "penya"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-292",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "292-modda",
+  "sarlavha": "292-modda. Kafillik shartnomasi",
+  "matn": "Kafillik shartnomasi boʻyicha kafil boshqa shaxs oʻz majburiyatini toʻla yoki qisman bajarishi uchun uning kreditori oldida javob berishni oʻz zimmasiga oladi.\nKafillik shartnomasi kelgusida vujudga keladigan majburiyatni taʼminlash uchun ham tuzilishi mumkin.\nKafillik shartnomasi yozma shaklda tuzilishi kerak. Yozma shaklga rioya qilmaslik kafillik shartnomasining haqiqiy boʻlmasligiga olib keladi.",
+  "lex_url": "https://lex.uz/acts/-111189#-154976",
+  "teglar": [
+   "fuqarolik",
+   "kafillik",
+   "kafil",
+   "qarz ta'minoti"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-327",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "327-modda",
+  "sarlavha": "327-modda. Pul majburiyatini bajarmaganlik uchun javobgarlik",
+  "matn": "Boshqa shaxslarning pul mablagʻlarini gʻayriqonuniy ushlab qolish, ularni qaytarib berishdan bosh tortish, ularni toʻlashni boshqacha tarzda kechiktirish yoxud boshqa shaxs hisobidan asossiz olish yoki jamgʻarish natijasida ulardan foydalanganlik uchun ushbu mablagʻlar summasiga foiz toʻlanishi kerak.\nFoizlar miqdori kreditor yashaydigan joyda, kreditor yuridik shaxs boʻlganida esa, uning joylashgan yerida pul majburiyati yoki uning tegishli qismi bajarilgan kunda mavjud boʻlgan bank foizining hisob stavkasi bilan belgilanadi. Qarz sud tartibida undirib olinganida sud kreditorning talabini daʼvo qoʻzgʻatilgan kundagi yoki qaror chiqarilgan kundagi bank foizining hisob stavkasiga qarab qondirishi mumkin. Ushbu qoidalar qonunda yoki shartnomada boshqa foiz miqdori belgilangan boʻlmasa qoʻllaniladi.\nKreditorning pul mablagʻlaridan qonunsiz foydalanish tufayli unga yetkazilgan zarar ushbu moddaning birinchi va ikkinchi qismlariga asosan unga tegishi kerak boʻlgan foizlar summasidan oshib ketsa, kreditor qarzdordan zararning bu summadan ortiqcha boʻlgan qismini toʻlashni talab qilishga haqli.",
+  "lex_url": "https://lex.uz/acts/-111189#-155305",
+  "teglar": [
+   "fuqarolik",
+   "pul majburiyati",
+   "foiz",
+   "kechiktirish",
+   "qarz"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-382",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "382-modda",
+  "sarlavha": "382-modda. Shartnomani oʻzgartirish va bekor qilish asoslari",
+  "matn": "Agar ushbu Kodeksda, boshqa qonunlarda yoki shartnomada boshqacha tartib nazarda tutilgan boʻlmasa, shartnoma taraflarning kelishuviga muvofiq oʻzgartirilishi va bekor qilinishi mumkin.\nTaraflardan birining talabi bilan shartnoma sud tomonidan faqat quyidagi hollarda oʻzgartirilishi yoki bekor qilinishi mumkin:\n1) ikkinchi taraf shartnomani jiddiy ravishda buzsa;\n2) ushbu Kodeks, boshqa qonunlar va shartnomada nazarda tutilgan oʻzga hollarda.\nTaraflardan birining shartnomani buzishi ikkinchi tarafga u shartnoma tuzishda umid qilishga haqli boʻlgan narsadan koʻp darajada mahrum boʻladigan qilib zarar yetkazishi shartnomani jiddiy buzish hisoblanadi.\nBir taraf shartnomani bajarishdan toʻla yoki qisman bosh tortib, qonun yohud taraflarning kelishuvida bunga yoʻl qoʻyilsa, shartnoma tegishlicha bekor qilingan yoki oʻzgartirilgan hisoblanadi.",
+  "lex_url": "https://lex.uz/acts/-111189#-155946",
+  "teglar": [
+   "fuqarolik",
+   "shartnoma",
+   "bekor qilish",
+   "o'zgartirish",
+   "asoslar"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-433",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "433-modda",
+  "sarlavha": "433-modda. Tegishli sifatli tovarni almashtirish",
+  "matn": "Sotib oluvchi oʻziga nooziq-ovqat tovari topshirilgan paytdan boshlab oʻn kun mobaynida, agar bundan uzoqroq muddat sotuvchi tomonidan eʼlon qilinmagan boʻlsa, xarid qilingan tegishli sifatli tovarni xarid joyida yoki sotuvchi eʼlon qilgan boshqa joylarda oʻlchami, shakli, hajmi, andazasi, rangi, toʻplami boshqacha boʻlgan xuddi shunday tovarga almashtirishga haqli, bunda u narxlarda farq boʻlgan taqdirda sotuvchi bilan zarur hisob-kitobni amalga oshiradi.\nSotuvchida almashtirish uchun zarur tovar boʻlmaganida sotib oluvchi xarid qilingan tovarni sotuvchiga qaytarib berish va unga toʻlangan pul summasini olish huquqiga ega.\nAgar tovardan foydalanilmagan, uning isteʼmol xususiyatlari saqlangan boʻlsa va ushbu sotuvchidan sotib olinganining isboti boʻlsa, sotib oluvchining tovarni almashtirish yoki qaytarib olish haqidagi talabi qanoatlantirilishi lozim.\nUshbu moddada koʻrsatilgan asoslar boʻyicha almashtirilmaydigan yoki qaytarib olinmaydigan tovarlar roʻyxati qonunchilikda nazarda tutilgan tartibda belgilanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-183197",
+  "teglar": [
+   "fuqarolik",
+   "chakana savdo",
+   "tovar almashtirish",
+   "o'n to'rt kun"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-434",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "434-modda",
+  "sarlavha": "434-modda. Sotib oluvchiga sifati tegishli darajada boʻlmagan tovar sotilganida uning huquqlari",
+  "matn": "Sotib oluvchiga sifati tegishli darajada boʻlmagan tovar sotilganida, agar uning kamchiliklari shartnoma tuzish paytida maʼlum qilinmagan boʻlsa, sotib oluvchi oʻz xohishiga koʻra:\nxuddi shu markadagi (modeldagi, artikuldagi) sifati tegishli darajada boʻlgan tovarga almashtirishni;\nxarid narxini tegishincha qayta hisoblagan holda boshqa markadagi (modeldagi, artikuldagi) sifati tegishli darajada boʻlgan tovarga almashtirishni;\ntovarning kamchiliklarini tekinga bartaraf etishni yoki sotib oluvchi yoxud uchinchi shaxs tomonidan tovarning kamchiliklarini bartaraf etish uchun qilingan xarajatlar qoplanishini;\nxarid narxini mutanosib ravishda kamaytirishni;\nkoʻrilgan zarar oʻrnini qoplagan holda shartnoma bekor qilinishini talab qilish huquqiga ega.\nTovar uchun toʻlangan pul summasini sotib oluvchiga qaytarish vaqtda sotuvchi undan tovardan toʻliq yoki qisman foydalanganligi, tovar koʻrinishi yoʻqolganligi yoki boshqa shunga oʻxshash holatlar tufayli tovar qiymati qancha pasaygan boʻlsa, shuncha summani ushlab qolishga haqli emas.",
+  "lex_url": "https://lex.uz/acts/-180552#-183202",
+  "teglar": [
+   "fuqarolik",
+   "chakana savdo",
+   "sifatsiz tovar",
+   "qaytarish",
+   "almashtirish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-539",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "539-modda",
+  "sarlavha": "539-modda. Mulk ijarasi shartnomasining shakli",
+  "matn": "Mulk ijarasi shartnomasi bir yildan ortiq muddatga moʻljallangan boʻlsa, taraflardan birontasi yuridik shaxs boʻlgan hollarda esa, muddatidan qatʼi nazar, yozma shaklda tuzilishi shart.\nKoʻchmas mulk ijarasi shartnomasi davlat roʻyxatidan oʻtkazilishi va soliq organlarida hisobga qoʻyilishi lozim, bundan qonunchilikda nazarda tutilgan hollar mustasno. Koʻchmas mulk ijarasi shartnomalarini soliq organlarida hisobga qoʻyish tartibi Oʻzbekiston Respublikasi Vazirlar Mahkamasi tomonidan belgilanadi.\nMulk huquqining kelgusida ijarachiga oʻtishini nazarda tutuvchi mulk ijarasi shartnomasi, bunday mulkning oldi-sotdi shartnomasi uchun nazarda tutilgan shaklda tuziladi.",
+  "lex_url": "https://lex.uz/acts/-180552#-184381",
+  "teglar": [
+   "fuqarolik",
+   "ijara",
+   "shartnoma shakli",
+   "yozma",
+   "ro'yxatdan o'tkazish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-544",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "544-modda",
+  "sarlavha": "544-modda. Mol-mulkdan foydalanganlik uchun haq toʻlash",
+  "matn": "Ijaraga oluvchi mol-mulkdan foydalanganlik uchun haqni oʻz vaqtida toʻlab turishi shart.\nMol-mulkdan foydalanganlik uchun haq toʻlash tartibi, shartlari va muddatlari mulk ijarasi shartnomasi bilan belgilanadi. Bular shartnomada belgilanmagan hollarda odatda xuddi shunday mol-mulkni oʻxshash holatlarda ijaraga berishda qoʻllaniladigan tartib, shartlar va muddatlar belgilangan deb hisoblanadi.\nMol-mulkdan foydalanganlik uchun haq ijaraga olingan barcha mol-mulk uchun yaxlit holda yoki uning har bir tarkibiy qismi uchun alohida-alohida holda quyidagi koʻrinishlarda belgilanadi:\nvaqti-vaqti bilan yoki bir yoʻla toʻlanadigan qatʼiy summada belgilangan toʻlovlar tariqasida;\nijaraga olingan mol-mulkdan foydalanish natijasida olingan mahsulot, mevalar yoki daromadlarning belgilangan ulushi tariqasida;\nijaraga oluvchi tomonidan koʻrsatiladigan maʼlum xizmatlar tariqasida;\nijaraga oluvchi tomonidan ijaraga beruvchiga shartnomada kelishilgan ashyoni mulk qilib yoki ijaraga topshirish tariqasida;\nijaraga olingan mol-mulkni yaxshilash boʻyicha shartnomada kelishilgan xarajatlarni ijaraga oluvchi zimmasiga yuklash tariqasida.\nTaraflar mulk ijarasi shartnomasida mol-mulkdan foydalanganlik uchun ushbu moddaning uchinchi qismida koʻrsatib oʻtilgan haq shakllarini aralash amalga oshirishni yoki haq toʻlashning boshqa shakllarini nazarda tutishlari mumkin.\nAgar mulk ijarasi shartnomasida boshqacha tartib nazarda tutilgan boʻlmasa, mol-mulkdan foydalanganlik uchun toʻlanadigan haq miqdori shartnomada belgilangan muddatlarda, biroq bir yilda koʻpi bilan bir marta taraflarning kelishuvi bilan oʻzgartirilishi mumkin. Qonunchilikda mulk ijarasining ayrim turlari uchun, shuningdek ayrim mol-mulk turlarining ijarasi uchun haq miqdorini qayta koʻrib chiqishning boshqacha eng kam muddatlari nazarda tutilishi mumkin.\nAgar qonunchilikda boshqacha tartib nazarda tutilgan boʻlmasa, ijaraga oluvchi oʻzi javobgar boʻlmagan holatlarga koʻra, shartnomada nazarda tutilgan foydalanish shartlari yoki mol-mulkning holati jiddiy yomonlashgan boʻlsa, u mol-mulkdan foydalanganlik uchun ijara haqini tegishli ravishda kamaytirishni talab qilishga haqli.\nAgar shartnomada boshqacha tartib nazarda tutilgan boʻlmasa, mol-mulkdan foydalanganlik uchun ijara haqini toʻlash muddatlari ijaraga oluvchi tomonidan jiddiy buzilgan taqdirda, ijaraga beruvchi undan ijara haqini muddatidan oldin, ijaraga beruvchi belgilagan muddatda toʻlashni talab qilishga haqli. Bunda ijaraga beruvchi mol-mulkdan foydalanganlik uchun koʻpi bilan ikki muddatning haqini muddatidan oldin toʻlashni talab qilishga haqli.",
+  "lex_url": "https://lex.uz/acts/-180552#-184420",
+  "teglar": [
+   "fuqarolik",
+   "ijara",
+   "ijara haqi",
+   "to'lov",
+   "o'zgartirish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-551",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "551-modda",
+  "sarlavha": "551-modda. Ijaraga beruvchining talabi boʻyicha mulk ijarasi shartnomasini muddatidan oldin bekor qilish",
+  "matn": "Mulk ijarasi shartnomasi ijaraga beruvchining talabi bilan sud tomonidan muddatidan oldin bekor qilinishi mumkin, agar ijaraga oluvchi:\nijaraga beruvchining yozma ogohlantirishiga qaramasdan mol-mulkdan shartnoma shartlarini yoki mol-mulkning vazifalarini jiddiy ravishda buzgan yoxud bir necha marta buzgan holda foydalansa;\nmol-mulkni jiddiy yomonlashtirsa;\nshartnomada belgilangan toʻlov muddatini ketma-ket ikki martadan ortiq buzib, mol-mulkdan foydalanganlik uchun haq toʻlamasa;\nqonunchilikka yoki shartnomaga muvofiq kapital taʼmirlash ishlarini bajarish ijaraga oluvchi zimmasidagi majburiyat boʻlgan hollarda shartnomada belgilangan muddatlarda, shartnomada bunday muddat belgilangan boʻlmasa, oqilona muddatlarda mol-mulkni kapital taʼmirlashni amalga oshirmasa.\nMulk ijarasi shartnomasida ushbu Kodeksning 382-moddasi ikkinchi qismiga muvofiq ijaraga beruvchining talabi bilan shartnomani muddatidan oldin bekor qilishning boshqa asoslari ham belgilanishi mumkin.\nIjaraga beruvchi ijaraga oluvchini yozma ravishda ogohlantirganidan va unga oʻz majburiyatlarini bajarish uchun imkoniyat berganidan keyingina shartnoma muddatidan oldin bekor qilinishini talab qilishga haqli.",
+  "lex_url": "https://lex.uz/acts/-180552#-184460",
+  "teglar": [
+   "fuqarolik",
+   "ijara",
+   "bekor qilish",
+   "ijaraga beruvchi",
+   "muddatidan oldin"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-552",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "552-modda",
+  "sarlavha": "552-modda. Ijaraga oluvchining talabi bilan mulk ijarasi shartnomasini muddatidan oldin bekor qilish",
+  "matn": "Ijaraga oluvchining talabi bilan mulk ijarasi shartnomasi sud tomonidan muddatidan oldin bekor qilinishi mumkin, agar:\nijaraga beruvchi mol-mulkni foydalanish uchun ijaraga oluvchiga bermasa yoki mol-mulkdan shartnoma shartlariga yoxud mol-mulkning vazifasiga muvofiq foydalanishga toʻsqinlik qilsa;\nijaraga oluvchiga topshirilgan mol-mulkda undan foydalanishga toʻsqinlik qiladigan kamchiliklar boʻlib, ularni ijaraga beruvchi shartnoma tuzish vaqtida aytib oʻtmagan, ijaraga oluvchiga oldindan maʼlum boʻlmagan va shartnoma tuzayotganda mol-mulkni koʻzdan kechirish yoxud uning sozligini tekshirish vaqtida aniqlanishi mumkin boʻlmagan boʻlsa;\nijaraga beruvchi shartnomada belgilangan muddatlarda, agarda shartnomada muddat belgilangan boʻlmasa, oqilona muddatlarda oʻz zimmasidagi mol-mulkni kapital taʼmirlash majburiyatini bajarmasa;\nijaraga oluvchi javobgar boʻlmagan holatlar tufayli mol-mulk foydalanishga yaroqsiz boʻlib qolsa.\nMulk ijarasi shartnomasida ushbu Kodeks 382-moddasining ikkinchi qismiga muvofiq ijaraga oluvchining talabi bilan shartnomani muddatidan oldin bekor qilishning boshqa asoslari ham belgilanishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-180552#-184468",
+  "teglar": [
+   "fuqarolik",
+   "ijara",
+   "bekor qilish",
+   "ijaraga oluvchi",
+   "muddatidan oldin"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-600",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "600-modda",
+  "sarlavha": "600-modda. Uy-joyni ijaraga berish shartnomasi",
+  "matn": "Uy-joyni ijaraga berish shartnomasiga binoan bir taraf –– uy-joyning mulkdori yoki u vakolat bergan shaxs (ijaraga beruvchi) –– boshqa taraf (ijaraga oluvchi)ga uy-joyda yashash uchun uni haq evaziga egalik qilish va foydalanishga topshirish majburiyatini oladi.\nUy-joy yuridik shaxslarga ijara shartnomasi yoki boshqa shartnoma asosida egalik qilish va (yoki) foydalanish uchun topshirilishi mumkin. Yuridik shaxs uy-joydan faqat fuqarolarning yashashi uchun foydalanishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-180552#-186480",
+  "teglar": [
+   "fuqarolik",
+   "uy-joy",
+   "ijara",
+   "kvartira",
+   "shartnoma"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-607",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "607-modda",
+  "sarlavha": "607-modda. Uy-joyni ijaraga oluvchining majburiyatlari",
+  "matn": "Ijaraga oluvchi uy-joydan faqat uning vazifasi boʻyicha foydalanishi, uy-joyning saqlanishini taʼminlashi va uni yaxshi holda tutishi shart.\nIjaraga oluvchi ijaraga beruvchining roziligisiz uy-joyni qayta qurishga va tuzilishini oʻzgartirishga haqli emas.\nIjaraga oluvchi uy-joy haqini oʻz vaqtida toʻlab turishi shart. Agar shartnomada boshqacha tartib belgilangan boʻlmasa, ijaraga oluvchi kommunal xizmatlar haqini mustaqil toʻlashi shart.",
+  "lex_url": "https://lex.uz/acts/-180552#-186506",
+  "teglar": [
+   "fuqarolik",
+   "uy-joy",
+   "ijara",
+   "majburiyatlar",
+   "kommunal to'lov"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-631",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "631-modda",
+  "sarlavha": "631-modda. Pudrat shartnomasi",
+  "matn": "Pudrat shartnomasi boʻyicha bir taraf (pudratchi) ikkinchi taraf (buyurtmachi)ning topshirigʻiga binoan maʼlum bir ishni bajarish va uning natijasini buyurtmachiga belgilangan muddatda topshirish majburiyatini oladi, buyurtmachi esa ish natijasini qabul qilib olish va buning uchun haq toʻlash majburiyatini oladi. Agar qonunchilikda yoxud taraflar kelishuvida boshqacha tartib nazarda tutilgan boʻlmasa, ishni bajarish uchun pudratchi tavakkal qiladi.\nPudrat shartnomasining ayrim turlari (maishiy pudrat, qurilish pudrati, loyihalash yoki qidiruv ishlari pudrati, ilmiy-tadqiqot, tajriba-konstruktorlik va texnologiya ishlari pudrati)ga, agar ushbu Kodeksning bunday turdagi shartnomalar toʻgʻrisidagi qoidalarida boshqacha tartib belgilangan boʻlmasa, ushbu paragrafda nazarda tutilgan qoidalar qoʻllanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-188672",
+  "teglar": [
+   "fuqarolik",
+   "pudrat",
+   "ish bajarish",
+   "qurilish",
+   "shartnoma"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-703",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "703-modda",
+  "sarlavha": "703-modda. Haq evaziga xizmat koʻrsatish shartnomasi",
+  "matn": "Haq evaziga xizmat koʻrsatish shartnomasi boʻyicha ijrochi buyurtmachining topshirigʻi bilan ashyoviy shaklda boʻlmagan xizmatni bajarish (muayyan harakatlarni qilish yoki muayyan faoliyatni amalga oshirish), buyurtmachi esa bu xizmat uchun haq toʻlash majburiyatini oladi.\nUshbu bobning qoidalari aloqa xizmati, tibbiyot, veterinariya, auditorlik, maslahat, axborot xizmatlari, taʼlim berish, sayyohlik xizmati va boshqa xizmatlar koʻrsatish shartnomalariga tatbiq etiladi. Ushbu Kodeksning 37, 39, 40, 43, 44, 45, 46, 48, 49 va 51-boblarida nazarda tutilgan shartnomalar boʻyicha koʻrsatilgan xizmatlar bundan mustasno.",
+  "lex_url": "https://lex.uz/acts/-180552#-189499",
+  "teglar": [
+   "fuqarolik",
+   "xizmat ko'rsatish",
+   "haq evaziga",
+   "shartnoma"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-733",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "733-modda",
+  "sarlavha": "733-modda. Qarz shartnomasining shakli",
+  "matn": "Fuqarolar oʻrtasida qarz shartnomasi, agar bu qarzning summasi bazaviy hisoblash miqdorining oʻn baravaridan ortiq boʻlsa, oddiy yozma shaklda tuzilishi shart, shartnomadagi taraflardan biri yuridik shaxs boʻlganida esa summasidan qatʼi nazar, yozma shaklda tuzilishi shart.\nQarz shartnomasining yozma shakliga rioya qilmaslik ushbu Kodeksning 109-moddasida nazarda tutilgan oqibatlarga olib keladi.\nAgar qarz oluvchining tilxati yoki unga qarz beruvchi tomonidan muayyan summa yoki muayyan miqdordagi ashyolar topshirilganligini tasdiqlaydigan boshqa hujjat mavjud boʻlsa, qarz shartnomasi yozma shaklda tuzilgan hisoblanadi.\nAgar qarz majburiyati qarz oluvchi tomonidan berilgan veksel, obligatsiya yoki qarz summasini va qarz beruvchining uni undirib olish huquqini belgilaydigan boshqa qimmatli qogʻoz bilan tasdiqlangan boʻlsa, qarz shartnomasining yozma shakliga rioya qilingan hisoblanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-190114",
+  "teglar": [
+   "fuqarolik",
+   "qarz",
+   "shartnoma shakli",
+   "yozma",
+   "tilxat"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-735",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "735-modda",
+  "sarlavha": "735-modda. Qarz oluvchining qarz summasini qaytarish majburiyati",
+  "matn": "Qarz oluvchi olingan qarz summasini qarz shartnomasida nazarda tutilgan muddatda va tartibda qarz beruvchiga qaytarishi shart.\nAgar qarz summasini qaytarish muddati shartnomada belgilangan boʻlmasa, qarz oluvchi uni qarz beruvchi qarzni qaytarish haqida talab qoʻygan kundan boshlab oʻttiz kun mobaynida qaytarishi kerak.\nFoizsiz qarz summasi qarz oluvchi tomonidan muddatidan oldin qaytarilishi mumkin.\nFoiz evaziga berilgan qarz summasi, agar qarz shartnomasida koʻzda tutilgan boʻlsa yoki qarz beruvchining roziligi bilan, muddatidan oldin qaytarilishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-180552#-190167",
+  "teglar": [
+   "fuqarolik",
+   "qarz",
+   "qaytarish",
+   "muddat",
+   "o'ttiz kun"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-736",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "736-modda",
+  "sarlavha": "736-modda. Qarz oluvchi tomonidan qarz shartnomasini buzish oqibatlari",
+  "matn": "Agar qonunchilikda yoki qarz shartnomasida boshqacha tartib nazarda tutilgan boʻlmasa, qarz oluvchi qarz summasini vaqtida qaytarmagan hollarda ushbu Kodeksning 734-moddasi birinchi qismida nazarda tutilgan foizlar toʻlangan boʻlishidan qatʼi nazar, qarz qaytarib berilishi kerak boʻlgan kundan boshlab to u qarz beruvchiga qaytarib berilgan kungacha bu summa yuzasidan ushbu Kodeksning 327-moddasi birinchi va ikkinchi qismlarida nazarda tutilgan miqdorda foizlar toʻlanishi kerak.\nAgar qarz shartnomasida qarzni qismlab (boʻlib-boʻlib) qaytarish nazarda tutilgan boʻlsa, qarz oluvchi qarzning navbatdagi qismini qaytarish uchun belgilangan muddatni buzgan taqdirda, qarz beruvchi qarzning qolgan barcha summasini tegishli foizlar bilan birga muddatidan oldin qaytarishni talab qilishga haqli.\nAgar qarz shartnomasida qarz boʻyicha foizlarni qarzning oʻzini qaytarish muddatidan oldin toʻlash nazarda tutilgan boʻlsa, bu majburiyat buzilgan taqdirda, qarz beruvchi qarz oluvchidan qarz summasini tegishli foizlari bilan birga muddatidan oldin qaytarishni talab qilishga haqli.",
+  "lex_url": "https://lex.uz/acts/-180552#-190181",
+  "teglar": [
+   "fuqarolik",
+   "qarz",
+   "qaytarmaslik",
+   "foiz",
+   "javobgarlik"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-737",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "737-modda",
+  "sarlavha": "737-modda. Qarz shartnomasi yuzasidan daʼvolashish",
+  "matn": "Qarz oluvchi pul yoki boshqa ashyolarni qarz beruvchidan amalda olmaganligini yoki shartnomada koʻrsatilganidan kam miqdorda olganligini isbot qilib, qarz shartnomasi yuzasidan daʼvolashishga haqli.\nYozma shaklda tuzilishi lozim boʻlgan qarz shartnomasi yuzasidan guvohlarning koʻrsatmalari yordamida daʼvolashish mumkin emas, shartnoma aldash, zoʻrlik ishlatish, tahdid qilish, qarz oluvchining vakili qarz beruvchi bilan yomon niyatda kelishishi yoki qiyin vaziyatlar taʼsirida tuzilgan hollar bundan mustasno.\nAgar qarz oluvchi qarz shartnomasi yuzasidan daʼvolashuvi jarayonida pul yoki boshqa ashyolar haqiqatan ham qarz beruvchidan olinmaganligi aniqlansa, qarz shartnomasi tuzilmagan hisoblanadi. Qarz oluvchi qarz beruvchidan pul yoki boshqa ashyolarni shartnomada koʻrsatilganidan amalda kam miqdorda olgan hollarda shartnoma ana shu miqdordagi pul yoki ashyolarga tuzilgan hisoblanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-190191",
+  "teglar": [
+   "fuqarolik",
+   "qarz",
+   "da'vo",
+   "nizolashish",
+   "isbot"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-744",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "744-modda",
+  "sarlavha": "744-modda. Kredit shartnomasi",
+  "matn": "Kredit shartnomasi boʻyicha bir taraf — bank yoki boshqa kredit tashkiloti (kreditor) ikkinchi tarafga (qarz oluvchiga) shartnomada nazarda tutilgan miqdorda va shartlar asosida pul mablagʻlari (kredit) berish, qarz oluvchi esa olingan pul summasini qaytarish va uning uchun foizlar toʻlash majburiyatini oladi.\nQonunchilikka muvofiq kredit tashkilotlari boʻlmagan tijorat tashkilotlarining kreditlashni amalga oshirishiga yoʻl qoʻyilgan hollarda kredit shartnomasi toʻgʻrisidagi qoidalar bunday tijorat tashkilotlari amalga oshiradigan kreditlash munosabatlariga nisbatan qoʻllanadi.\nKredit boʻyicha qarzdorlikni undirish toʻgʻrisida sudning hal qiluv qarori chiqarilganda sud qarorida koʻrsatilgan, kredit boʻyicha undiriladigan summaga nisbatan ushbu Kodeksning 327-moddasi birinchi va ikkinchi qismlarida hamda 734-moddasi birinchi qismida nazarda tutilgan foizlar, shuningdek neustoyka hisoblanishi toʻxtatiladi.\nAgar ushbu paragrafning qoidalarida boshqacha tartib nazarda tutilgan boʻlmasa va u kredit shartnomasining mohiyatidan kelib chiqmasa, kredit shartnomasi munosabatlariga nisbatan ushbu bob 1-paragrafining qoidalari qoʻllanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-190304",
+  "teglar": [
+   "fuqarolik",
+   "kredit",
+   "bank",
+   "shartnoma",
+   "foiz"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-985",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "985-modda",
+  "sarlavha": "985-modda. Zarar yetkazganlik uchun javobgarlikning umumiy asoslari",
+  "matn": "Gʻayriqonuniy harakat (harakatsizlik) tufayli fuqaroning shaxsiga yoki mol-mulkiga yetkazilgan zarar, shuningdek yuridik shaxsga yetkazilgan zarar, shu jumladan boy berilgan foyda zararni yetkazgan shaxs tomonidan toʻliq hajmda qoplanishi lozim.\nQonunda zararni toʻlash majburiyati zarar yetkazuvchi boʻlmagan shaxsga yuklatilishi mumkin.\nQonunchilikda yoki shartnomada jabrlanuvchilarga zararni toʻlashdan tashqari tovon toʻlash majburiyati belgilab qoʻyilishi mumkin.\nZarar yetkazgan shaxs, agar zarar oʻz aybi bilan yetkazilmaganini isbotlasa, zararni toʻlashdan ozod qilinadi. Qonunda zarar yetkazgan shaxsning aybi boʻlmagan taqdirda ham zararni toʻlash nazarda tutilishi mumkin.\nQonuniy harakatlar tufayli yetkazilgan zarar qonunda nazarda tutilgan hollarda toʻlanishi lozim.\nAgar zarar jabrlanuvchining iltimosi yoki roziligi bilan yetkazilgan boʻlsa, zarar yetkazgan shaxsning harakatlari esa jamiyatning axloqiy tamoyillarini buzmasa, zararni toʻlash rad etilishi mumkin.",
+  "lex_url": "https://lex.uz/acts/-180552#-196564",
+  "teglar": [
+   "fuqarolik",
+   "zarar",
+   "yetkazilgan zarar",
+   "qoplash",
+   "javobgarlik"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-1022",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "1022-modda",
+  "sarlavha": "1022-modda. Maʼnaviy zararni qoplash usuli va miqdori",
+  "matn": "Maʼnaviy zarar pul bilan qoplanadi.\nMaʼnaviy zararni qoplash miqdori jabrlanuvchiga yetkazilgan jismoniy va maʼnaviy azoblarning xususiyatiga, shuningdek ayb tovon toʻlashga asos boʻlgan hollarda zarar yetkazuvchining aybi darajasiga qarab sud tomonidan aniqlanadi. Zararni qoplash miqdorini aniqlashda oqilonalik va adolatlilik talablari eʼtiborga olinishi lozim.\nJismoniy va maʼnaviy azoblarning xususiyati maʼnaviy zarar yetkazilgan haqiqiy holatlar va jabrlanuvchining shaxsiy xususiyatlari hisobga olingan holda sud tomonidan baholanadi.\nMaʼnaviy zarar toʻlanishi lozim boʻlgan mulkiy zarardan qatʼi nazar qoplanadi.",
+  "lex_url": "https://lex.uz/acts/-180552#-197152",
+  "teglar": [
+   "fuqarolik",
+   "ma'naviy zarar",
+   "kompensatsiya",
+   "miqdor"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-1023",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "1023-modda",
+  "sarlavha": "1023-modda. Asossiz orttirilgan boylikni qaytarish majburiyati",
+  "matn": "Qonunchilikda yoki bitimda belgilangan asoslarsiz boshqa shaxs (jabrlanuvchi)ning hisobidan mol-mulkni egallab olgan yoki tejab qolgan shaxs (qoʻlga kirituvchi) asossiz egallab olingan yoki tejab qolingan mol-mulkni (asossiz orttirilgan boylikni) jabrlanuvchiga qaytarib berishi shart, ushbu Kodeksning 1030-moddasida nazarda tutilgan hollar bundan mustasno.\nUshbu moddaning birinchi qismida belgilangan majburiyat, shuningdek mol-mulkni egallab olish yoki tejab qolish asosi keyinchalik bekor boʻlganda ham yuzaga keladi.\nUshbu bobning qoidalari asossiz boylik orttirish qoʻlga kirituvchining, jabrlanuvchining oʻzining, uchinchi shaxslarning xulq-atvori natijasi boʻlganligidan yoki ularning irodasidan tashqari sodir boʻlganligidan qatʼi nazar qoʻllaniladi.",
+  "lex_url": "https://lex.uz/acts/-180552#-197163",
+  "teglar": [
+   "fuqarolik",
+   "asossiz boyish",
+   "qaytarish",
+   "pul"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-1116",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "1116-modda",
+  "sarlavha": "1116-modda. Merosning ochilishi",
+  "matn": "Meros fuqaroning oʻlimi yoki uning sud tomonidan vafot etgan deb eʼlon qilinishi oqibatida ochiladi.\nMeros qoldiruvchining oʻlgan kuni (zarurat boʻlganda payti ham), u vafot etgan deb eʼlon qilinganda esa, agar sudning qarorida boshqa muddat koʻrsatilgan boʻlmasa, vafot etgan deb eʼlon qilish toʻgʻrisidagi sudning qarori kuchga kiradigan kun meros ochilgan vaqt deb hisoblanadi.\nAgar biridan keyin boshqasi meros olishga haqli boʻlgan shaxslar bir kalendar sutka (yigirma toʻrt soat) ichida vafot etgan boʻlsalar, ular bir vaqtda vafot etgan deb hisoblanadilar, meros ularning har biridan keyin ochiladi va ulardan har birining merosxoʻrlari vorislikka chaqiriladilar.",
+  "lex_url": "https://lex.uz/acts/-180552#-198653",
+  "teglar": [
+   "fuqarolik",
+   "meros",
+   "ochilish",
+   "vafot",
+   "olti oy"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-1142",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "1142-modda",
+  "sarlavha": "1142-modda. Merosdan majburiy ulush olish huquqi",
+  "matn": "Meros qoldiruvchining voyaga yetmagan yoki mehnatga qobiliyatsiz bolalari, shu jumladan farzandlikka olgan bolalari, shuningdek mehnatga qobiliyatsiz eri (xotini) va ota-onasi, shu jumladan uni farzandlikka olganlar, vasiyatnomaning mazmunidan qatʼi nazar, qonun boʻyicha voris boʻlganlarida ulardan har biriga tegishi lozim boʻlgan ulushning kamida yarmini (majburiy ulush) meros qilib oladilar.\nMajburiy ulush olish huquqiga ega boʻlgan merosxoʻr biron-bir asos boʻyicha merosdan oladigan hamma narsa, shu jumladan oddiy uy jihozlari va roʻzgʻor buyumlaridan iborat mol-mulkning qiymati ham, bunday merosxoʻr foydasiga qilingan vasiyat majburiyatining qiymati ham majburiy ulushga qoʻshiladi.\nMerosdan majburiy ulush olish huquqiga ega boʻlgan merosxoʻr uchun vasiyatnomada belgilangan har qanday cheklashlar va shartlar unga tegadigan merosning majburiy ulushdan ortiqcha qismiga nisbatangina haqiqiydir.",
+  "lex_url": "https://lex.uz/acts/-180552#-199046",
+  "teglar": [
+   "fuqarolik",
+   "meros",
+   "majburiy ulush",
+   "voyaga yetmagan",
+   "layoqatsiz"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "fuqarolik-1147",
+  "qonun_nomi": "O'zbekiston Respublikasining Fuqarolik kodeksi",
+  "modda_raqami": "1147-modda",
+  "sarlavha": "1147-modda. Merosdan voz kechish huquqi",
+  "matn": "Merosxoʻr meros ochilgan kundan eʼtiboran istalgan vaqtda merosdan voz kechishga haqli.\nMerosdan voz kechish merosxoʻr tomonidan meros ochilgan joydagi notariusga ariza berish orqali amalga oshiriladi.\nAgar ishonchnomada vakil orqali merosdan voz kechish vakolati maxsus nazarda tutilgan boʻlsa, merosdan shu tarzda voz kechilishi mumkin.\nMerosdan voz kechish keyinchalik bekor qilinishi yoki qaytarib olinishi mumkin emas.",
+  "lex_url": "https://lex.uz/acts/-180552#-199086",
+  "teglar": [
+   "fuqarolik",
+   "meros",
+   "voz kechish",
+   "rad etish"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-6",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "6-modda",
+  "sarlavha": "6-modda. Tovar (ish, xizmat)lar toʻgʻrisidagi maʼlumot",
+  "matn": "Ishlab chiqaruvchi (ijrochi, sotuvchi) isteʼmolchiga oʻzi realizatsiya qilayotgan tovar (ish, xizmat)lar haqida oʻz vaqtida zarur, toʻgʻri va tushunarli maʼlumot berishi shart. Bunda mazkur maʼlumot tovarlarning etiketkalarida, tamgʻalarida, texnik hujjatida yoki tovarlarning (ishlarning, xizmatlarning) ayrim turlari uchun qabul qilingan boshqa usulda isteʼmolchilarga yetkazilishi mumkin.\nTovar (ish, xizmat) haqidagi maʼlumotda quyidagilar koʻrsatilishi shart:\ntovarning (ishning, xizmatning) nomi;\ntovar (ish, xizmat) majburiy talablariga muvofiq kelishi shart boʻlgan normativ hujjatning nomi;\ntovar (ish, xizmat)ning asosiy isteʼmol xususiyatlari, shu jumladan, oʻziga xos xususiyatlari roʻyxati;\nnarxi (tarifi) va sotib olish shartlari;\nnormativ-huquqiy hujjatlarga yoki texnik jihatdan tartibga solish sohasidagi normativ hujjatlarga muvofiq ishlab chiqarish sanasi koʻrsatilishi kerak boʻlgan tovarning ishlab chiqarilgan sanasi;\nishlab chiqaruvchi (ijrochi)ning kafillik majburiyatlari;\ntovardan samarali va xavfsiz foydalanish qoidalari hamda shartlari;\ntovarning xizmat (yaroqlilik) muddati va ushbu muddat tugaganidan keyin isteʼmolchi nima ishlar qilishi zarurligi, shuningdek bunday ishlarni bajarmaslik natijasida kelib chiqishi mumkin boʻlgan oqibatlar toʻgʻrisidagi maʼlumotlar;\nishlab chiqaruvchining (ijrochining, sotuvchining) toʻliq nomi va joylashgan yeri (yuridik manzili), litsenziyalar va ruxsat etish xususiyatiga ega hujjatlarning QR-kodi (matritsali shtrix kodi), import qilinadigan tovarlar uchun esa ishlab chiqaruvchining hamda import qiluvchining nomi va joylashgan yeri (yuridik manzili);\ntovar kelib chiqqan mamlakatning nomi;\nishlab chiqaruvchi (ijrochi, sotuvchi)ning hamda ular isteʼmolchidan daʼvo qabul qilishga vakolat bergan, shuningdek, taʼmirlashlarini bajaradigan va texnikaviy xizmat koʻrsatadigan korxonalarning manzillari;\ntovarlarni saqlash, xavfsiz utilizatsiya qilish usullari hamda qoidalari.\nkonsert-tomosha tadbirlari oʻtkazilayotganda fonogrammadan foydalanish toʻgʻrisidagi axborot.\nKonsert-tomosha tadbirining dasturida ijrochilar va asar mualliflari toʻgʻrisidagi maʼlumotlar koʻrsatilishi shart.\nTovar (ish, xizmat) toʻgʻrisidagi maʼlumot isteʼmolchiga davlat tilida taqdim etiladi. Mazkur maʼlumot qoʻshimcha ravishda boshqa tillarda ham taqdim etilishi mumkin.\nTexnik jihatdan tartibga solinishi majburiy boʻlgan tovar boʻyicha isteʼmolchiga uning texnik tartibga solish sohasidagi normativ hujjatlar talablariga muvofiqligi toʻgʻrisida tegishli maʼlumotlar taqdim etilishi kerak.\nTovar (ish, xizmat) haqidagi zarur axborotning yoʻqligi bunday tovar (ish, xizmat)ni realizatsiya qilish maʼlumot berilgunga qadar tegishli davlat boshqaruvi organining koʻrsatmasi boʻyicha toʻxtatib turilishiga sabab boʻladi.",
+  "lex_url": "https://lex.uz/acts/-4704#-4762",
+  "teglar": [
+   "iste'molchi",
+   "ma'lumot",
+   "tovar haqida",
+   "narx",
+   "yorliq"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-7",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "7-modda",
+  "sarlavha": "7-modda. Tovar (ish, xizmat) haqida notoʻgʻri maʼlumot berilgan taqdirda isteʼmolchining huquqlari",
+  "matn": "Agar tovar (ish, xizmat) haqida notoʻgʻri yoki yetarli darajada toʻliq boʻlmagan maʼlumot berilganligi:\nzarur isteʼmol xossalariga ega boʻlmagan tovar (ish, xizmat) sotib olinishiga sabab boʻlsa, isteʼmolchi shartnomani bekor qilishga va oʻziga yetkazilgan zararning qoplanishini talab qilishga haqlidir;\nsotib olingan tovar (ish, xizmat)dan koʻzlangan maqsadda foydalana olmaslikka sabab boʻlsa, isteʼmolchi tegishli maʼlumot oqilona qisqa (koʻpi bilan uch kunlik) muddatda berilishini talab qilishga haqlidir. Agar maʼlumot aytilgan muddatda berilmasa, isteʼmolchi shartnomani bekor qilib, zararning qoplanishini talab qilishga haqlidir;\nisteʼmolchining hayotiga, sogʻligʻiga yoxud mol-mulkiga zarar yetkazilishiga sabab boʻlsa, u ishlab chiqaruvchi (ijrochi, sotuvchi) oldiga qonunchilikda nazarda tutilgan talablarni qoʻyishga haqlidir.\nIsteʼmolchining tovar (ish, xizmat) haqidagi notoʻgʻri yoki yetarli darajada toʻliq boʻlmagan maʼlumot tufayli yetkazilgan zararni qoplash toʻgʻrisidagi talablari sotib olingan tovar (ish, xizmat)ning xossalari va jihatlari haqida isteʼmolchi maxsus bilimga ega emas degan taxminga asoslanib qarab chiqiladi.\nNotoʻgʻri reklama oqibatida sotib olingan tovar (ish, xizmat) tufayli isteʼmolchiga yetkazilgan zarar ishlab chiqaruvchi (ijrochi, sotuvchi) tomonidan toʻliq hajmda qoplanishi lozim.",
+  "lex_url": "https://lex.uz/acts/-4704#-4776",
+  "teglar": [
+   "iste'molchi",
+   "noto'g'ri ma'lumot",
+   "aldash",
+   "shartnoma bekor"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-11",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "11-modda",
+  "sarlavha": "11-modda. Ishlab chiqaruvchi (ijrochi)ning kafillik majburiyatlari",
+  "matn": "Uzoq muddat foydalaniladigan barcha turdagi tovarlar va xizmatlarga ishlab chiqaruvchi (ijrochi) kafolat muddati belgilashi lozim. Kafolat muddati tovar isteʼmolchiga sotilgan yoki xizmat koʻrsatilgan kundan boshlab hisoblanadi. Agar tovar sotilgan kunni aniqlashning imkoni boʻlmasa, bu muddat tovar ishlab chiqarilgan kundan boshlab hisoblanadi.\nIshlab chiqaruvchi (ijrochi) kafolat muddati mobaynida tovar (xizmat)ning, shu jumladan, butlovchi buyumlarning normal ishlashini (qoʻllanilishini, ulardan foydalanilishini) taʼminlashi shart.\nButlovchi buyumlarning kafolat muddati, agar qonunchilikda boshqacha qoida belgilanmagan boʻlsa, asosiy buyumning kafolat muddatidan kam boʻlmasligi lozim.\nKafolat muddati tovar (xizmat)ning pasportida yoki tovarni sotish yoxud xizmat koʻrsatish paytida tovar bilan birgalikda isteʼmolchiga beriladigan boshqa hujjatda koʻrsatiladi.\nIshlab chiqaruvchi tovardan kafolat muddati va xizmat muddati mobaynida foydalanish imkoniyatini taʼminlashi, tovarning taʼmirlanishini va unga texnik xizmat koʻrsatilishini tashkil etishi, tovarni ishlab chiqarish muddati mobaynida hamda u ishlab chiqarishdan olib tashlanganidan keyin tovarning xizmat muddati mobaynida, bunday muddat boʻlmagan taqdirda esa, tovar ishlab chiqarishdan olib tashlangan paytdan eʼtiboran oʻn yil mobaynida yetarli hajmda va turda ehtiyot qismlari ishlab chiqarishi hamda savdo va taʼmirlash tashkilotlariga yetkazib berishi shart.\nDori vositalari va tibbiy buyumlarda, oziq-ovqat va maishiy kimyo tovarlarida ularning ishlab chiqarilgan sanasi, yaroqlilik muddati hamda ularni saqlash shartlari koʻrsatilgan boʻlishi lozim. Sotuvchilarga ishlab chiqarilgan sanasi va yaroqlilik muddati koʻrsatilmagan yoki yaroqlilik muddati oʻtgan tovarlarni qabul qilish hamda realizatsiya qilish man etiladi.",
+  "lex_url": "https://lex.uz/acts/-4704#-4794",
+  "teglar": [
+   "iste'molchi",
+   "kafolat",
+   "kafolat muddati",
+   "servis"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-16",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "16-modda",
+  "sarlavha": "16-modda. Isteʼmolchining nuqsonli tovarning xarid narxini nuqsonga mutanosib ravishda kamaytirishni yoki shartnomani bekor qilishni talab qilish huquqi",
+  "matn": "Agar sotuvchi (ishlab chiqaruvchi) isteʼmolchining tovarni almashtirib berish yoki undagi nuqsonlarni bartaraf etish haqidagi talablarini bajarmagan boʻlsa, isteʼmolchi tovarning xarid narxini nuqsonga mutanosib ravishda kamaytirishni yoki shartnomani bekor qilib yetkazilgan ziyon va maʼnaviy zararni ushbu Qonunning 20 va 22-moddalariga muvofiq qoplashni talab qilishga haqli.",
+  "lex_url": "https://lex.uz/acts/-4704#-6023",
+  "teglar": [
+   "iste'molchi",
+   "narx kamaytirish",
+   "nuqson",
+   "chegirma"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-19",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "19-modda",
+  "sarlavha": "19-modda. Ishni bajarish, xizmat koʻrsatish toʻgʻrisidagi shartnoma shartlari buzilgan taqdirda isteʼmolchining huquqlari",
+  "matn": "Ijrochi ayrim turdagi ishlarni bajarish (xizmatlar koʻrsatish) qoidalarida yoki shartnomada belgilangan muddatda, hajmda va sifatda ishni bajarishi (xizmat koʻrsatishi) shart.\nIshni bajarish (xizmat koʻrsatish) muddati ish bajarilishi (xizmat koʻrsatilishi) lozim boʻlgan sanaga (davrga), shuningdek, ijrochi ishni bajarishga (xizmat koʻrsatishga) kirishishi lozim boʻlgan sanaga (davrga) qarab belgilanishi mumkin. Agar ish bajarish xizmat koʻrsatish shartnomaning amal qilish muddati davomida qismlarga boʻlib-boʻlib ado etiladigan boʻlsa (vaqtli matbuotni yetkazib berish, texnik xizmat koʻrsatish va boshqalar), ishlar bajarish (xizmatlar koʻrsatish)ning bosqichma-bosqich muddatlari (davrlari) nazarda tutilishi kerak.\nAgar ijrochi shartnomani ijro etishga oʻz vaqtida kirishmasa yoki shartnomaning belgilangan muddatda bajarilmasligi ayon boʻlib qolsa, isteʼmolchi ishni bajarish, xizmat koʻrsatish toʻgʻrisidagi shartnomadan voz kechishga va yetkazilgan zararning qoplanishini talab qilishga haqli.\nAgar ijrochi shartnoma shartlarini ish (xizmat)ni yomonlashtirgan darajada jiddiy buzgan boʻlsa, yoxud ishda (xizmatda) boshqa jiddiy nuqsonlarga yoʻl qoʻygan boʻlsa, isteʼmolchi oʻz xohishiga koʻra nuqsonlar bepul bartaraf etilishini, bajarilgan ish (koʻrsatilgan xizmat) bahosi nuqsonlarga mutanosib ravishda kamaytirilishini, xuddi shunday sifatli shu xildagi materialdan boshqa buyum bepul tayyorlab berilishini yoxud ishning takroran bajarilishini yoinki shartnoma bekor qilinib, koʻrilgan zarar toʻliq qoplanishini talab qilishga haqli.\nIsteʼmolchi ushbu moddaning toʻrtinchi qismida koʻrsatilgan huquqlarni:\nishni (xizmatni) qabul qilib olish vaqtida yoki uning bajarilishi jarayonida nuqsonlar aniqlangan taqdirda;\nkafolat muddati davomida, kafolat muddati boʻlmagan taqdirda esa, ish (xizmat) qabul qilib olingan kundan eʼtiboran olti oy davomida;\nimport yoki boshqa koʻchmas mulkda nuqsonlar aniqlangan kundan eʼtiboran ikki yil davomida roʻyobga chiqarishi mumkin.\nIsh bajarish (xizmat koʻrsatish) jarayonida aniqlangan nuqsonlarni bartaraf etish muddatlari shartnomada belgilab qoʻyiladi. Bajarilgan ish (koʻrsatilgan xizmat)dagi nuqsonlar, agar shartnomada birmuncha qisqaroq muddat belgilanmagan boʻlsa, isteʼmolchi talab qilgan kundan eʼtiboran yigirma kun ichida ijrochi tomonidan bartaraf etilishi kerak. Nuqsonlar belgilangan muddatda bartaraf etilmagan, shuningdek, ish bajarishni (xizmat koʻrsatishni) boshlash va tugallash kechiktirilgan taqdirda, ijrochi isteʼmolchi har bir kechiktirilgan kun, soat (agar muddat soatlarda belgilangan boʻlsa) uchun ish (xizmat) qiymatining yoki buyurtma qiymatini (agar uning qiymati alohida belgilanmagan boʻlsa) bir foizi miqdorida neustoyka (penya) toʻlaydi.\nIsteʼmolchi undirib olgan neustoyka (penya) summasi ish bajarish (xizmat koʻrsatish)ning alohida turi bahosidan yoki buyurtmaning umumiy bahosidan ortiq boʻlishi mumkin emas.\nBajarilgan ishdagi nuqsonlarni bartaraf etish kechiktirilganligi uchun ijrochi toʻlagan neustoyka (penya) qoplanishi lozim boʻlgan zarar hisobiga kirmaydi.\nIjrochining majburiyatni umuman yoki lozim darajada bajarilmaganlik uchun neustoyka (penya) toʻlashi va zararni qoplashi uni majburiyatni asl holida bajarishdan ozod etmaydi.\nIsteʼmolchidan qabul qilib olingan ashyo (material) yoʻqolgan, ishdan chiqqan, unga putur yetgan taqdirda yoki isteʼmolchining materialidan foydalanib bajarilgan ishda jiddiy nuqsonlar boʻlsa yo u buzib bajarilgan taqdirda ijrochi isteʼmolchiga aynan oʻxshash sifatli ashyoni qaytarishi (oʻzining aynan oʻxshash sifatli materialidan ish bajarishi yoki xizmat koʻrsatishi), buning imkoniyati boʻlmagan taqdirda esa, ashyoning (materialning) talab qoʻyilgan paytdagi qiymatini ikki baravar qilib toʻlashi shart.\nIjrochi tomonidan ishlar bajarish va xizmatlar koʻrsatish uchun qabul qilib olinayotgan ashyo (material) qiymati shartnoma tuzish paytida tomonlarning kelishuviga muvofiq belgilanadi.\nIshda (xizmatda) jiddiy nuqsonlar mavjud boʻlganida yoki shartnoma talablari jiddiy buzilganida, shuningdek, ashyo (material) yoʻqolgan, ishdan chiqqan, unga putur yetgan taqdirda isteʼmolchi bilan hisob-kitob ishning (xizmatning) yoki materialning shartnomani bekor qilish paytidan oshgan narxini hisobga olgan holda amalga oshiriladi.\nSifatsiz bajarilgan ish (koʻrsatilgan xizmat) tufayli isteʼmolchiga yetkazilgan zarar uchun ijrochi ushbu Qonunning 20, 22, 27, 29-moddalariga muvofiq javobgar boʻladi.\nIshlar bajarish va xizmatlar koʻrsatish toʻgʻrisida tuzilgan shartnomalar boʻyicha isteʼmolchilar bilan ijrochi oʻrtasidagi munosabatlarning oʻz mohiyatiga koʻra ushbu moddaga mos kelmaydigan xususiyatlari, shuningdek, shartnomalarning umuman yoki lozim darajada ijro etilmaganligi tufayli kelib chiqadigan oqibatlar bunday shartnomalarning alohida turlari toʻgʻrisida qonunchilikda belgilab qoʻyiladigan qoidalar bilan aniqlanadi.",
+  "lex_url": "https://lex.uz/acts/-4704#-6053",
+  "teglar": [
+   "iste'molchi",
+   "xizmat",
+   "ish bajarish",
+   "muddat buzilishi",
+   "neustoyka"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-22",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "22-modda",
+  "sarlavha": "22-modda. Maʼnaviy zarar uchun haq toʻlash",
+  "matn": "Isteʼmolchining huquqlari buzilishi tufayli unga yetkazilgan maʼnaviy zarar uchun uni yetkazgan shaxs, basharti u aybdor boʻlsa, haq toʻlashi lozim. Maʼnaviy zarar uchun toʻlanadigan haq miqdorini sud belgilaydi.\nMaʼnaviy zarar uchun haq toʻlash mulkiy ziyon va isteʼmolchi koʻrgan zararning oʻrni qoplanishidan qatʼi nazar, amalga oshiriladi.",
+  "lex_url": "https://lex.uz/acts/-4704#-6109",
+  "teglar": [
+   "iste'molchi",
+   "ma'naviy zarar",
+   "kompensatsiya"
+  ],
+  "holat": "verified"
+ },
+ {
+  "id": "istemol-29",
+  "qonun_nomi": "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni",
+  "modda_raqami": "29-modda",
+  "sarlavha": "29-modda. Isteʼmolchilarning huquqlarini sud orqali himoya qilish",
+  "matn": "Isteʼmolchining huquqlari buzilgan taqdirda, u sudga murojaat qilishga haqlidir. Daʼvolar, agar qonun hujjatlarida boshqacha qoida belgilanmagan boʻlsa, javobgar, isteʼmolchi joylashgan yerdagi yoki zarar yetkazilgan joydagi sudga taqdim etiladi.\nIsteʼmolchilar oʻz huquqlarining buzilishi bilan bogʻliq daʼvolar boʻyicha, shuningdek, tovar (ish, xizmat)lar xavfsiz boʻlishi ularning sifati ustidan nazoratni amalga oshiruvchi davlat organlari, isteʼmolchilarning jamoat birlashmalari isteʼmolchining (isteʼmolchilar nomuayyan doirasining) manfaatlarini koʻzlab qoʻzgʻatiladigan daʼvolar boʻyicha davlat boji toʻlashdan ozod qilinadilar.",
+  "lex_url": "https://lex.uz/acts/-4704#-6523",
+  "teglar": [
+   "iste'molchi",
+   "sud",
+   "himoya",
+   "davlat boji",
+   "da'vo"
+  ],
+  "holat": "verified"
  }
 ]

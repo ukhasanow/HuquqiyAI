@@ -10,6 +10,16 @@
   let rejim = "oddiy";
   const tarix = []; // {rol, matn} — serverga kontekst sifatida yuboriladi
 
+  // Anonim foydalanuvchi ID (statistika uchun, shaxsiy ma'lumotsiz)
+  let foydalanuvchiId = "";
+  try {
+    foydalanuvchiId = localStorage.getItem("huquqiyai_id") || "";
+    if (!foydalanuvchiId) {
+      foydalanuvchiId = "anon-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem("huquqiyai_id", foydalanuvchiId);
+    }
+  } catch (e) { /* localStorage yopiq bo'lsa ID yuborilmaydi */ }
+
   // Rejim almashtirish
   document.querySelectorAll(".rejim-tugma").forEach((t) => {
     t.addEventListener("click", () => {
@@ -31,12 +41,16 @@
     faylNomi.textContent = faylInput.files.length ? faylInput.files[0].name : "";
   });
 
-  // Header chip: bazadagi moddalar soni
+  // Header chip: bazadagi moddalar soni + ochiq hisoblagich
   fetch("/health")
     .then((r) => r.json())
     .then((d) => {
       const chip = document.getElementById("baza-chip");
       if (chip && d.moddalar_soni) chip.textContent = d.moddalar_soni + " modda · lex.uz";
+      const hisob = document.getElementById("hisoblagich");
+      if (hisob && d.javoblar_soni > 0) {
+        hisob.textContent = "📊 Shu paytgacha " + d.javoblar_soni + " ta savolga javob berildi";
+      }
     })
     .catch(() => {});
 
@@ -72,11 +86,17 @@
         fd.append("fayl", fayl);
         fd.append("savol", savol);
         fd.append("rejim", rejim);
-        javob = await fetch("/api/hujjat", { method: "POST", body: fd });
+        javob = await fetch("/api/hujjat", {
+          method: "POST",
+          headers: foydalanuvchiId ? { "X-Foydalanuvchi-Id": foydalanuvchiId } : {},
+          body: fd,
+        });
       } else {
+        const headers = { "Content-Type": "application/json" };
+        if (foydalanuvchiId) headers["X-Foydalanuvchi-Id"] = foydalanuvchiId;
         javob = await fetch("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({ savol, rejim, tarix: tarix.slice(-6) }),
         });
       }
@@ -213,6 +233,7 @@
       karta.appendChild(el("div", "organ-nomi", "🏛 " + o.nomi));
       if (o.tavsif) karta.appendChild(el("div", "organ-qator", o.tavsif));
       karta.appendChild(el("div", "organ-qator", "📍 " + o.manzil));
+      if (o.ish_vaqti) karta.appendChild(el("div", "organ-qator", "🕒 " + o.ish_vaqti));
       karta.appendChild(el("div", "organ-qator", "📞 " + o.telefon));
       const saytQator = el("div", "organ-qator");
       const sayt = el("a", "", o.sayt.replace(/^https?:\/\//, ""));
@@ -226,6 +247,13 @@
         onlayn.target = "_blank";
         onlayn.rel = "noopener";
         saytQator.append(" · ", onlayn);
+      }
+      if (o.hududiy_havola && o.hududiy_havola !== o.sayt) {
+        const hududiy = el("a", "", "hududiy bo'linmalar");
+        hududiy.href = o.hududiy_havola;
+        hududiy.target = "_blank";
+        hududiy.rel = "noopener";
+        saytQator.append(" · ", hududiy);
       }
       karta.appendChild(saytQator);
       if (o.kontakt_holati !== "verified") {

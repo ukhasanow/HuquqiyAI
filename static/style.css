@@ -165,6 +165,10 @@ body {
 }
 .misol:hover { background: var(--krem); border-color: var(--sokin); }
 
+/* Ochiq hisoblagich (bosh sahifa) */
+.hisoblagich { font-size: .82rem; color: var(--sokin); margin-top: 10px; }
+.hisoblagich:empty { display: none; }
+
 /* Uch qismli javob bloklari */
 .qism-sarlavha {
   display: flex;
@@ -431,6 +435,58 @@ body {
 }
 .xato-xabar { color: #b32d2d; font-size: .85rem; margin-top: 8px; }
 .ok-xabar { color: var(--yashil); font-size: .85rem; margin-top: 8px; }
+
+/* Admin statistika */
+.stat-sarlavha { font-size: .9rem; margin: 16px 0 8px; color: var(--asosiy); }
+.stat-kartalar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.stat-karta {
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-qiymat { font-size: 1.3rem; font-weight: 700; color: var(--urgu); }
+.stat-nomi { font-size: .78rem; color: var(--sokin); margin-top: 4px; }
+.stat-grafik {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 110px;
+  border-bottom: 1px solid var(--chiziq);
+  padding-bottom: 2px;
+}
+.stat-ustun { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.stat-bar {
+  width: 100%;
+  min-height: 2px;
+  background: var(--urgu);
+  border-radius: 3px 3px 0 0;
+  transition: height .3s;
+}
+.stat-bar.bosh { background: var(--chiziq); }
+.mavzu-qator { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: .85rem; }
+.mavzu-nomi { flex: 0 0 110px; color: var(--matn); }
+.mavzu-bar {
+  display: inline-block;
+  height: 12px;
+  min-width: 4px;
+  background: var(--urgu);
+  border-radius: 6px;
+  opacity: .75;
+}
+.mavzu-son { color: var(--sokin); }
+.topilmagan-qator {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--chiziq);
+  font-size: .87rem;
+}
+.topilmagan-qator:last-child { border-bottom: 0; }
+.topilmagan-sana { color: var(--sokin); font-size: .78rem; margin-right: 6px; }
 
 @media (max-width: 640px) {
   .xabar-ich { max-width: 100%; }

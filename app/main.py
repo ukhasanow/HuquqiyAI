@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from . import storage
 from .config import ADMIN_PASSWORD, ANTHROPIC_API_KEY, GEMINI_API_KEY, MAX_HUJJAT_HAJMI, STATIC_DIR
 from .models import ArizaJavob, ArizaSorov, ChatJavob, ChatSorov, ModdaKiritish
-from .services import ariza, documents, llm, retrieval
+from .services import ariza, documents, llm, retrieval, statistika
 
 app = FastAPI(title="HuquqiyAI", description="O'zbekiston uchun huquqiy AI yordamchi")
 
@@ -71,17 +71,37 @@ def _uch_qismli_javob(savol: str, rejim: str, tarix, hujjat_matni: Optional[str]
     )
 
 
+def _statistika_yoz(javob: ChatJavob, rejim: str, foydalanuvchi_id: Optional[str], savol: str) -> None:
+    """Statistika yozilmasa ham asosiy javob buzilmasligi kerak."""
+    try:
+        statistika.sorov_hisobla(
+            rejim=rejim,
+            javob_topildi=javob.javob_topildi,
+            murojaat_mavzusi=javob.murojaat_mavzusi,
+            foydalanuvchi_id=foydalanuvchi_id,
+            savol=savol,
+        )
+    except Exception:
+        pass
+
+
 # ---------- Ochiq API ----------
 
 @app.get("/health", include_in_schema=False)
 def health():
-    """Uptime monitoring uchun (bepul hosting uxlab qolmasligi uchun ping)."""
-    return {"holat": "ok", "moddalar_soni": len(storage.moddalarni_oqi())}
+    """Uptime monitoring va bosh sahifadagi ochiq hisoblagich uchun."""
+    return {
+        "holat": "ok",
+        "moddalar_soni": len(storage.moddalarni_oqi()),
+        "javoblar_soni": statistika.javoblar_soni(),
+    }
 
 @app.post("/api/chat", response_model=ChatJavob)
-def chat(sorov: ChatSorov):
+def chat(sorov: ChatSorov, x_foydalanuvchi_id: Optional[str] = Header(None)):
     tarix = [t.model_dump() for t in (sorov.tarix or [])]
-    return _uch_qismli_javob(sorov.savol, sorov.rejim, tarix)
+    javob = _uch_qismli_javob(sorov.savol, sorov.rejim, tarix)
+    _statistika_yoz(javob, sorov.rejim, x_foydalanuvchi_id, sorov.savol)
+    return javob
 
 
 @app.post("/api/hujjat", response_model=ChatJavob)
@@ -89,6 +109,7 @@ async def hujjat_tahlili(
     fayl: UploadFile = File(...),
     savol: str = Form(""),
     rejim: str = Form("oddiy"),
+    x_foydalanuvchi_id: Optional[str] = Header(None),
 ):
     bayt = await fayl.read()
     if len(bayt) > MAX_HUJJAT_HAJMI:
@@ -97,7 +118,9 @@ async def hujjat_tahlili(
         matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt)
     except documents.HujjatXato as e:
         raise HTTPException(status_code=422, detail=str(e))
-    return _uch_qismli_javob(savol, rejim, tarix=None, hujjat_matni=matn)
+    javob = _uch_qismli_javob(savol, rejim, tarix=None, hujjat_matni=matn)
+    _statistika_yoz(javob, rejim, x_foydalanuvchi_id, savol)
+    return javob
 
 
 @app.post("/api/ariza", response_model=ArizaJavob)
@@ -135,6 +158,12 @@ def admin_modda_saqlash(modda: ModdaKiritish, x_admin_parol: Optional[str] = Hea
     if modda.holat not in ("verified", "needs_verification"):
         raise HTTPException(status_code=422, detail="holat: verified yoki needs_verification bo'lishi kerak")
     return storage.modda_qosh_yoki_yangila(modda.model_dump())
+
+
+@app.get("/api/admin/statistika")
+def admin_statistika(x_admin_parol: Optional[str] = Header(None)):
+    _admin_tekshir(x_admin_parol)
+    return statistika.statistika_oqi()
 
 
 # ---------- Statik sahifalar ----------

@@ -3,6 +3,7 @@
   let parol = "";
 
   const parolKarta = document.getElementById("parol-karta");
+  const statistikaKarta = document.getElementById("statistika-karta");
   const royxatKarta = document.getElementById("royxat-karta");
   const formaKarta = document.getElementById("forma-karta");
   const royxat = document.getElementById("moddalar-royxati");
@@ -22,9 +23,91 @@
       return;
     }
     parolKarta.hidden = true;
+    statistikaKarta.hidden = false;
     royxatKarta.hidden = false;
     formaKarta.hidden = false;
     renderRoyxat(await j.json());
+    statistikaYukla();
+  }
+
+  // ---- Statistika ----
+
+  async function statistikaYukla() {
+    try {
+      const j = await fetch("/api/admin/statistika", { headers: { "X-Admin-Parol": parol } });
+      if (!j.ok) return;
+      renderStatistika(await j.json());
+    } catch (e) { /* statistika yuklanmasa ham panel ishlayveradi */ }
+  }
+
+  function renderStatistika(s) {
+    // Yuqori kartalar: jami, topildi/topilmadi, oddiy/pro, foydalanuvchilar
+    const kartalar = document.getElementById("stat-kartalar");
+    kartalar.innerHTML = "";
+    const oddiy = (s.rejimlar && s.rejimlar.oddiy) || 0;
+    const pro = (s.rejimlar && s.rejimlar.pro) || 0;
+    [
+      ["Jami so'rovlar", s.jami_sorovlar],
+      ["Javob topildi / topilmadi", s.javob_topildi + " / " + s.javob_topilmadi],
+      ["Oddiy / Pro", oddiy + " / " + pro],
+      ["Foydalanuvchilar", s.foydalanuvchilar_soni],
+    ].forEach(([nomi, qiymat]) => {
+      const k = document.createElement("div");
+      k.className = "stat-karta";
+      k.innerHTML = '<div class="stat-qiymat">' + esc(String(qiymat)) + '</div><div class="stat-nomi">' + esc(nomi) + "</div>";
+      kartalar.appendChild(k);
+    });
+
+    // 30 kunlik grafik — oddiy CSS ustunlar, tashqi kutubxonasiz
+    const grafik = document.getElementById("stat-grafik");
+    grafik.innerHTML = "";
+    const maks = Math.max(1, ...s.kunlik_30.map((k) => k.jami));
+    s.kunlik_30.forEach((k) => {
+      const ustun = document.createElement("div");
+      ustun.className = "stat-ustun";
+      ustun.title = k.sana + ": " + k.jami + " so'rov (" + k.topildi + " topildi)";
+      const bar = document.createElement("div");
+      bar.className = "stat-bar";
+      bar.style.height = Math.round((k.jami / maks) * 100) + "%";
+      if (k.jami === 0) bar.classList.add("bosh");
+      ustun.appendChild(bar);
+      grafik.appendChild(ustun);
+    });
+
+    // Mavzular kesimi — gorizontal barlar
+    const mavzular = document.getElementById("stat-mavzular");
+    mavzular.innerHTML = "";
+    const juftlar = Object.entries(s.mavzular || {}).sort((a, b) => b[1] - a[1]);
+    if (!juftlar.length) mavzular.textContent = "Hozircha ma'lumot yo'q";
+    const mavzuMaks = Math.max(1, ...juftlar.map(([, n]) => n));
+    juftlar.forEach(([mavzu, n]) => {
+      const q = document.createElement("div");
+      q.className = "mavzu-qator";
+      const nom = document.createElement("span");
+      nom.className = "mavzu-nomi";
+      nom.textContent = mavzu;
+      const bar = document.createElement("span");
+      bar.className = "mavzu-bar";
+      bar.style.width = Math.round((n / mavzuMaks) * 100) + "%";
+      const son = document.createElement("span");
+      son.className = "mavzu-son";
+      son.textContent = n;
+      q.append(nom, bar, son);
+      mavzular.appendChild(q);
+    });
+
+    // Topilmagan savollar ro'yxati
+    const topilmagan = document.getElementById("stat-topilmagan");
+    topilmagan.innerHTML = "";
+    if (!s.topilmagan_savollar.length) {
+      topilmagan.textContent = "Topilmagan savollar yo'q 🎉";
+    }
+    s.topilmagan_savollar.slice(0, 50).forEach((t) => {
+      const q = document.createElement("div");
+      q.className = "topilmagan-qator";
+      q.innerHTML = '<span class="topilmagan-sana">' + esc(t.sana) + "</span> " + esc(t.savol);
+      topilmagan.appendChild(q);
+    });
   }
 
   function renderRoyxat(moddalar) {
