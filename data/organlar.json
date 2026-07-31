@@ -60,6 +60,42 @@
     "kontakt_holati": "kontakt tekshirilsin"
   },
   {
+    "mavzu": "ma'muriy",
+    "nomi": "Ichki ishlar organlari (tuman/shahar IIB) — ma'muriy huquqbuzarliklar bo'yicha",
+    "tavsif": "Ma'muriy jarimalar, yo'l harakati qoidalari buzilishi, mayda bezorilik, jamoat tartibi. Jarima qarori ustidan shikoyat 10 kun ichida beriladi",
+    "manzil": "Yashash joyingizdagi tuman (shahar) IIB — aniq manzilni iiv.uz orqali toping",
+    "ish_vaqti": "Navbatchilik qismi 24/7; qabul kunlari bo'limga qarab farq qiladi (TEKSHIRILSIN)",
+    "telefon": "102 (tezkor xizmat)",
+    "sayt": "https://iiv.uz",
+    "onlayn_murojaat": "https://murojaat.gov.uz",
+    "hududiy_havola": "https://iiv.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "jinoyat",
+    "nomi": "Ichki ishlar organlari yoki prokuratura — jinoyat to'g'risida ariza berish",
+    "tavsif": "O'g'rilik, firibgarlik, bezorilik, tan jarohati va boshqa jinoyatlar bo'yicha ariza. Ariza qabul qilinganda talon berilishi shart",
+    "manzil": "Yashash joyingizdagi tuman (shahar) IIB yoki prokuratura — aniq manzilni iiv.uz / prokuratura.uz orqali toping",
+    "ish_vaqti": "IIB navbatchilik qismi 24/7 — ariza istalgan vaqtda qabul qilinadi",
+    "telefon": "102 (tezkor xizmat)",
+    "sayt": "https://prokuratura.uz",
+    "onlayn_murojaat": "https://murojaat.gov.uz",
+    "hududiy_havola": "https://iiv.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "uy-joy",
+    "nomi": "Fuqarolik ishlari bo'yicha tumanlararo sud (uy-joy nizolari)",
+    "tavsif": "Turar joydan foydalanish, ijara, ko'chirish, kommunal to'lovlar va ko'p kvartirali uy bo'yicha nizolar",
+    "manzil": "Turar joy joylashgan tumandagi sud — aniq manzilni sud.uz saytidan toping",
+    "ish_vaqti": "Dush–Jum 9:00–18:00, tushlik 13:00–14:00 (sudga qarab farq qilishi mumkin — TEKSHIRILSIN)",
+    "telefon": "kontakt tekshirilsin",
+    "sayt": "https://sud.uz",
+    "onlayn_murojaat": "https://my.sud.uz",
+    "hududiy_havola": "https://sud.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
     "mavzu": "umumiy",
     "nomi": "Adliya vazirligi — bepul yuridik maslahat",
     "tavsif": "Umumiy huquqiy savollar, qaysi organga murojaat qilishni aniqlash",

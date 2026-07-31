@@ -24,18 +24,25 @@ def _kirilldan_lotinga(matn: str) -> str:
         matn = matn.replace(k, l)
     return matn
 
-# Qidiruvda ma'nosiz keng tarqalgan so'zlar
+# Qidiruvda ma'nosiz keng tarqalgan so'zlar (apostrofsiz shaklda — pastga qarang)
 _STOP = {
     "va", "bilan", "uchun", "ham", "yoki", "bu", "shu", "u", "men", "meni",
-    "mening", "nima", "qanday", "qilish", "qilsam", "bo'ladi", "kerak",
-    "mumkin", "haqida", "bo'yicha", "deb", "edi", "esa",
+    "mening", "nima", "qanday", "qilish", "qilsam", "boladi", "kerak",
+    "mumkin", "haqida", "boyicha", "deb", "edi", "esa",
 }
 
 
 def _normalizatsiya(matn: str) -> List[str]:
+    """Matnni qidiruv tokenlariga ajratadi.
+
+    Apostrof BUTUNLAY olib tashlanadi: foydalanuvchilar ko'pincha "ogirlab",
+    "istemolchi" deb yozadi, bazadagi teglar esa "o'g'irlash", "iste'molchi".
+    Ikkalasi bir shaklga keltirilmasa, bunday savollar hech narsa topmaydi.
+    """
     matn = matn.lower().translate(_APOSTROFLAR)
     matn = _kirilldan_lotinga(matn)
-    tokenlar = re.findall(r"[a-z']+|\d+", matn)
+    matn = matn.replace("'", "")
+    tokenlar = re.findall(r"[a-z]+|\d+", matn)
     return [t for t in tokenlar if t not in _STOP and len(t) > 2]
 
 
@@ -50,19 +57,51 @@ def _mos(a: str, b: str) -> bool:
     return a[:k] == b[:k]
 
 
+# Savolga mos modda topilmaganda LLM'ga yuboriladigan moddalar chegarasi.
+# Chegarasiz butun baza yuborilar edi — baza o'sgani sayin javob sekinlashadi
+# va bunday holatda LLM baribir javob_topildi=false qaytaradi.
+FALLBACK_CHEGARA = 12
+
+# Har so'rovda har bir moddaning matnini qaytadan tokenlash qimmat, tokenlar
+# esa faqat baza o'zgarganda o'zgaradi. Ro'yxat obyektining o'zi kalit bo'ladi:
+# storage kesh yangilanganda yangi ro'yxat obyekti keladi va indeks qayta
+# quriladi. Ro'yxatga kuchli havola saqlanadi, shuning uchun `is` solishtiruvi
+# ishonchli.
+_indeks_kesh: dict = {"royxat": None, "yozuvlar": None}
+
+
+def _indeks(moddalar: List[dict]) -> List[tuple]:
+    """Har bir modda uchun (teg, sarlavha, matn) tokenlari — bir marta hisoblanadi."""
+    if _indeks_kesh["royxat"] is moddalar:
+        return _indeks_kesh["yozuvlar"]
+    yozuvlar = [
+        (
+            m,
+            _normalizatsiya(" ".join(m.get("teglar", []))),
+            _normalizatsiya(m.get("sarlavha", "")),
+            set(_normalizatsiya(m.get("matn", ""))),
+        )
+        for m in moddalar
+    ]
+    _indeks_kesh["royxat"] = moddalar
+    _indeks_kesh["yozuvlar"] = yozuvlar
+    return yozuvlar
+
+
 def moddalarni_qidir(savol: str, moddalar: List[dict], top_n: int = 5) -> List[dict]:
     """Savolga eng mos moddalarni qaytaradi. Hech narsa topilmasa —
-    butun bazani qaytaradi (korpus kichik, yakuniy tanlovni LLM qiladi)."""
+    bazadan cheklangan namuna qaytadi (yakuniy tanlovni LLM qiladi)."""
     savol_tokenlar = _normalizatsiya(savol)
     natijalar = []
-    for m in moddalar:
-        teg_tokenlar = _normalizatsiya(" ".join(m.get("teglar", [])))
-        sarlavha_tokenlar = _normalizatsiya(m.get("sarlavha", ""))
-        matn_tokenlar = set(_normalizatsiya(m.get("matn", "")))
+    for m, teg_tokenlar, sarlavha_tokenlar, matn_tokenlar in _indeks(moddalar):
         ball = 0
         for st in savol_tokenlar:
+            # Teglar qo'lda tanlangani uchun eng ishonchli signal: apostrof
+            # olib tashlangach ba'zi so'zlar tasodifan o'xshab qoladi
+            # (masalan "og'ir" va "o'g'irlab"), teg vazni shu shovqindan
+            # ustun turishi kerak.
             if any(_mos(st, t) for t in teg_tokenlar):
-                ball += 3
+                ball += 4
             if any(_mos(st, t) for t in sarlavha_tokenlar):
                 ball += 2
             if any(_mos(st, t) for t in matn_tokenlar):
@@ -71,5 +110,5 @@ def moddalarni_qidir(savol: str, moddalar: List[dict], top_n: int = 5) -> List[d
             natijalar.append((ball, m))
     natijalar.sort(key=lambda x: -x[0])
     if not natijalar:
-        return list(moddalar)  # ishonch past — hammasini LLM'ga beramiz
+        return list(moddalar[:FALLBACK_CHEGARA])  # ishonch past
     return [m for _, m in natijalar[:top_n]]

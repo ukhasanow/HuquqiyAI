@@ -32,6 +32,56 @@ def test_organlar_toliq():
         assert o["nomi"] and o["manzil"]
 
 
+def test_mavzular_organlar_bilan_mos():
+    """LLM tanlaydigan har bir mavzu uchun bazada organ bo'lishi shart.
+    Aks holda model to'g'ri mavzu qaytarsa ham foydalanuvchi "umumiy"ga tushadi."""
+    from app.services.llm import MUROJAAT_MAVZULARI
+
+    organ_mavzulari = {o["mavzu"] for o in storage.organlarni_oqi()}
+    yetishmayotgan = set(MUROJAAT_MAVZULARI) - organ_mavzulari
+    assert not yetishmayotgan, f"organlar.json da yo'q mavzular: {yetishmayotgan}"
+
+
+def test_har_bir_kodeks_qidiruvda_topiladi():
+    """Har bir qonun uchun hayotiy savol top-3 da to'g'ri kodeksni chiqarishi kerak."""
+    moddalar = storage.moddalarni_oqi()
+    tekshiruv = [
+        ("Ish haqimni 2 oydan beri to'lashmayapti", "mehnat-"),
+        ("Ajrashmoqchiman, aliment to'lamayapti", "oila-"),
+        ("Muzlatgich buzuq chiqdi, pulini qaytarishadimi?", "istemol-"),
+        ("Ijara shartnomam bor, uydan chiqarib yubormoqchi", "uyjoy-"),
+        ("Tezlikni oshirganim uchun kamera jarima yozdi", "mjk-"),
+        ("Telefonimni o'g'irlab ketishdi", "jk-"),
+    ]
+    for savol, prefiks in tekshiruv:
+        idlar = [m["id"] for m in retrieval.moddalarni_qidir(savol, moddalar)]
+        assert any(i.startswith(prefiks) for i in idlar[:3]), f"{savol!r} -> {idlar}"
+
+
+def test_kundalik_murojaatlar_javobsiz_qolmaydi():
+    """Jonli sinovda javobsiz qolgan, lekin juda ko'p uchraydigan savollar."""
+    moddalar = storage.moddalarni_oqi()
+    for savol, kutilgan in [
+        ("Qo'shnim tunda juda shovqin qilyapti, nima qilsam bo'ladi?", "mjk-192"),
+        ("Uy egasi garov pulimni qaytarmadi", "fuqarolik-1023"),
+    ]:
+        idlar = [m["id"] for m in retrieval.moddalarni_qidir(savol, moddalar)]
+        assert kutilgan in idlar[:3], f"{savol!r} -> {idlar}"
+
+
+def test_qidiruv_apostrofsiz_va_kirill():
+    """Foydalanuvchilar apostrofsiz ("ogirlab") va kirillda yozadi —
+    ikkalasi ham teglardagi apostrofli shakl bilan mos tushishi kerak."""
+    moddalar = storage.moddalarni_oqi()
+    for savol, kutilgan in [
+        ("Telefonimni ogirlab ketishdi", "jk-169"),
+        ("Иш ҳақимни тўламаяпти", "mehnat-"),
+        ("Квартирадан кўчириб юборишмоқчи", "uyjoy-"),
+    ]:
+        idlar = [m["id"] for m in retrieval.moddalarni_qidir(savol, moddalar)]
+        assert any(i.startswith(kutilgan) for i in idlar[:3]), f"{savol!r} -> {idlar}"
+
+
 # ---------- Qidiruv ----------
 
 def test_qidiruv_lotin():
@@ -47,10 +97,21 @@ def test_qidiruv_kirill():
     assert any(i.startswith("mehnat-") for i in idlar[:3])
 
 
-def test_qidiruv_topilmasa_hammasi():
+def test_qidiruv_topilmasa_cheklangan():
+    """Mos modda topilmasa butun baza emas, cheklangan namuna qaytadi —
+    aks holda baza o'sgani sayin LLM so'rovi va javob vaqti o'sib boradi."""
     moddalar = storage.moddalarni_oqi()
     natija = retrieval.moddalarni_qidir("xxxyyyzzz", moddalar)
-    assert len(natija) == len(moddalar)  # fallback: yakuniy tanlov LLM'da
+    assert len(natija) == min(retrieval.FALLBACK_CHEGARA, len(moddalar))
+
+
+def test_qidiruv_indeksi_baza_ozgarsa_yangilanadi():
+    """Kesh eskirib qolmasligi kerak: yangi ro'yxatga yangi indeks quriladi."""
+    moddalar = storage.moddalarni_oqi()
+    retrieval.moddalarni_qidir("aliment", moddalar)
+    soxta = [dict(moddalar[0], id="test-x", teglar=["xyzqwe"], sarlavha="", matn="")]
+    natija = retrieval.moddalarni_qidir("xyzqwe", soxta)
+    assert natija and natija[0]["id"] == "test-x"
 
 
 # ---------- Ariza generatori ----------
