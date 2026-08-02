@@ -61,51 +61,6 @@ data/
 static/                  # chat UI + admin sahifa (sof HTML/JS)
 ```
 
-## O'rnatish
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# .env faylida ANTHROPIC_API_KEY va ADMIN_PASSWORD ni kiriting
-```
-
-`.env` o'zgaruvchilari:
-
-| O'zgaruvchi | Tavsif |
-|---|---|
-| `ANTHROPIC_API_KEY` | Asosiy AI provayder kaliti |
-| `MODEL` | Asosiy model (standart: `claude-sonnet-4-5`) |
-| `GEMINI_API_KEY` | Zaxira provayder kaliti (ixtiyoriy, [aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi) |
-| `GEMINI_MODEL` | Zaxira model (standart: `gemini-2.5-flash`) |
-| `ADMIN_PASSWORD` | Admin sahifa paroli |
-
-Kamida bitta provayder kaliti bo'lishi shart; ikkalasi bo'lsa tizim avtomatik
-zaxiraga o'tishni qo'llaydi.
-
-## Ishga tushirish
-
-```bash
-source venv/bin/activate
-uvicorn app.main:app --port 8000
-```
-
-So'ng brauzerda: **http://127.0.0.1:8000** (admin: **http://127.0.0.1:8000/admin**)
-
-## Bepul hostingga joylash (Render)
-
-Repo'da `render.yaml` tayyor. Qadamlar:
-
-1. Kodni GitHub'ga push qiling
-2. [render.com](https://render.com)da GitHub bilan kiring
-3. **New + → Blueprint** → repo'ni tanlang
-4. So'ralganda `ANTHROPIC_API_KEY` va `ADMIN_PASSWORD` qiymatlarini kiriting
-
-Bepul tierda xizmat 15 daqiqa harakatsizlikdan keyin uxlaydi (birinchi ochilish
-~1 daqiqa). Demo oldidan sahifani bir marta ochib qo'ying.
-
 ## Demo uchun 3 ta namunaviy savol
 
 1. **Mehnat** (oddiy rejim): *"Ish beruvchi meni asossiz ishdan bo'shatmoqchi,
