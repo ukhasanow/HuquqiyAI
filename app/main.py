@@ -7,9 +7,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import storage
-from .config import ADMIN_PASSWORD, ANTHROPIC_API_KEY, GEMINI_API_KEY, MAX_HUJJAT_HAJMI, STATIC_DIR
+from .config import ADMIN_PASSWORD, MAX_HUJJAT_HAJMI, STATIC_DIR
 from .models import ArizaJavob, ArizaSorov, ChatJavob, ChatSorov, ModdaKiritish
-from .services import ariza, documents, kesh, llm, retrieval, statistika
+from .services import ariza, documents, statistika
+from .services.javob import AiSozlanmagan, AiXato, javob_ol, statistikani_yoz, uch_qismli_javob
 
 app = FastAPI(title="HuquqiyAI", description="O'zbekiston uchun huquqiy AI yordamchi")
 
@@ -21,72 +22,15 @@ def _admin_tekshir(parol: Optional[str]) -> None:
         raise HTTPException(status_code=401, detail="Noto'g'ri admin parol")
 
 
-def _api_xato_matni(e: Exception) -> str:
-    """Anthropic API xatolarini foydalanuvchiga tushunarli o'zbekcha xabarga aylantiradi."""
-    s = str(e).lower()
-    if "credit balance" in s or "billing" in s:
-        return "AI xizmati vaqtincha mavjud emas (hisob to'ldirilishi kerak). Birozdan so'ng urinib ko'ring."
-    if "authentication" in s or "invalid x-api-key" in s or "401" in s:
-        return "AI xizmati sozlanmagan (API kalit noto'g'ri). Administratorga murojaat qiling."
-    if "rate limit" in s or "429" in s:
-        return "So'rovlar ko'payib ketdi. Bir daqiqadan so'ng qaytadan urinib ko'ring."
-    if "overloaded" in s or "529" in s:
-        return "AI xizmati hozir band. Birozdan so'ng qaytadan urinib ko'ring."
-    return "AI xizmatida vaqtinchalik xatolik yuz berdi. Qaytadan urinib ko'ring."
+def _http_xato(e) -> HTTPException:
+    """Domen istisnosini HTTP kodiga aylantiradi.
 
-
-def _uch_qismli_javob(savol: str, rejim: str, tarix, hujjat_matni: Optional[str] = None) -> ChatJavob:
-    """Umumiy oqim: retrieval -> LLM -> bazadan yig'ish.
-    Chat ham, hujjat tahlili ham shu funksiyadan o'tadi."""
-    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY:
-        raise HTTPException(
-            status_code=503,
-            detail="AI provayder sozlanmagan (ANTHROPIC_API_KEY yoki GEMINI_API_KEY kerak). .env faylini tekshiring.",
-        )
-    hamma_moddalar = storage.moddalarni_oqi()
-    qidiruv_matni = savol if not hujjat_matni else (savol + " " + hujjat_matni[:2000])
-    nomzodlar = retrieval.moddalarni_qidir(qidiruv_matni, hamma_moddalar)
-
-    try:
-        natija = llm.javob_yarat(savol, nomzodlar, rejim=rejim, tarix=tarix, hujjat_matni=hujjat_matni)
-    except Exception as e:  # API xatolari foydalanuvchiga tushunarli qaytsin
-        raise HTTPException(status_code=502, detail=_api_xato_matni(e))
-
-    # 1-qism: modda matnlari FAQAT bazadan olinadi (LLM'dan emas)
-    moddalar = []
-    for mid in natija.get("tegishli_modda_idlari", [])[:3]:
-        m = storage.modda_top(mid)
-        if m:
-            moddalar.append(m)
-
-    # 3-qism: kontakt bazadan
-    organ = storage.organ_top(natija.get("murojaat_mavzusi", "umumiy"))
-
-    return ChatJavob(
-        javob_topildi=bool(natija.get("javob_topildi")) and bool(moddalar),
-        moddalar=moddalar,
-        tavsiya=natija.get("tavsiya", ""),
-        murojaat=organ,
-        murojaat_mavzusi=natija.get("murojaat_mavzusi", "umumiy"),
-    )
-
-
-def _statistika_yoz(javob: ChatJavob, rejim: str, foydalanuvchi_id: Optional[str], savol: str) -> None:
-    """Statistika yozilmasa ham asosiy javob buzilmasligi kerak.
-
-    Javob yuborilgandan KEYIN (BackgroundTasks orqali) chaqiriladi — diskka
-    yozish va qulf kutish foydalanuvchi kutadigan vaqtga qo'shilmasin.
+    Javob mantiqi (services/javob.py) HTTP haqida hech narsa bilmaydi —
+    o'sha modulni Telegram bot ham chaqiradi.
     """
-    try:
-        statistika.sorov_hisobla(
-            rejim=rejim,
-            javob_topildi=javob.javob_topildi,
-            murojaat_mavzusi=javob.murojaat_mavzusi,
-            foydalanuvchi_id=foydalanuvchi_id,
-            savol=savol,
-        )
-    except Exception:
-        pass
+    if isinstance(e, AiSozlanmagan):
+        return HTTPException(status_code=503, detail=e.foydalanuvchi_matni)
+    return HTTPException(status_code=502, detail=e.foydalanuvchi_matni)
 
 
 # ---------- Ochiq API ----------
@@ -103,19 +47,12 @@ def health():
 @app.post("/api/chat", response_model=ChatJavob)
 def chat(sorov: ChatSorov, fon: BackgroundTasks, x_foydalanuvchi_id: Optional[str] = Header(None)):
     tarix = [t.model_dump() for t in (sorov.tarix or [])]
+    try:
+        javob = javob_ol(sorov.savol, sorov.rejim, tarix)
+    except (AiSozlanmagan, AiXato) as e:
+        raise _http_xato(e)
 
-    # Kesh faqat mustaqil savolga tegishli: suhbat tarixi bo'lsa javob oldingi
-    # xabarlarga bog'liq bo'ladi va uni boshqa foydalanuvchiga berib bo'lmaydi.
-    kesh_kaliti = kesh.kalit(sorov.savol, sorov.rejim, storage.versiya()) if not tarix else None
-    javob = kesh.ol(kesh_kaliti)
-    if javob is None:
-        javob = _uch_qismli_javob(sorov.savol, sorov.rejim, tarix)
-        # Javob topilmagan savollarni keshlamaymiz: baza to'ldirilgach
-        # o'sha savol to'g'ri javob berishi kerak.
-        if javob.javob_topildi:
-            kesh.qoy(kesh_kaliti, javob)
-
-    fon.add_task(_statistika_yoz, javob, sorov.rejim, x_foydalanuvchi_id, sorov.savol)
+    fon.add_task(statistikani_yoz, javob, sorov.rejim, x_foydalanuvchi_id, sorov.savol)
     return javob
 
 
@@ -134,8 +71,11 @@ async def hujjat_tahlili(
         matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt)
     except documents.HujjatXato as e:
         raise HTTPException(status_code=422, detail=str(e))
-    javob = _uch_qismli_javob(savol, rejim, tarix=None, hujjat_matni=matn)
-    fon.add_task(_statistika_yoz, javob, rejim, x_foydalanuvchi_id, savol)
+    try:
+        javob = uch_qismli_javob(savol, rejim, tarix=None, hujjat_matni=matn)
+    except (AiSozlanmagan, AiXato) as e:
+        raise _http_xato(e)
+    fon.add_task(statistikani_yoz, javob, rejim, x_foydalanuvchi_id, savol)
     return javob
 
 
