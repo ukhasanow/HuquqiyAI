@@ -9,11 +9,14 @@
 # provayderi) va o'zbek tilini tushunadi. OPENAI_API_KEY berilsa, Gemini
 # ishlamay qolganda Whisper'ga o'tiladi.
 import base64
+import logging
 from typing import Optional
 
 import httpx
 
 from ..config import GEMINI_API_KEY, GEMINI_MODEL, OPENAI_API_KEY
+
+log = logging.getLogger(__name__)
 
 # Ovozni matnga o'girish — ijodkorlik talab qilmaydi, aksincha zarar qiladi:
 # model eshitmagan so'zini "to'g'rilab" yozib qo'yishi mumkin.
@@ -41,16 +44,21 @@ def matnga_ogir(bayt: bytes, mime: str = "audio/ogg") -> str:
     if not bayt:
         raise OvozXato("Ovozli xabar bo'sh.")
 
+    # Provayder xatosi foydalanuvchiga umumiy xabar bo'lib ko'rinadi ("matn
+    # bilan yozing"), sabab esa faqat log'da qoladi. Kalit yaroqsiz bo'lsa
+    # (401) buni boshqacha bilib bo'lmaydi — shuning uchun log majburiy.
     oxirgi_xato: Optional[Exception] = None
     if GEMINI_API_KEY:
         try:
             return _gemini_transkript(bayt, mime)
         except Exception as e:
+            log.warning("Gemini transkripti ishlamadi: %s", e)
             oxirgi_xato = e
     if OPENAI_API_KEY:
         try:
             return _whisper_transkript(bayt, mime)
         except Exception as e:
+            log.warning("Whisper transkripti ishlamadi: %s", e)
             oxirgi_xato = e
 
     if oxirgi_xato is not None:
