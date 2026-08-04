@@ -27,6 +27,9 @@ MUROJAAT_MAVZULARI = [
     "ma'muriy",
     "jinoyat",
     "uy-joy",
+    "soliq",
+    "yer",
+    "yol-harakati",
     "umumiy",
 ]
 

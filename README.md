@@ -27,7 +27,7 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
 
 ## Arxitektura: asl matn kafolati
 
-RAG oqimi: savol → moddalarni qidirish (kalit so'z + teg skoring) → AI model
+RAG oqimi: savol → moddalarni qidirish (BM25 uslubidagi leksik qidiruv) → AI model
 faqat **topilgan moddalar asosida** tavsiya yozadi va tegishli moddalar ID'sini
 tanlaydi (majburiy structured output, JSON schema). Modda matnining o'zi esa
 **hech qachon LLM orqali o'tmaydi** — foydalanuvchiga bevosita bazadan
@@ -39,11 +39,31 @@ xizmat uzluksiz ishlaydi.
 
 lex.uz'dan olib bo'lmagan matnlar to'qib chiqarilmaydi — ular bazada
 `needs_verification` deb belgilanadi va UI'da "matn tekshirilmoqda" ko'rinishida,
-faqat lex.uz havolasi bilan chiqadi. Hozirgi bazadagi 42 ta modda matni lex.uz'ning
-rasmiy sahifalaridan olingan (`verified`): Mehnat kodeksi (ishdan bo'shatish,
-ish haqi, ta'til, sinov muddati, mehnat nizolari), Oila kodeksi (ajrashish,
-aliment, er-xotin mulki), Fuqarolik kodeksi (shartnoma, ijara, qarz, meros),
-Iste'molchilar huquqlari qonuni (nuqsonli tovar, almashtirish, pul qaytarish).
+faqat lex.uz havolasi bilan chiqadi.
+
+### Baza: 348 modda, 13 ta hujjat
+
+Barcha modda matnlari `tools/lex_import.py` orqali lex.uz'dan olingan
+(`verified`) — qo'lda ham, AI orqali ham yozilmagan (pastda "Bazani to'ldirish").
+
+| Hujjat | Modda | Nimani qamraydi |
+|---|---|---|
+| Mehnat kodeksi | 49 | ishdan bo'shatish, ish haqi, ta'til, sinov muddati, mehnat nizolari |
+| Fuqarolik kodeksi | 42 | shartnoma, ijara, qarz, meros, zarar qoplash |
+| Oila kodeksi | 34 | ajrashish, aliment, er-xotin mulki, bola tarbiyasi |
+| Soliq kodeksi | 33 | daromad, mol-mulk va yer solig'i, imtiyozlar, deklaratsiya |
+| Yer kodeksi | 31 | tomorqa, uchastka ajratish, olib qo'yish, yer nizolari |
+| Fuqarolik protsessual kodeksi | 28 | da'vo arizasi, davlat boji, muddatlar, apellyatsiya |
+| Konstitutsiya | 28 | inson huquqlari (mehnat, uy-joy, ta'lim, sud himoyasi) |
+| Ma'muriy javobgarlik kodeksi | 23 | jarimalar, yo'l qoidalari, jamoat tartibi |
+| Uy-joy kodeksi | 18 | ijara, ko'chirish, kommunal to'lovlar |
+| Iste'molchilar huquqlari qonuni | 18 | nuqsonli tovar, almashtirish, pul qaytarish |
+| Jinoyat kodeksi | 16 | o'g'rilik, firibgarlik, tan jarohati |
+| Murojaatlar to'g'risidagi qonun | 16 | ariza berish, ko'rib chiqish muddatlari, javob |
+| Yo'l harakati to'g'risidagi qonun | 12 | guvohnoma, haydovchi huquqlari, texnik holat |
+
+Har kodeksdan butun matn emas, fuqaro savolida eng ko'p uchraydigan moddalar
+tanlangan: baza kattaligi javob sifatini emas, faqat qidiruv shovqinini oshiradi.
 
 ```
 app/
@@ -52,14 +72,42 @@ app/
 ├── models.py            # Pydantic sxemalar
 ├── storage.py           # JSON baza qatlami
 └── services/
-    ├── retrieval.py     # moddalarni qidirish
+    ├── retrieval.py     # moddalarni qidirish (BM25 + teskari indeks)
     ├── llm.py           # AI integratsiyasi: Anthropic + Gemini zaxira (structured output)
     └── documents.py     # PDF/DOCX matn ajratish
 data/
-├── qonunlar.json        # 14 modda: Mehnat, Oila, Fuqarolik kodekslari + Iste'molchilar qonuni
+├── qonunlar.json        # 348 modda, 13 hujjat (hammasi lex.uz'dan)
 └── organlar.json        # organlar va kontaktlar bazasi
+tools/
+└── lex_import.py        # lex.uz'dan modda import qilish
 static/                  # chat UI + admin sahifa (sof HTML/JS)
 ```
+
+## Bazani to'ldirish (lex.uz importeri)
+
+Modda matni **hech qachon qo'lda yozilmaydi va AI orqali generatsiya
+qilinmaydi** — faqat `tools/lex_import.py` orqali lex.uz'dan olinadi.
+
+```bash
+# Registrdagi hujjatdan tanlangan moddalarni import qilish
+python tools/lex_import.py --hujjat soliq --faqat 379,380,381
+
+# Avval ko'rib chiqish (faylga yozmaydi)
+python tools/lex_import.py --hujjat yer --quruq
+
+# Bazadagi moddalar lex.uz bilan hamon mos ekanini tekshirish (qonun o'zgargan bo'lishi mumkin)
+python tools/lex_import.py --hujjat mehnat --tekshir
+```
+
+Yangi hujjat qo'shish: `HUJJATLAR` registriga `(akt id, prefiks, qonun_nomi)`
+yozuvini qo'shing. **lex.uz'da kuchini yo'qotgan tahrirlar ham ochilaveradi** —
+akt id ni tanlashda hujjat amaldaligiga ishonch hosil qiling (registrda ikkita
+bunday tuzoq izohda ko'rsatilgan).
+
+Import avtomatik teg taklif qiladi (sarlavhadan), lekin foydalanuvchi
+"tomorqa", "guvohnoma" deb yozadi — bunday jonli so'zlar qo'lda qo'shiladi.
+Teglar qidiruvda eng katta vaznga ega, shuning uchun ular
+`tests/test_retrieval.py` dagi real savollar testi yiqilganda sozlanadi.
 
 ## O'rnatish
 
@@ -123,10 +171,11 @@ huquqlari buzilganmi?" deb so'rash mumkin.
 - **Ovozli suhbat** — arxitektura tayyor: `services/llm.py` kirish matnini
   manbasidan mustaqil qabul qiladi, STT/TTS qo'shish faqat yangi endpoint
   talab qiladi
-- **To'liq lex.uz sinxronizatsiyasi** — barcha kodekslarni avtomatik yuklab,
-  yangilanishlarni kuzatish (hozircha admin panel orqali qo'lda)
-- **Semantik qidiruv** — baza kattalashganda embedding asosidagi qidiruv
-  (hozirgi leksik qidiruv kichik korpus uchun yetarli)
+- **lex.uz o'zgarishlarini kuzatish** — importerda `--tekshir` rejimi bor,
+  lekin u qo'lda ishga tushiriladi; buni jadval bo'yicha avtomatlashtirish kerak
+- **Semantik qidiruv** — embedding asosidagi qidiruv. Hozirgi leksik qidiruv
+  (BM25 + qo'lda tanlangan teglar) 348 modda uchun yetarli, lekin savol
+  moddadagidan butunlay boshqa so'z bilan yozilsa uni topa olmaydi
 - Telegram-bot interfeysi, javoblarni streaming qilish, foydalanuvchi fikri (feedback) yig'ish
 
 ## Ogohlantirish

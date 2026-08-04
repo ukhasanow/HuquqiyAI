@@ -99,10 +99,15 @@ def test_qidiruv_kirill():
 
 def test_qidiruv_topilmasa_cheklangan():
     """Mos modda topilmasa butun baza emas, cheklangan namuna qaytadi —
-    aks holda baza o'sgani sayin LLM so'rovi va javob vaqti o'sib boradi."""
+    aks holda baza o'sgani sayin LLM so'rovi va javob vaqti o'sib boradi.
+
+    Namuna har hujjatdan bittadan olinadi: fayldagi birinchi N yozuv bitta-ikkita
+    kodeksga tiqilib qolar va savol mavzusiga umuman aloqasi bo'lmasligi mumkin edi."""
     moddalar = storage.moddalarni_oqi()
     natija = retrieval.moddalarni_qidir("xxxyyyzzz", moddalar)
-    assert len(natija) == min(retrieval.FALLBACK_CHEGARA, len(moddalar))
+    hujjatlar = {m["id"].split("-")[0] for m in moddalar}
+    assert len(natija) == min(retrieval.FALLBACK_CHEGARA, len(hujjatlar))
+    assert len({m["id"].split("-")[0] for m in natija}) == len(natija)
 
 
 def test_qidiruv_indeksi_baza_ozgarsa_yangilanadi():

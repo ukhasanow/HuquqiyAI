@@ -51,7 +51,20 @@ HUJJATLAR: Dict[str, Tuple[str, str, str]] = {
     "uyjoy": ("-106136", "uyjoy", "O'zbekiston Respublikasining Uy-joy kodeksi"),
     "mjk": ("-97664", "mjk", "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi"),
     "jk": ("-111453", "jk", "O'zbekiston Respublikasining Jinoyat kodeksi"),
+    "soliq": ("-4674902", "soliq", "O'zbekiston Respublikasining Soliq kodeksi"),
+    "konst": ("-6445145", "konst", "O'zbekiston Respublikasi Konstitutsiyasi"),
+    "yer": ("-152653", "yer", "O'zbekiston Respublikasining Yer kodeksi"),
+    "fpk": ("-3517337", "fpk", "O'zbekiston Respublikasining Fuqarolik protsessual kodeksi"),
+    "murojaat": ("-2509996", "murojaat", "O'zbekiston Respublikasining \"Jismoniy va yuridik shaxslarning murojaatlari to'g'risida\"gi Qonuni"),
+    "yhq": ("-6764454", "yhq", "O'zbekiston Respublikasining \"Yo'l harakati to'g'risida\"gi Qonuni"),
 }
+
+# Kuchini yo'qotgan, ATAYLAB ishlatilmaydigan tahrirlar — bir xil nom bilan
+# lex.uz'da hanuz ochiladi, shuning uchun adashib olinmasligi kerak:
+#   -24741   "Yo'l harakati xavfsizligi to'g'risida" (1999) — 21.07.2024 dan kuchsiz,
+#            o'rniga -6764454 "Yo'l harakati to'g'risida" (O'RQ-900)
+#   -186105  Fuqarolik protsessual kodeksi (1997) — 01.04.2018 dan kuchsiz,
+#            o'rniga -3517337 (2018)
 
 # 128<sup>1</sup> — teglar shunchaki olib tashlansa "1281" bo'lib ketadi,
 # aslida 128¹. Shuning uchun avval Unicode ustki indeksga aylantiramiz.
@@ -67,6 +80,8 @@ _TEG_STOP = {
     "qilish", "qilishning", "qilinishi", "berish", "berilishi", "olish", "haqida",
     "toʻgʻrisidagi", "togrisidagi", "tartibi", "tartibida", "asoslari", "umumiy",
     "shuningdek", "agar", "lozim", "kerak", "mumkin", "hollarda",
+    "boʻlgan", "bolgan", "doir", "etish", "oʻzbekiston", "ozbekiston",
+    "respublikasi", "respublikasida", "respublikasining",
 }
 
 

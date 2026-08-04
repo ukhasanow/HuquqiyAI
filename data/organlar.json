@@ -96,6 +96,42 @@
     "kontakt_holati": "kontakt tekshirilsin"
   },
   {
+    "mavzu": "soliq",
+    "nomi": "Davlat soliq qo'mitasi — hududiy soliq boshqarmasi (inspeksiyasi)",
+    "tavsif": "Daromad, mol-mulk va yer solig'i, soliq imtiyozlari, deklaratsiya topshirish, soliq qarzi bo'yicha nizolar",
+    "manzil": "Yashash joyingizdagi tuman (shahar) soliq inspeksiyasi — aniq manzilni soliq.uz orqali toping",
+    "ish_vaqti": "Dush–Jum 9:00–18:00, tushlik 13:00–14:00 (inspeksiyaga qarab farq qilishi mumkin — TEKSHIRILSIN)",
+    "telefon": "1198 (call-markaz)",
+    "sayt": "https://soliq.uz",
+    "onlayn_murojaat": "https://my.soliq.uz",
+    "hududiy_havola": "https://soliq.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "yer",
+    "nomi": "Tuman (shahar) hokimligi va Kadastr agentligining hududiy bo'limi",
+    "tavsif": "Yer uchastkasi ajratish, huquqni ro'yxatga olish, kadastr hujjatlari. Yer uchastkasini olib qo'yish va chegara nizolari sudda hal qilinadi (Yer kodeksi 89-modda)",
+    "manzil": "Yer uchastkasi joylashgan tuman (shahar) hokimligi — aniq manzilni kadastr.uz orqali toping",
+    "ish_vaqti": "Dush–Jum 9:00–18:00, tushlik 13:00–14:00 (TEKSHIRILSIN)",
+    "telefon": "kontakt tekshirilsin",
+    "sayt": "https://kadastr.uz",
+    "onlayn_murojaat": "https://murojaat.gov.uz",
+    "hududiy_havola": "https://kadastr.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
+    "mavzu": "yol-harakati",
+    "nomi": "Davlat yo'l harakati xavfsizligi xizmati (IIV huzurida)",
+    "tavsif": "Haydovchilik guvohnomasi, transport vositasini ro'yxatga olish, yo'l harakati qoidalari va jarimalar. Jarima qarori ustidan shikoyat 10 kun ichida beriladi",
+    "manzil": "Yashash joyingizdagi tuman (shahar) YHXX bo'limi — aniq manzilni iiv.uz orqali toping",
+    "ish_vaqti": "Bo'limga qarab farq qiladi (TEKSHIRILSIN)",
+    "telefon": "102 (tezkor xizmat)",
+    "sayt": "https://iiv.uz",
+    "onlayn_murojaat": "https://murojaat.gov.uz",
+    "hududiy_havola": "https://iiv.uz",
+    "kontakt_holati": "kontakt tekshirilsin"
+  },
+  {
     "mavzu": "umumiy",
     "nomi": "Adliya vazirligi — bepul yuridik maslahat",
     "tavsif": "Umumiy huquqiy savollar, qaysi organga murojaat qilishni aniqlash",
