@@ -49,61 +49,94 @@ MUROJAAT_MAVZULARI = [
 TAVSIYA_QADAM_SONI = 4
 TAVSIYA_QADAM_BELGI = 150
 
-_JAVOB_TOOL = {
-    "name": "huquqiy_javob",
-    "description": "Foydalanuvchi savoliga tuzilgan huquqiy javobni qaytarish",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "javob_topildi": {
-                "type": "boolean",
-                "description": "Berilgan moddalar orasida savolga tegishlisi bormi",
-            },
-            "tegishli_modda_idlari": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Savolga bevosita tegishli moddalarning ID ro'yxati (muhimlik tartibida, ko'pi bilan 3 ta)",
-            },
-            # Ro'yxat ataylab tanlangan: erkin matnga qo'yilgan belgi chegarasini
-            # model e'tiborsiz qoldiradi (900+ belgi yozadi), ro'yxat esa uzunlikni
-            # ancha ishonchli ushlab turadi.
-            "tavsiya": {
-                "type": "array",
-                "items": {"type": "string", "maxLength": TAVSIYA_QADAM_BELGI},
-                "maxItems": TAVSIYA_QADAM_SONI,
-                "description": (
-                    f"{TAVSIYA_QADAM_SONI - 1}-{TAVSIYA_QADAM_SONI} qadam, muhimlik tartibida. "
-                    f"HAR BIRI BITTA JUMLA, {TAVSIYA_QADAM_BELGI} BELGIDAN KAM — bu qat'iy "
-                    "chegara, undan oshma. Jumlaga eng foydali tafsilotni sig'dir: "
-                    "QAYERGA murojaat qilish, QANDAY hujjat kerak yoki QANCHA muddat borligini "
-                    "ayt — odamga aynan shular kerak, umumiy gap emas. "
-                    "Modda matnini takrorlama (u foydalanuvchiga alohida ko'rsatiladi), "
-                    "savolni takrorlama, kirish so'zi va umumiy xulosa yozma — har bir jumla "
-                    "yangi ma'lumot bersin. Faqat oddiy matn va **qalin**; "
-                    "sarlavha (#), ro'yxat belgisi (-, *) va jadval ishlatma."
-                ),
-            },
-            "murojaat_mavzusi": {
-                "type": "string",
-                "enum": MUROJAAT_MAVZULARI,
-                "description": "Qaysi davlat organiga murojaat qilish kerakligini belgilovchi mavzu",
-            },
-        },
-        "required": ["javob_topildi", "tegishli_modda_idlari", "tavsiya", "murojaat_mavzusi"],
-    },
-}
+# Batafsil rejim (Telegram bot). Botda ekran cheklovi yo'q va foydalanuvchi
+# javobni o'qishga ko'proq tayyor: qadamlar ko'proq va uzunroq bo'ladi hamda
+# vaziyatning umumiy xulosasi qo'shiladi. Buning evaziga javob ~5 soniya
+# sekinlashadi, shuning uchun saytda yoqilmagan.
+BATAFSIL_QADAM_SONI = 6
+BATAFSIL_QADAM_BELGI = 260
+XULOSA_BELGI = 450
 
-# Gemini structured output uchun xuddi shu sxemaning OpenAPI ko'rinishi
-_GEMINI_SXEMA = {
-    "type": "OBJECT",
-    "properties": {
+
+def _tavsiya_tavsifi(qadam_soni: int, qadam_belgi: int) -> str:
+    return (
+        f"{qadam_soni - 1}-{qadam_soni} qadam, muhimlik tartibida. "
+        f"HAR BIRI BITTA JUMLA, {qadam_belgi} BELGIDAN KAM — bu qat'iy "
+        "chegara, undan oshma. Jumlaga eng foydali tafsilotni sig'dir: "
+        "QAYERGA murojaat qilish, QANDAY hujjat kerak yoki QANCHA muddat borligini "
+        "ayt — odamga aynan shular kerak, umumiy gap emas. "
+        "Modda matnini takrorlama (u foydalanuvchiga alohida ko'rsatiladi), "
+        "savolni takrorlama, kirish so'zi va umumiy xulosa yozma — har bir jumla "
+        "yangi ma'lumot bersin. Faqat oddiy matn va **qalin**; "
+        "sarlavha (#), ro'yxat belgisi (-, *) va jadval ishlatma."
+    )
+
+
+_XULOSA_TAVSIFI = (
+    "Vaziyatning qisqa umumiy xulosasi: qonun bo'yicha foydalanuvchining ahvoli "
+    "qanday va haqlimi yoki yo'qmi — 2-3 jumla, "
+    f"{XULOSA_BELGI} belgidan kam. Bu qadamlar ro'yxati EMAS, balki odam birinchi "
+    "bo'lib o'qiydigan javob: 'Sizning holatingizda qonun ... deydi, ya'ni siz ...'. "
+    "Modda matnini ko'chirma va raqamlarni qayta sanama."
+)
+
+
+def _javob_tool(batafsil: bool = False) -> dict:
+    qadam_soni = BATAFSIL_QADAM_SONI if batafsil else TAVSIYA_QADAM_SONI
+    qadam_belgi = BATAFSIL_QADAM_BELGI if batafsil else TAVSIYA_QADAM_BELGI
+    xossalar = {
+        "javob_topildi": {
+            "type": "boolean",
+            "description": "Berilgan moddalar orasida savolga tegishlisi bormi",
+        },
+        "tegishli_modda_idlari": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Savolga bevosita tegishli moddalarning ID ro'yxati (muhimlik tartibida, ko'pi bilan 3 ta)",
+        },
+        # Ro'yxat ataylab tanlangan: erkin matnga qo'yilgan belgi chegarasini
+        # model e'tiborsiz qoldiradi (900+ belgi yozadi), ro'yxat esa uzunlikni
+        # ancha ishonchli ushlab turadi.
+        "tavsiya": {
+            "type": "array",
+            "items": {"type": "string", "maxLength": qadam_belgi},
+            "maxItems": qadam_soni,
+            "description": _tavsiya_tavsifi(qadam_soni, qadam_belgi),
+        },
+        "murojaat_mavzusi": {
+            "type": "string",
+            "enum": MUROJAAT_MAVZULARI,
+            "description": "Qaysi davlat organiga murojaat qilish kerakligini belgilovchi mavzu",
+        },
+    }
+    kerakli = ["javob_topildi", "tegishli_modda_idlari", "tavsiya", "murojaat_mavzusi"]
+    if batafsil:
+        xossalar["xulosa"] = {
+            "type": "string",
+            "maxLength": XULOSA_BELGI,
+            "description": _XULOSA_TAVSIFI,
+        }
+        kerakli.append("xulosa")
+    return {
+        "name": "huquqiy_javob",
+        "description": "Foydalanuvchi savoliga tuzilgan huquqiy javobni qaytarish",
+        "input_schema": {"type": "object", "properties": xossalar, "required": kerakli},
+    }
+
+
+def _gemini_sxema(batafsil: bool = False) -> dict:
+    """Gemini structured output uchun xuddi shu sxemaning OpenAPI ko'rinishi."""
+    xossalar = {
         "javob_topildi": {"type": "BOOLEAN"},
         "tegishli_modda_idlari": {"type": "ARRAY", "items": {"type": "STRING"}},
         "tavsiya": {"type": "ARRAY", "items": {"type": "STRING"}},
         "murojaat_mavzusi": {"type": "STRING", "enum": MUROJAAT_MAVZULARI},
-    },
-    "required": ["javob_topildi", "tegishli_modda_idlari", "tavsiya", "murojaat_mavzusi"],
-}
+    }
+    kerakli = ["javob_topildi", "tegishli_modda_idlari", "tavsiya", "murojaat_mavzusi"]
+    if batafsil:
+        xossalar["xulosa"] = {"type": "STRING"}
+        kerakli.append("xulosa")
+    return {"type": "OBJECT", "properties": xossalar, "required": kerakli}
 
 _TIZIM_PROMPT = """Sen — HuquqiyAI, O'zbekiston fuqarolari uchun huquqiy yordamchisan.
 
@@ -129,6 +162,19 @@ QAT'IY QOIDALAR:
 6. TIL QOIDASI: tavsiyani foydalanuvchi savoli qaysi tilda va yozuvda bo'lsa, o'sha tilda yoz — o'zbek lotin, o'zbek kirill (ўзбек кирилл) yoki rus tilida. Aralash bo'lsa, savolning asosiy tilini tanla.
 
 {rejim_korsatmasi}"""
+
+# Batafsil rejimda (bot) qo'shimcha ko'rsatma. 4a qoidasi kuchida qoladi —
+# xulosa TAVSIYA ichida emas, alohida maydonda yoziladi.
+_BATAFSIL_KORSATMA = (
+    "BATAFSIL REJIM. Foydalanuvchi javobni Telegram'da o'qiydi, ekran cheklovi yo'q.\n"
+    "- Avval `xulosa` maydonini to'ldir: vaziyat qonun bo'yicha qanday baholanishi, "
+    "foydalanuvchi haqlimi yoki yo'qmi, 2-3 jumlada, oddiy tilda. Odam birinchi bo'lib "
+    "shuni o'qiydi.\n"
+    "- Qadamlarni ko'proq va to'liqroq yoz: har birida aniq organ nomi, hujjat nomi yoki "
+    "muddat bo'lsin. \"Sudga murojaat qiling\" — yetarli emas; qaysi sudga, qanday ariza "
+    "bilan, qancha muddat ichida — shuni ayt.\n"
+    "- Muddat o'tib ketgan yoki dalil kerak bo'lgan holatlarni ham eslatib o't."
+)
 
 _REJIMLAR = {
     "oddiy": (
@@ -166,6 +212,7 @@ def _tavsiyani_matnga(natija: dict) -> dict:
         natija["tavsiya"] = ""
     else:
         natija["tavsiya"] = str(t)
+    natija["xulosa"] = str(natija.get("xulosa") or "")
     return natija
 
 
@@ -176,13 +223,13 @@ def _qisqartir(matn: str) -> str:
     return matn[:MAX_MODDA_BELGI].rstrip() + "\n[…modda davomi bazada]"
 
 
-def _anthropic_javob(tizim: str, xabarlar: List[dict]) -> dict:
+def _anthropic_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
     javob = _client.messages.create(
         model=MODEL,
         max_tokens=2048,
         system=tizim + "\n\nJavobni faqat huquqiy_javob tool orqali qaytar.",
         messages=xabarlar,
-        tools=[_JAVOB_TOOL],
+        tools=[_javob_tool(batafsil)],
         tool_choice={"type": "tool", "name": "huquqiy_javob"},
     )
     for blok in javob.content:
@@ -191,7 +238,7 @@ def _anthropic_javob(tizim: str, xabarlar: List[dict]) -> dict:
     raise RuntimeError("Model tool chaqirmadi")
 
 
-def _gemini_javob(tizim: str, xabarlar: List[dict]) -> dict:
+def _gemini_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
     """Zaxira provayder: Gemini REST API, structured JSON output bilan."""
     contents = [
         {
@@ -208,7 +255,7 @@ def _gemini_javob(tizim: str, xabarlar: List[dict]) -> dict:
             "contents": contents,
             "generationConfig": {
                 "response_mime_type": "application/json",
-                "response_schema": _GEMINI_SXEMA,
+                "response_schema": _gemini_sxema(batafsil),
                 "maxOutputTokens": 2048,
             },
         },
@@ -230,6 +277,7 @@ def javob_yarat(
     rejim: str = "oddiy",
     tarix: Optional[List[dict]] = None,
     hujjat_matni: Optional[str] = None,
+    batafsil: bool = False,
 ) -> dict:
     """Tuzilgan javob oladi: avval Anthropic, ishlamasa Gemini.
 
@@ -249,6 +297,8 @@ def javob_yarat(
     )
 
     tizim = _TIZIM_PROMPT.format(rejim_korsatmasi=_REJIMLAR.get(rejim, _REJIMLAR["oddiy"]))
+    if batafsil:
+        tizim += "\n\n" + _BATAFSIL_KORSATMA
     tizim += "\n\nMAVJUD QONUN MODDALARI:\n" + moddalar_blok
 
     xabarlar = []
@@ -274,12 +324,12 @@ def javob_yarat(
     oxirgi_xato: Optional[Exception] = None
     if _client is not None:
         try:
-            return _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar))
+            return _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil))
         except Exception as e:
             oxirgi_xato = e
     if GEMINI_API_KEY:
         try:
-            return _tavsiyani_matnga(_gemini_javob(tizim, xabarlar))
+            return _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil))
         except Exception as e:
             oxirgi_xato = e
     if oxirgi_xato:

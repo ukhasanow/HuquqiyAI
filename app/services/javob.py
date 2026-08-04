@@ -60,9 +60,13 @@ def uch_qismli_javob(
     rejim: str = "oddiy",
     tarix: Optional[List[dict]] = None,
     hujjat_matni: Optional[str] = None,
+    batafsil: bool = False,
 ) -> ChatJavob:
     """Umumiy oqim: retrieval -> LLM -> bazadan yig'ish.
-    Chat ham, hujjat tahlili ham shu funksiyadan o'tadi."""
+    Chat ham, hujjat tahlili ham shu funksiyadan o'tadi.
+
+    batafsil=True — javob uzunroq va umumiy xulosa bilan (Telegram bot).
+    """
     if not ANTHROPIC_API_KEY and not GEMINI_API_KEY:
         raise AiSozlanmagan()
 
@@ -71,7 +75,10 @@ def uch_qismli_javob(
     nomzodlar = retrieval.moddalarni_qidir(qidiruv_matni, hamma_moddalar)
 
     try:
-        natija = llm.javob_yarat(savol, nomzodlar, rejim=rejim, tarix=tarix, hujjat_matni=hujjat_matni)
+        natija = llm.javob_yarat(
+            savol, nomzodlar, rejim=rejim, tarix=tarix,
+            hujjat_matni=hujjat_matni, batafsil=batafsil,
+        )
     except Exception as e:
         raise AiXato(e) from e
 
@@ -88,24 +95,30 @@ def uch_qismli_javob(
     return ChatJavob(
         javob_topildi=bool(natija.get("javob_topildi")) and bool(moddalar),
         moddalar=moddalar,
+        xulosa=natija.get("xulosa", ""),
         tavsiya=natija.get("tavsiya", ""),
         murojaat=organ,
         murojaat_mavzusi=natija.get("murojaat_mavzusi", "umumiy"),
     )
 
 
-def javob_ol(savol: str, rejim: str = "oddiy", tarix: Optional[List[dict]] = None) -> ChatJavob:
+def javob_ol(
+    savol: str,
+    rejim: str = "oddiy",
+    tarix: Optional[List[dict]] = None,
+    batafsil: bool = False,
+) -> ChatJavob:
     """Keshni hisobga olgan holda javob qaytaradi.
 
     Kesh faqat mustaqil savolga tegishli: suhbat tarixi bo'lsa javob oldingi
     xabarlarga bog'liq bo'ladi va uni boshqa foydalanuvchiga berib bo'lmaydi.
     """
-    kesh_kaliti = kesh.kalit(savol, rejim, storage.versiya()) if not tarix else None
+    kesh_kaliti = kesh.kalit(savol, rejim, storage.versiya(), batafsil) if not tarix else None
     javob = kesh.ol(kesh_kaliti)
     if javob is not None:
         return javob
 
-    javob = uch_qismli_javob(savol, rejim, tarix)
+    javob = uch_qismli_javob(savol, rejim, tarix, batafsil=batafsil)
     # Javob topilmagan savollarni keshlamaymiz: baza to'ldirilgach
     # o'sha savol to'g'ri javob berishi kerak.
     if javob.javob_topildi:
@@ -114,7 +127,12 @@ def javob_ol(savol: str, rejim: str = "oddiy", tarix: Optional[List[dict]] = Non
 
 
 def statistikani_yoz(
-    javob: ChatJavob, rejim: str, foydalanuvchi_id: Optional[str], savol: str
+    javob: ChatJavob,
+    rejim: str,
+    foydalanuvchi_id: Optional[str],
+    savol: str,
+    manba: str = "sayt",
+    ovozli: bool = False,
 ) -> None:
     """Statistika yozilmasa ham asosiy javob buzilmasligi kerak.
 
@@ -128,6 +146,8 @@ def statistikani_yoz(
             murojaat_mavzusi=javob.murojaat_mavzusi,
             foydalanuvchi_id=foydalanuvchi_id,
             savol=savol,
+            manba=manba,
+            ovozli=ovozli,
         )
     except Exception:
         pass

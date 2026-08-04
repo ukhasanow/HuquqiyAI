@@ -15,7 +15,20 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: OPENAI_API_KEY
+        sync: false
       - key: MODEL
         value: claude-sonnet-4-5
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      # Webhook manzili — Render xizmatning o'z hostini beradi (sxemasiz,
+      # https:// config.py da qo'shiladi)
+      - key: TELEGRAM_WEBHOOK_URL
+        fromService:
+          type: web
+          name: huquqiyai
+          property: host
       - key: PYTHON_VERSION
         value: 3.12.6

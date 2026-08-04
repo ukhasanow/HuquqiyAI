@@ -46,11 +46,22 @@
     kartalar.innerHTML = "";
     const oddiy = (s.rejimlar && s.rejimlar.oddiy) || 0;
     const pro = (s.rejimlar && s.rejimlar.pro) || 0;
+    const sayt = (s.manbalar && s.manbalar.sayt) || 0;
+    const bot = (s.manbalar && s.manbalar.bot) || 0;
+    const foizTopildi = s.jami_sorovlar
+      ? Math.round((s.javob_topildi / s.jami_sorovlar) * 100) + "%"
+      : "—";
     [
       ["Jami so'rovlar", s.jami_sorovlar],
       ["Javob topildi / topilmadi", s.javob_topildi + " / " + s.javob_topilmadi],
+      ["Javob topilish ulushi", foizTopildi],
+      ["Sayt / Telegram bot", sayt + " / " + bot],
+      ["🎤 Ovozli so'rovlar", s.ovozli_sorovlar || 0],
       ["Oddiy / Pro", oddiy + " / " + pro],
-      ["Foydalanuvchilar", s.foydalanuvchilar_soni],
+      [
+        "Foydalanuvchilar (sayt / bot)",
+        (s.sayt_foydalanuvchilar_soni || 0) + " / " + (s.bot_foydalanuvchilar_soni || 0),
+      ],
     ].forEach(([nomi, qiymat]) => {
       const k = document.createElement("div");
       k.className = "stat-karta";

@@ -23,7 +23,11 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   foydalanuvchi faqat F.I.Sh kiritadi; hujjatda yoziladigan yagona joy — imzo)
 - **Uch yozuvda ishlaydi** — o'zbek lotin, o'zbek kirill va rus tilidagi
   savollarga o'sha til/yozuvda javob (kirill uchun transliteratsiyali qidiruv)
+- **Telegram bot** — matn va **ovozli xabar** orqali savol berish, hujjat tahlili
 - **Admin sahifa** (`/admin`, parol bilan) — qonun moddalarini qo'shish/yangilash
+  va statistika: so'rovlar soni, javob topilish ulushi, **sayt/bot kesimi**,
+  ovozli so'rovlar, mavzular bo'yicha taqsimot, 30 kunlik grafik va
+  javob topilmagan savollar ro'yxati (bazani kengaytirish uchun)
 
 ## Arxitektura: asl matn kafolati
 
@@ -71,10 +75,12 @@ app/
 ├── config.py            # .env sozlamalar
 ├── models.py            # Pydantic sxemalar
 ├── storage.py           # JSON baza qatlami
-└── services/
-    ├── retrieval.py     # moddalarni qidirish (BM25 + teskari indeks)
-    ├── llm.py           # AI integratsiyasi: Anthropic + Gemini zaxira (structured output)
-    └── documents.py     # PDF/DOCX matn ajratish
+├── services/
+│   ├── javob.py         # asosiy javob oqimi (sayt va bot shuni chaqiradi)
+│   ├── retrieval.py     # moddalarni qidirish (BM25 + teskari indeks)
+│   ├── llm.py           # AI integratsiyasi: Anthropic + Gemini zaxira (structured output)
+│   └── documents.py     # PDF/DOCX matn ajratish
+└── bot/                 # Telegram bot (handlers, formatlash, holat)
 data/
 ├── qonunlar.json        # 348 modda, 13 hujjat (hammasi lex.uz'dan)
 └── organlar.json        # organlar va kontaktlar bazasi
@@ -82,6 +88,55 @@ tools/
 └── lex_import.py        # lex.uz'dan modda import qilish
 static/                  # chat UI + admin sahifa (sof HTML/JS)
 ```
+
+## Telegram bot
+
+Bot saytdagi bilan **aynan bir xil** javob oqimini ishlatadi
+(`app/services/javob.py`) — mantiq takrorlanmaydi, kesh ham umumiy.
+
+Imkoniyatlari: savol-javob, **ovozli xabar**, PDF/DOCX hujjat tahlili,
+`/rejim` (oddiy/pro), javob ostidan ariza qoralamasini `.txt` fayl qilib olish.
+
+**Botdagi javob saytdagidan batafsilroq.** Botda ekran cheklovi yo'q, shuning
+uchun javob alohida **umumiy xulosa** bilan boshlanadi ("qonun bo'yicha
+ahvolingiz qanday") va qadamlar ko'proq hamda to'liqroq bo'ladi
+(`batafsil=True` — `services/llm.py`). Buning evaziga javob ~10 soniya
+sekinlashadi, shuning uchun saytda yoqilmagan. Kesh kalitida ham shu farq
+hisobga olinadi — botning javobi saytga berilmaydi.
+
+**Ovozli xabar.** Telegram ovozni OGG/Opus'da beradi; u provayderga
+**o'zgartirilmasdan** yuboriladi, chunki Render bepul tierda ffmpeg yo'q.
+Asosiy provayder — Gemini (kaliti loyihada allaqachon bor), `OPENAI_API_KEY`
+berilsa Whisper zaxira bo'ladi. Transkript foydalanuvchiga javobdan oldin
+ko'rsatiladi: nutq noto'g'ri tanilsa, u buni darhol ko'radi. Cheklov —
+60 soniya.
+
+**Lokal ishlab chiqish (polling):**
+
+```bash
+# .env ga TELEGRAM_BOT_TOKEN ni qo'ying (@BotFather beradi)
+python -m app.bot.polling
+```
+
+**Produksiya (webhook):** `TELEGRAM_WEBHOOK_URL` berilgan bo'lsa, ilova ishga
+tushganda webhook o'zi o'rnatiladi (`/telegram/webhook`). `TELEGRAM_WEBHOOK_SECRET`
+ni ham qo'ying — so'rov haqiqatan Telegram'dan kelganini shu tekshiradi.
+Render Blueprint'da uchalasi ham sozlangan.
+
+Bir nechta nozik joy ataylab shunday qilingan:
+
+- **Webhook darhol `200` qaytaradi**, javob esa fon vazifasida tayyorlanadi.
+  Javob 10-15 soniya davom etadi; Telegram javobni kutib qolsa o'sha update'ni
+  qayta yuboradi va foydalanuvchi bir savolga ikki marta javob olardi.
+- **Javob alohida oqimda hisoblanadi** (`asyncio.to_thread`). Aks holda LLM
+  so'rovi butun event loop'ni — bot bilan birga saytni ham — qotirib qo'yadi.
+- **Modda matni qisqartirilmaydi.** Telegram'da xabar 4096 belgi bilan
+  cheklangan, shuning uchun uzun modda xatboshi chegarasi bo'yicha bir necha
+  xabarga bo'linadi.
+- **`parse_mode=HTML`**, MarkdownV2 emas: qonun matni `.`, `-`, `(` belgilariga
+  to'la va MarkdownV2 da ularning har biri escape talab qiladi.
+- Har foydalanuvchi uchun 10 daqiqada 20 so'rov cheklovi va bir vaqtda bitta
+  so'rov qoidasi bor.
 
 ## Bazani to'ldirish (lex.uz importeri)
 
@@ -129,6 +184,10 @@ cp .env.example .env
 | `GEMINI_API_KEY` | Zaxira provayder kaliti (ixtiyoriy, [aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi) |
 | `GEMINI_MODEL` | Zaxira model (standart: `gemini-2.5-flash`) |
 | `ADMIN_PASSWORD` | Admin sahifa paroli |
+| `TELEGRAM_BOT_TOKEN` | Bot tokeni (@BotFather). Bo'sh bo'lsa bot o'chiq, sayt oldingidek ishlaydi |
+| `TELEGRAM_WEBHOOK_URL` | Ilovaning tashqi manzili. Berilsa webhook avtomatik o'rnatiladi |
+| `TELEGRAM_WEBHOOK_SECRET` | Webhook so'rovini tekshirish uchun tasodifiy satr |
+| `OPENAI_API_KEY` | Ovozni matnga o'girish zaxirasi (ixtiyoriy; asosiysi — Gemini) |
 
 Kamida bitta provayder kaliti bo'lishi shart; ikkalasi bo'lsa tizim avtomatik
 zaxiraga o'tishni qo'llaydi.
@@ -176,7 +235,7 @@ huquqlari buzilganmi?" deb so'rash mumkin.
 - **Semantik qidiruv** — embedding asosidagi qidiruv. Hozirgi leksik qidiruv
   (BM25 + qo'lda tanlangan teglar) 348 modda uchun yetarli, lekin savol
   moddadagidan butunlay boshqa so'z bilan yozilsa uni topa olmaydi
-- Telegram-bot interfeysi, javoblarni streaming qilish, foydalanuvchi fikri (feedback) yig'ish
+- Javoblarni streaming qilish, foydalanuvchi fikri (feedback) yig'ish
 
 ## Ogohlantirish
 

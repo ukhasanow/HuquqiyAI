@@ -25,7 +25,7 @@ _lock = threading.Lock()
 _yozuvlar: "OrderedDict[str, tuple]" = OrderedDict()
 
 
-def kalit(savol: str, rejim: str, versiya: str) -> Optional[str]:
+def kalit(savol: str, rejim: str, versiya: str, batafsil: bool = False) -> Optional[str]:
     """Savolni kesh kalitiga aylantiradi.
 
     Faqat yozuv farqlari o'chiriladi: katta-kichik harf, apostrof turlari,
@@ -44,7 +44,9 @@ def kalit(savol: str, rejim: str, versiya: str) -> Optional[str]:
     s = re.sub(r"[^a-z0-9]+", " ", s).strip()
     if not s:
         return None
-    return f"{versiya}|{rejim}|{s}"
+    # batafsil kalitga kiradi: bot va sayt javoblari hajmi bilan farq qiladi,
+    # birining javobini ikkinchisiga berib bo'lmaydi.
+    return f"{versiya}|{rejim}|{'batafsil' if batafsil else 'qisqa'}|{s}"
 
 
 def ol(k: Optional[str]):

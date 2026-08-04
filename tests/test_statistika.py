@@ -101,3 +101,48 @@ def test_bosh_sahifada_besh_misol():
     assert r.status_code == 200
     assert r.text.count('class="misol"') == 5
     assert 'id="hisoblagich"' in r.text
+
+
+# ---------- Manba (sayt / bot) va ovozli so'rovlar ----------
+
+def test_manba_ajratib_hisoblanadi(vaqtinchalik_fayl):
+    """Sayt va bot so'rovlari alohida ko'rinishi kerak — admin panel
+    botning haqiqatan ishlatilayotganini shu orqali biladi."""
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="sayt")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    s = statistika.statistika_oqi()
+    assert s["manbalar"] == {"sayt": 1, "bot": 2}
+
+
+def test_notogri_manba_saytga_yoziladi(vaqtinchalik_fayl):
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="allaqanday")
+    assert statistika.statistika_oqi()["manbalar"]["sayt"] == 1
+
+
+def test_ovozli_sorovlar_alohida_hisoblanadi(vaqtinchalik_fayl):
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot", ovozli=True)
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot", ovozli=False)
+    s = statistika.statistika_oqi()
+    assert s["ovozli_sorovlar"] == 1
+    assert s["manbalar"]["bot"] == 2
+
+
+def test_bot_foydalanuvchilari_alohida_sanaladi(vaqtinchalik_fayl):
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, foydalanuvchi_id="tg:111", manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, foydalanuvchi_id="tg:222", manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, foydalanuvchi_id="anon-9", manba="sayt")
+    s = statistika.statistika_oqi()
+    assert s["bot_foydalanuvchilar_soni"] == 2
+    assert s["sayt_foydalanuvchilar_soni"] == 1
+    assert s["foydalanuvchilar_soni"] == 3
+
+
+def test_eski_statistika_fayli_yangi_maydonlarsiz_ochiladi(vaqtinchalik_fayl):
+    """Ishlab turgan serverdagi fayl eski sxemada — yangi kalitlar yo'qligi
+    uchun statistika buzilmasligi kerak."""
+    vaqtinchalik_fayl.write_text('{"jami_sorovlar": 5}', encoding="utf-8")
+    s = statistika.statistika_oqi()
+    assert s["jami_sorovlar"] == 5
+    assert s["manbalar"] == {"sayt": 0, "bot": 0}
+    assert s["ovozli_sorovlar"] == 0

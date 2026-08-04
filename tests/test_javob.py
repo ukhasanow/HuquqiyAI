@@ -94,7 +94,7 @@ def test_llm_xatosi_ai_xatoga_oraladi(monkeypatch):
 def test_javob_ol_keshdan_qaytaradi(monkeypatch):
     chaqiruvlar = []
 
-    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None):
+    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None, batafsil=False):
         chaqiruvlar.append(savol)
         return _soxta_javob()
 
@@ -108,7 +108,7 @@ def test_javob_topilmasa_keshlanmaydi(monkeypatch):
     """Baza to'ldirilgach o'sha savol to'g'ri javob berishi kerak."""
     chaqiruvlar = []
 
-    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None):
+    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None, batafsil=False):
         chaqiruvlar.append(savol)
         return _soxta_javob(topildi=False)
 
@@ -122,7 +122,7 @@ def test_suhbat_tarixi_bolsa_keshlanmaydi(monkeypatch):
     """Tarixli javob oldingi xabarlarga bog'liq — boshqa foydalanuvchiga berib bo'lmaydi."""
     chaqiruvlar = []
 
-    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None):
+    def soxta(savol, rejim="oddiy", tarix=None, hujjat_matni=None, batafsil=False):
         chaqiruvlar.append(savol)
         return _soxta_javob()
 

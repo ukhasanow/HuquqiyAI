@@ -40,6 +40,7 @@ class OrganJavob(BaseModel):
 class ChatJavob(BaseModel):
     javob_topildi: bool
     moddalar: List[ModdaJavob]  # 1-qism: asl matn (bazadan, o'zgartirilmagan)
+    xulosa: str = ""            # umumiy baho (faqat batafsil rejimda — Telegram bot)
     tavsiya: str                # 2-qism: LLM tavsiyasi
     murojaat: Optional[OrganJavob] = None  # 3-qism: bazadagi kontakt
     murojaat_mavzusi: str = "umumiy"  # ariza generatori uchun

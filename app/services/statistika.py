@@ -22,6 +22,8 @@ _BOSH_HOLAT = {
     "javob_topildi": 0,
     "javob_topilmadi": 0,
     "rejimlar": {"oddiy": 0, "pro": 0},
+    "manbalar": {"sayt": 0, "bot": 0},  # so'rov qayerdan keldi
+    "ovozli_sorovlar": 0,  # Telegram'dagi ovozli xabarlar
     "mavzular": {},
     "kunlik": {},  # {"2026-07-31": {"jami": 0, "topildi": 0}}
     "foydalanuvchilar": [],  # anonim ID'lar (takrorlanmas)
@@ -54,6 +56,8 @@ def sorov_hisobla(
     murojaat_mavzusi: str = "umumiy",
     foydalanuvchi_id: Optional[str] = None,
     savol: str = "",
+    manba: str = "sayt",
+    ovozli: bool = False,
 ) -> None:
     """Bitta so'rovni hisobga oladi. Savol matni faqat javob topilmaganda saqlanadi."""
     bugun = date.today().isoformat()
@@ -67,6 +71,11 @@ def sorov_hisobla(
 
         rejim = rejim if rejim in ("oddiy", "pro") else "oddiy"
         s["rejimlar"][rejim] = s["rejimlar"].get(rejim, 0) + 1
+
+        manba = manba if manba in ("sayt", "bot") else "sayt"
+        s["manbalar"][manba] = s["manbalar"].get(manba, 0) + 1
+        if ovozli:
+            s["ovozli_sorovlar"] += 1
 
         mavzu = murojaat_mavzusi or "umumiy"
         s["mavzular"][mavzu] = s["mavzular"].get(mavzu, 0) + 1
@@ -98,14 +107,20 @@ def statistika_oqi() -> dict:
         kun = (bugun - timedelta(days=i)).isoformat()
         k = s["kunlik"].get(kun, {"jami": 0, "topildi": 0})
         kunlik_30.append({"sana": kun, "jami": k.get("jami", 0), "topildi": k.get("topildi", 0)})
+    # Bot foydalanuvchilari "tg:<chat_id>" ko'rinishida saqlanadi
+    bot_foydalanuvchilar = sum(1 for f in s["foydalanuvchilar"] if str(f).startswith("tg:"))
     return {
         "jami_sorovlar": s["jami_sorovlar"],
         "javob_topildi": s["javob_topildi"],
         "javob_topilmadi": s["javob_topilmadi"],
         "rejimlar": s["rejimlar"],
+        "manbalar": s["manbalar"],
+        "ovozli_sorovlar": s["ovozli_sorovlar"],
         "mavzular": s["mavzular"],
         "kunlik_30": kunlik_30,
         "foydalanuvchilar_soni": len(s["foydalanuvchilar"]),
+        "bot_foydalanuvchilar_soni": bot_foydalanuvchilar,
+        "sayt_foydalanuvchilar_soni": len(s["foydalanuvchilar"]) - bot_foydalanuvchilar,
         "topilmagan_savollar": list(reversed(s["topilmagan_savollar"])),
     }
 
