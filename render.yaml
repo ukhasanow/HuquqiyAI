@@ -39,6 +39,12 @@ services:
       # Botda /statistika ko'ra oladigan chat ID lar
       - key: TELEGRAM_ADMIN_IDLAR
         sync: false
+      # Statistikani saqlash uchun tashqi ombor (Upstash Redis REST).
+      # Berilmasa statistika har deploy'da noldan boshlanadi.
+      - key: STATISTIKA_KV_URL
+        sync: false
+      - key: STATISTIKA_KV_TOKEN
+        sync: false
       # Webhook manzili — Render xizmatning o'z hostini beradi (sxemasiz,
       # https:// config.py da qo'shiladi)
       - key: TELEGRAM_WEBHOOK_URL

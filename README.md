@@ -401,6 +401,33 @@ uvicorn app.main:app --port 8000
 
 So'ng brauzerda: **http://127.0.0.1:8000** (admin: **http://127.0.0.1:8000/admin**)
 
+## Statistikani saqlash
+
+Render bepul tierda **disk vaqtinchalik**: har deploy'da va xizmat uxlab
+uyg'onganda faylga yozilgan hamma narsa yo'qoladi. Ya'ni `data/statistika.json`
+ga tayanilsa, ko'rsatkichlar 15 daqiqada bir noldan boshlanadi.
+
+Shu sababli statistika ikki joyda saqlanishi mumkin:
+
+- **Lokal ishlab chiqish** — `data/statistika.json` (hech narsa sozlash shart emas)
+- **Produksiya** — tashqi kalit-qiymat ombori, `STATISTIKA_KV_URL` va
+  `STATISTIKA_KV_TOKEN` berilganda
+
+Ombor sifatida **Upstash Redis** ishlatiladi: u oddiy HTTP REST API beradi,
+shuning uchun yangi paket kerak emas — mavjud `httpx` yetadi.
+
+Sozlash: [upstash.com](https://upstash.com) da bepul Redis bazasi yarating,
+**REST API** bo'limidan `UPSTASH_REDIS_REST_URL` va `UPSTASH_REDIS_REST_TOKEN`
+ni oling va ularni Render'da `STATISTIKA_KV_URL` / `STATISTIKA_KV_TOKEN` qilib
+qo'ying.
+
+Ikki himoya qo'yilgan va ikkalasi testda qayd etilgan:
+
+- **Ombor javob bermasa ilova to'xtamaydi** — statistika yozilmaydi, xolos.
+- **Ombor javob bermasa faylga tushilmaydi.** Aks holda eski lokal fayl
+  o'qilib, keyingi yozuvda tashqi ombordagi haqiqiy ma'lumot ustiga
+  yozilib ketardi.
+
 ## Bepul hostingga joylash (Render)
 
 Repo'da `render.yaml` tayyor. Qadamlar:

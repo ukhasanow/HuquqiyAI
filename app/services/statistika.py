@@ -1,16 +1,30 @@
 # Statistika qatlami: har bir /api/chat va /api/hujjat so'rovini hisobga oladi.
-# Saqlash — data/statistika.json (tashqi bazasiz, storage.py uslubida).
 # MUHIM: savol MATNI saqlanmaydi — faqat javob topilmagan savollar matni
 # "topilmagan_savollar" ro'yxatiga tushadi (bazani kengaytirish uchun).
+#
+# Ikki saqlash usuli:
+#   - lokal: data/statistika.json (tashqi bazasiz, storage.py uslubida)
+#   - produksiya: tashqi kalit-qiymat ombori (STATISTIKA_KV_URL berilganda)
+#
+# Nega ikkitasi: Render bepul tierda disk VAQTINCHALIK — har deploy'da va
+# xizmat uxlab uyg'onganda faylga yozilgan hamma narsa yo'qoladi. Lokal
+# ishlab chiqishda esa tashqi ombor ortiqcha murakkablik.
 import copy
 import json
+import logging
 import threading
 from datetime import date, timedelta
 from typing import Optional
 
-from ..config import DATA_DIR
+import httpx
+
+from ..config import DATA_DIR, STATISTIKA_KV_TOKEN, STATISTIKA_KV_URL
+
+log = logging.getLogger(__name__)
 
 STATISTIKA_FAYL = DATA_DIR / "statistika.json"
+KV_KALIT = "huquqiyai:statistika"
+KV_MUDDATI = 15  # soniya — statistika javob yo'lida emas, fon vazifasida yoziladi
 
 _lock = threading.Lock()
 
@@ -48,19 +62,50 @@ _BOSH_HOLAT = {
 }
 
 
-def _oqi() -> dict:
-    if not STATISTIKA_FAYL.exists():
-        return copy.deepcopy(_BOSH_HOLAT)
+def tashqi_saqlash() -> bool:
+    """Statistika tashqi omborda saqlanadimi."""
+    return bool(STATISTIKA_KV_URL and STATISTIKA_KV_TOKEN)
+
+
+def _kv_oqi() -> Optional[dict]:
+    """Tashqi ombordan o'qish. Xato bo'lsa None (ilova to'xtamasligi kerak)."""
     try:
-        with open(STATISTIKA_FAYL, encoding="utf-8") as f:
-            s = json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return copy.deepcopy(_BOSH_HOLAT)
-    # Eski fayl bo'lsa yetishmagan kalitlarni to'ldirish
+        javob = httpx.get(
+            f"{STATISTIKA_KV_URL}/get/{KV_KALIT}",
+            headers={"Authorization": f"Bearer {STATISTIKA_KV_TOKEN}"},
+            timeout=KV_MUDDATI,
+        )
+        javob.raise_for_status()
+        xom = javob.json().get("result")
+        return json.loads(xom) if xom else copy.deepcopy(_BOSH_HOLAT)
+    except Exception as e:
+        log.warning("Statistikani tashqi ombordan o'qib bo'lmadi: %s", e)
+        return None
+
+
+def _kv_saqla(s: dict) -> bool:
+    try:
+        javob = httpx.post(
+            f"{STATISTIKA_KV_URL}/set/{KV_KALIT}",
+            headers={"Authorization": f"Bearer {STATISTIKA_KV_TOKEN}"},
+            content=json.dumps(s, ensure_ascii=False).encode("utf-8"),
+            timeout=KV_MUDDATI,
+        )
+        javob.raise_for_status()
+        return True
+    except Exception as e:
+        log.warning("Statistikani tashqi omborga yozib bo'lmadi: %s", e)
+        return False
+
+
+def _toldir(s: dict) -> dict:
+    """Yetishmagan kalitlarni to'ldiradi.
+
+    Yangi maydon qo'shilganda eski yozuv o'qilishi bilan KeyError bermasligi
+    kerak — bu fayl uchun ham, tashqi ombor uchun ham bir xil.
+    """
     for k, v in _BOSH_HOLAT.items():
         s.setdefault(k, copy.deepcopy(v))
-    # Ichki lug'atlar ham to'ldiriladi: yangi maydon qo'shilganda eski
-    # statistika.json o'qilishi bilan KeyError bermasligi kerak.
     for manba in MANBALAR:
         kesim = s["manba_kesimi"].setdefault(manba, {})
         for k, v in _bosh_kesim().items():
@@ -68,7 +113,27 @@ def _oqi() -> dict:
     return s
 
 
+def _oqi() -> dict:
+    if tashqi_saqlash():
+        s = _kv_oqi()
+        # Tashqi ombor javob bermasa faylga tushmaymiz: u yerdagi eski
+        # ma'lumot ustiga yozilib, tashqi ombordagisi yo'qolib ketardi.
+        return _toldir(s) if s is not None else copy.deepcopy(_BOSH_HOLAT)
+
+    if not STATISTIKA_FAYL.exists():
+        return copy.deepcopy(_BOSH_HOLAT)
+    try:
+        with open(STATISTIKA_FAYL, encoding="utf-8") as f:
+            s = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return copy.deepcopy(_BOSH_HOLAT)
+    return _toldir(s)
+
+
 def _saqla(s: dict) -> None:
+    if tashqi_saqlash():
+        _kv_saqla(s)
+        return
     with open(STATISTIKA_FAYL, "w", encoding="utf-8") as f:
         json.dump(s, f, ensure_ascii=False, indent=2)
 

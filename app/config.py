@@ -61,6 +61,16 @@ def _admin_idlar(xom: str) -> set:
 
 TELEGRAM_ADMIN_IDLAR = _admin_idlar(os.getenv("TELEGRAM_ADMIN_IDLAR", ""))
 
+# ---------- Statistikani tashqarida saqlash ----------
+# Render bepul tierda disk VAQTINCHALIK: har deploy'da va xizmat uxlab
+# uyg'onganda yozilgan fayllar yo'qoladi. Statistika shu sababli saqlanmaydi.
+#
+# Ikkalasi berilsa, statistika fayl o'rniga tashqi kalit-qiymat omborida
+# saqlanadi (Upstash Redis REST API — oddiy HTTP, yangi paket kerak emas).
+# Berilmasa, hammasi oldingidek faylga yoziladi — lokal ishlab chiqish uchun.
+STATISTIKA_KV_URL = os.getenv("STATISTIKA_KV_URL", "").rstrip("/")
+STATISTIKA_KV_TOKEN = os.getenv("STATISTIKA_KV_TOKEN", "")
+
 # Ovozli xabar cheklovlari (5-bosqich)
 MAX_OVOZ_DAVOMIYLIGI = 60  # soniya
 MAX_OVOZ_HAJMI = 20 * 1024 * 1024

@@ -194,3 +194,102 @@ def test_eski_faylda_manba_kesimi_toldiriladi(vaqtinchalik_fayl):
     # Eski fayl ustiga yangi so'rov yozilsa ham buzilmasin
     statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
     assert statistika.statistika_oqi()["manba_kesimi"]["bot"]["jami"] == 1
+
+
+# ---------- Tashqi saqlash (Render'da disk vaqtinchalik) ----------
+
+class _SoxtaKvJavob:
+    def __init__(self, malumot, holat=200):
+        self._m = malumot
+        self.status_code = holat
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+    def json(self):
+        return self._m
+
+
+@pytest.fixture
+def kv(monkeypatch):
+    """Tashqi omborni yoqadi va xotiradagi soxta ombor qaytaradi."""
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_URL", "https://kv.test")
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_TOKEN", "token")
+    ombor = {"qiymat": None}
+
+    def soxta_get(url, headers=None, timeout=None):
+        return _SoxtaKvJavob({"result": ombor["qiymat"]})
+
+    def soxta_post(url, headers=None, content=None, timeout=None):
+        ombor["qiymat"] = content.decode("utf-8")
+        return _SoxtaKvJavob({"result": "OK"})
+
+    monkeypatch.setattr(statistika.httpx, "get", soxta_get)
+    monkeypatch.setattr(statistika.httpx, "post", soxta_post)
+    return ombor
+
+
+def test_tashqi_saqlash_faqat_ikkalasi_berilganda(monkeypatch):
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_URL", "")
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_TOKEN", "")
+    assert not statistika.tashqi_saqlash()
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_URL", "https://kv.test")
+    assert not statistika.tashqi_saqlash()  # token yo'q
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_TOKEN", "token")
+    assert statistika.tashqi_saqlash()
+
+
+def test_tashqi_omborga_yoziladi_va_oqiladi(kv):
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    statistika.sorov_hisobla(rejim="pro", javob_topildi=False, manba="sayt")
+
+    assert kv["qiymat"] is not None, "tashqi omborga yozilmadi"
+    s = statistika.statistika_oqi()
+    assert s["jami_sorovlar"] == 2
+    assert s["manba_kesimi"]["bot"]["jami"] == 1
+
+
+def test_tashqi_saqlashda_faylga_tegilmaydi(kv, vaqtinchalik_fayl):
+    """Fayl va ombor aralashib ketmasligi kerak."""
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True)
+    assert not vaqtinchalik_fayl.exists()
+
+
+def test_ombor_javob_bermasa_ilova_toxtamaydi(monkeypatch):
+    """Tashqi ombor yiqilsa statistika yo'qoladi, lekin so'rov buzilmaydi."""
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_URL", "https://kv.test")
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_TOKEN", "token")
+
+    def portla(*a, **k):
+        raise RuntimeError("tarmoq yo'q")
+
+    monkeypatch.setattr(statistika.httpx, "get", portla)
+    monkeypatch.setattr(statistika.httpx, "post", portla)
+
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True)  # xato ko'tarmasligi kerak
+    assert statistika.statistika_oqi()["jami_sorovlar"] == 0
+
+
+def test_ombor_javob_bermasa_faylga_tushmaydi(monkeypatch, vaqtinchalik_fayl):
+    """Aks holda tashqi ombordagi haqiqiy ma'lumot ustiga eski fayl yozilardi."""
+    vaqtinchalik_fayl.write_text('{"jami_sorovlar": 500}', encoding="utf-8")
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_URL", "https://kv.test")
+    monkeypatch.setattr(statistika, "STATISTIKA_KV_TOKEN", "token")
+    monkeypatch.setattr(statistika.httpx, "get",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("yiqildi")))
+    assert statistika.statistika_oqi()["jami_sorovlar"] == 0
+
+
+def test_ombordagi_eski_yozuv_toldiriladi(kv):
+    """Yangi maydon qo'shilganda ombordagi eski JSON KeyError bermasin."""
+    kv["qiymat"] = '{"jami_sorovlar": 7}'
+    s = statistika.statistika_oqi()
+    assert s["jami_sorovlar"] == 7
+    assert s["manba_kesimi"]["bot"]["jami"] == 0
+    assert s["jarima_tekshiruvlari"] == 0
+
+
+def test_ombor_bosh_bolsa_noldan_boshlanadi(kv):
+    kv["qiymat"] = None
+    assert statistika.statistika_oqi()["jami_sorovlar"] == 0
