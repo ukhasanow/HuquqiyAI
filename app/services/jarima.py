@@ -47,12 +47,6 @@ BAYONNOMA_MODDASI = "mjk-281"
 QAROR_MODDASI = "mjk-311"
 ASOSLILIK_MODDASI = "mjk-321"   # qarorni bekor qilish asoslari
 AYB_MODDASI = "mjk-307"         # ko'rib chiqishda aniqlanishi lozim bo'lgan holatlar
-SHIKOYAT_YOLI_MODDASI = "mjk-315"  # kimga shikoyat beriladi
-IJRO_TOXTASH_MODDASI = "mjk-318"   # shikoyat ijroni to'xtatadi
-QAYTARISH_MODDASI = "mjk-324"      # bekor qilinsa pul qaytariladi
-
-HOLATLAR = ("asos", "diqqat", "joyida", "noma'lum")
-
 TEZLIK_MODDASI = "mjk-128-3"
 
 # YPX nizomi (VM 975-son) — radardan foydalanish tartibi. 28 va 32-bandlar
@@ -62,7 +56,6 @@ SERTIFIKAT_MODDASI = "ypx-28"           # sertifikat va hisobda turish
 RADAR_MODDASI = "ypx-32"                # patrul avtomobilidan yechib olish taqiqi
 DISLOKATSIYA_MODDASI = "ypx-33"         # statsionar kameralar dislokatsiyasi
 DISLOKATSIYA_KOCHMA_MODDASI = "ypx-34"  # ko'chma radar dislokatsiyasi
-RADAR_TURLARI = ("trenoga", "kochma", "patrul", "statsionar")
 
 # 128³-moddaning oxirgi qismi: "tezlikni oʻlchaydigan maxsus uskunalar va
 # transport vositalari spidometri koʻrsatkichlaridagi yoʻl qoʻyilishi mumkin
@@ -452,8 +445,8 @@ def _tezlik_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
             holat="asos",
             izoh=(
                 asos_matni
-                + f"Bu ruxsat etilgan tezlikdan oshmaydi, ya'ni qonun bo'yicha "
-                f"hisobga olinadigan oshirish yo'q va jarima solish uchun asos yo'q."
+                + "Bu ruxsat etilgan tezlikdan oshmaydi, ya'ni qonun bo'yicha "
+                "hisobga olinadigan oshirish yo'q va jarima solish uchun asos yo'q."
             ),
             modda=_modda(TEZLIK_MODDASI),
         )

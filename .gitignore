@@ -1,7 +1,16 @@
-venv/
-__pycache__/
+# Muhit va sirlar
 .env
+venv/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Ish jarayonidagi fayllar
 .DS_Store
 .claude/
-data/statistika.json
 .cache/
+
+# Ishlatilish ma'lumotlari — har o'rnatishda o'ziniki
+data/statistika.json

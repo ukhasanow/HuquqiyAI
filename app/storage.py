@@ -79,13 +79,6 @@ def organ_top(mavzu: str) -> Optional[dict]:
     return None
 
 
-def moddalarni_saqla(moddalar: List[dict]) -> None:
-    with _lock:
-        with open(QONUNLAR_FAYL, "w", encoding="utf-8") as f:
-            json.dump(moddalar, f, ensure_ascii=False, indent=2)
-    _keshni_tozala("qonunlar")
-
-
 def modda_qosh_yoki_yangila(yangi: Dict) -> dict:
     """id bo'yicha mavjud bo'lsa yangilaydi, bo'lmasa qo'shadi."""
     with _lock:
