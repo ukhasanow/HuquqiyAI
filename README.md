@@ -378,38 +378,6 @@ Import avtomatik teg taklif qiladi (sarlavhadan), lekin foydalanuvchi
 Teglar qidiruvda eng katta vaznga ega, shuning uchun ular
 `tests/test_retrieval.py` dagi real savollar testi yiqilganda sozlanadi.
 
-## O'rnatish
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# .env faylida ANTHROPIC_API_KEY va ADMIN_PASSWORD ni kiriting
-```
-
-`.env` o'zgaruvchilari:
-
-| O'zgaruvchi | Tavsif |
-|---|---|
-| `ANTHROPIC_API_KEY` | Asosiy AI provayder kaliti |
-| `MODEL` | Asosiy model (standart: `claude-sonnet-4-5`) |
-| `GEMINI_API_KEY` | Zaxira provayder va ovoz xizmatlari kaliti ([aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi). **Diqqat:** `AQ.` bilan boshlanadigan kalitning muddati o'tadi va u tugaganda ovozli xabar jimgina ishlamay qoladi — belgisi 401. Doimiy kalit `AIza` bilan boshlanadi |
-| `GEMINI_MODEL` | Zaxira model (standart: `gemini-flash-latest`). Aniq versiya nomlarini Google yangi kalitlar uchun yopib qo'yadi — `-latest` xavfsizroq |
-| `ADMIN_PASSWORD` | Admin sahifa paroli |
-| `TELEGRAM_BOT_TOKEN` | Bot tokeni (@BotFather). Bo'sh bo'lsa bot o'chiq, sayt oldingidek ishlaydi |
-| `TELEGRAM_WEBHOOK_URL` | Ilovaning tashqi manzili. Berilsa webhook avtomatik o'rnatiladi |
-| `TELEGRAM_WEBHOOK_SECRET` | Webhook so'rovini tekshirish uchun tasodifiy satr |
-| `TELEGRAM_ADMIN_IDLAR` | Botda `/statistika` ko'ra oladigan chat ID lar (vergul bilan). O'z ID ingizni botga `/id` yozib bilib olasiz |
-| `OPENAI_API_KEY` | Ovozni matnga o'girish zaxirasi (ixtiyoriy; asosiysi — Gemini) |
-| `TTS_PROVAYDER` | Ovozli javob: `gemini` yoki `yoq` (standart: `yoq`) |
-| `GEMINI_TTS_MODEL` | TTS modeli (standart: `gemini-2.5-flash-preview-tts`) |
-| `GEMINI_TTS_OVOZ` | Ovoz nomi (standart: `Kore`) |
-
-Kamida bitta provayder kaliti bo'lishi shart; ikkalasi bo'lsa tizim avtomatik
-zaxiraga o'tishni qo'llaydi.
-
 ## Ishga tushirish
 
 ```bash
