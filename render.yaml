@@ -19,11 +19,15 @@ services:
         sync: false
       - key: MODEL
         value: claude-sonnet-4-5
+      # Gemini bepul tierda kvota LOYIHAGA bog'langan: har model uchun kuniga
+      # 20 ta so'rov (GenerateRequestsPerDayPerProjectPerModel-FreeTier).
+      # Yangi kalit yasash yordam bermaydi — kvota o'sha loyihanikidir.
+      # Kvota tugasa boshqa modelga o'tish vaqtincha yechim beradi.
       - key: GEMINI_MODEL
-        value: gemini-flash-latest
+        value: gemini-3.5-flash
       # Ovozli javob (TTS). Yoqish uchun: gemini
       - key: TTS_PROVAYDER
-        value: yoq
+        value: gemini
       - key: GEMINI_TTS_MODEL
         value: gemini-2.5-flash-preview-tts
       - key: GEMINI_TTS_OVOZ

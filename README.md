@@ -110,6 +110,20 @@ xato o'qisa, butun xulosa noto'g'ri bo'lardi, shuning uchun uni tuzatish
 imkoni bo'lishi shart. Chegaradan tashqari qiymatlar (masalan 900 km/soat)
 tashlab yuboriladi.
 
+### Gemini bepul tier kvotasi
+
+Ovozli xabar (STT), ovozli javob (TTS), rasm o'qish va shartnoma OCR — hammasi
+Gemini orqali ishlaydi. **Bepul tierda kvota kalitga emas, Google loyihasiga
+bog'langan:** `GenerateRequestsPerDayPerProjectPerModel-FreeTier` — har model
+uchun **kuniga 20 ta so'rov**. Ya'ni yangi kalit yasash kvotani tiklamaydi —
+o'sha loyihaning kvotasi bo'lgani uchun yangi kalit ham darhol 429 beradi.
+
+Chegara **har model uchun alohida** hisoblanadi, shuning uchun kvota tugasa
+`GEMINI_MODEL` ni boshqa modelga o'tkazish vaqtincha yechim beradi. Doimiy
+yechim — Google Cloud'da billing yoqish.
+
+Matnli savol-javob bunga bog'liq emas: u Anthropic orqali ishlaydi.
+
 ### Eskirgan argument ataylab ishlatilmaydi
 
 Vazirlar Mahkamasining 2018-yil 1-dekabrdagi 975-son qarori (31-band) ko'chma
