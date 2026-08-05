@@ -23,7 +23,8 @@ _BOSH_HOLAT = {
     "javob_topilmadi": 0,
     "rejimlar": {"oddiy": 0, "pro": 0},
     "manbalar": {"sayt": 0, "bot": 0},  # so'rov qayerdan keldi
-    "ovozli_sorovlar": 0,  # Telegram'dagi ovozli xabarlar
+    "ovozli_sorovlar": 0,  # ovozli xabar orqali kelgan savollar
+    "ovozli_javoblar": 0,  # TTS bilan yuborilgan javoblar
     "mavzular": {},
     "kunlik": {},  # {"2026-07-31": {"jami": 0, "topildi": 0}}
     "foydalanuvchilar": [],  # anonim ID'lar (takrorlanmas)
@@ -97,6 +98,14 @@ def sorov_hisobla(
         _saqla(s)
 
 
+def ovozli_javob_hisobla() -> None:
+    """Ovozli javob (TTS) yuborilganini hisobga oladi."""
+    with _lock:
+        s = _oqi()
+        s["ovozli_javoblar"] += 1
+        _saqla(s)
+
+
 def statistika_oqi() -> dict:
     """Admin panel uchun to'liq statistika (oxirgi 30 kun kunlik kesimda)."""
     with _lock:
@@ -116,6 +125,7 @@ def statistika_oqi() -> dict:
         "rejimlar": s["rejimlar"],
         "manbalar": s["manbalar"],
         "ovozli_sorovlar": s["ovozli_sorovlar"],
+        "ovozli_javoblar": s["ovozli_javoblar"],
         "mavzular": s["mavzular"],
         "kunlik_30": kunlik_30,
         "foydalanuvchilar_soni": len(s["foydalanuvchilar"]),

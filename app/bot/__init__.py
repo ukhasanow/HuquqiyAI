@@ -70,6 +70,7 @@ async def buyruqlarni_ornat() -> None:
     await bot().set_my_commands([
         BotCommand(command="start", description="Boshlash"),
         BotCommand(command="rejim", description="Javob uslubi: oddiy yoki pro"),
+        BotCommand(command="ovoz", description="Ovozli javob sozlamasi"),
         BotCommand(command="yordam", description="Nima qila olaman"),
     ])
 

@@ -151,3 +151,11 @@ def statistikani_yoz(
         )
     except Exception:
         pass
+
+
+def ovozli_javobni_yoz() -> None:
+    """Ovozli javob yuborilganini hisobga oladi (statistikani_yoz uslubida)."""
+    try:
+        statistika.ovozli_javob_hisobla()
+    except Exception:
+        pass

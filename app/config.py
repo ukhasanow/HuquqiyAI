@@ -12,9 +12,12 @@ STATIC_DIR = BASE_DIR / "static"
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 MODEL = os.getenv("MODEL", "claude-sonnet-4-5")
-# Zaxira provayder: Anthropic ishlamasa (kredit/limit) Gemini'ga o'tiladi
+# Zaxira provayder: Anthropic ishlamasa (kredit/limit) Gemini'ga o'tiladi.
+# Model nomi "-latest" bilan olinadi: Google eski nomlarni yangi kalitlar uchun
+# yopib qo'yadi ("no longer available to new users"), bu esa zaxirani jimgina
+# o'lik qilib qo'yadi — nosozlik faqat Anthropic ishlamay qolganda bilinadi.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 # Ovozli xabarni matnga o'girish uchun ixtiyoriy zaxira (Whisper).
 # Asosiy provayder — Gemini, kaliti yuqorida.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -51,3 +54,14 @@ TELEGRAM_WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
 # Ovozli xabar cheklovlari (5-bosqich)
 MAX_OVOZ_DAVOMIYLIGI = 60  # soniya
 MAX_OVOZ_HAJMI = 20 * 1024 * 1024
+
+# ---------- Ovozli javob, TTS (5-bosqich) ----------
+# "gemini" yoki "yoq". O'chirilgan holatda bot faqat matn bilan javob beradi —
+# TTS ishlamay qolsa ham asosiy javob buzilmaydi.
+TTS_PROVAYDER = os.getenv("TTS_PROVAYDER", "yoq").strip().lower()
+GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
+GEMINI_TTS_OVOZ = os.getenv("GEMINI_TTS_OVOZ", "Kore")
+
+# Ovozga faqat tavsiya qismi o'giriladi. 1200 belgi ~ 90 soniya nutq: undan
+# uzun audioni odam oxirigacha tinglamaydi, matn esa doim to'liq yuboriladi.
+MAX_TTS_BELGILAR = 1200

@@ -94,8 +94,9 @@ static/                  # chat UI + admin sahifa (sof HTML/JS)
 Bot saytdagi bilan **aynan bir xil** javob oqimini ishlatadi
 (`app/services/javob.py`) — mantiq takrorlanmaydi, kesh ham umumiy.
 
-Imkoniyatlari: savol-javob, **ovozli xabar**, PDF/DOCX hujjat tahlili,
-`/rejim` (oddiy/pro), javob ostidan ariza qoralamasini `.txt` fayl qilib olish.
+Imkoniyatlari: savol-javob, **ovozli xabar**, **ovozli javob**, PDF/DOCX hujjat
+tahlili, `/rejim` (oddiy/pro), `/ovoz` (ovozli javob sozlamasi), javob ostidan
+ariza qoralamasini `.txt` fayl qilib olish.
 
 **Botdagi javob saytdagidan batafsilroq.** Botda ekran cheklovi yo'q, shuning
 uchun javob alohida **umumiy xulosa** bilan boshlanadi ("qonun bo'yicha
@@ -110,6 +111,25 @@ Asosiy provayder — Gemini (kaliti loyihada allaqachon bor), `OPENAI_API_KEY`
 berilsa Whisper zaxira bo'ladi. Transkript foydalanuvchiga javobdan oldin
 ko'rsatiladi: nutq noto'g'ri tanilsa, u buni darhol ko'radi. Cheklov —
 60 soniya.
+
+**Ovozli javob (TTS).** `TTS_PROVAYDER=gemini` qo'yilsa yoqiladi; standart
+holat — `yoq`. Uch nozik joyi bor:
+
+- **Ovozga faqat tavsiya qismi tushadi.** Modda matnlari uzun va quloqqa quruq —
+  ularni o'qib berish audioni bir necha daqiqaga cho'zadi. Matnli javob esa doim
+  to'liq yuboriladi: ovoz uning o'rnini emas, qo'shimchasini bajaradi.
+- **Format.** Gemini xom PCM qaytaradi (`audio/L16`), Telegram'ning `sendVoice`i
+  esa faqat OGG/Opus qabul qiladi va Render'da ffmpeg yo'q. Shuning uchun PCM
+  standart `wave` moduli bilan WAV'ga o'raladi va `sendAudio` orqali yuboriladi —
+  yangi bog'liqlik ham, konvertatsiya ham talab qilinmaydi.
+- **Sozlama foydalanuvchida** (`/ovoz`): `avto` (standart — ovozli savolga
+  ovozli javob, matnli savolga faqat matn), `doim`, `o'chiq`.
+
+TTS xatosi javobni yiqitmaydi — ovoz kelmasa ham matnli javob yuboriladi.
+
+O'zbek tilidagi sifat tekshirilgan: hosil qilingan audio qaytadan matnga
+o'girilganda asl matnga 96–100% mos tushdi (`gemini-2.5-flash-preview-tts`,
+`Kore` va `Charon` ovozlari).
 
 **Lokal ishlab chiqish (polling):**
 
@@ -182,12 +202,15 @@ cp .env.example .env
 | `ANTHROPIC_API_KEY` | Asosiy AI provayder kaliti |
 | `MODEL` | Asosiy model (standart: `claude-sonnet-4-5`) |
 | `GEMINI_API_KEY` | Zaxira provayder kaliti (ixtiyoriy, [aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi) |
-| `GEMINI_MODEL` | Zaxira model (standart: `gemini-2.5-flash`) |
+| `GEMINI_MODEL` | Zaxira model (standart: `gemini-flash-latest`). Aniq versiya nomlarini Google yangi kalitlar uchun yopib qo'yadi — `-latest` xavfsizroq |
 | `ADMIN_PASSWORD` | Admin sahifa paroli |
 | `TELEGRAM_BOT_TOKEN` | Bot tokeni (@BotFather). Bo'sh bo'lsa bot o'chiq, sayt oldingidek ishlaydi |
 | `TELEGRAM_WEBHOOK_URL` | Ilovaning tashqi manzili. Berilsa webhook avtomatik o'rnatiladi |
 | `TELEGRAM_WEBHOOK_SECRET` | Webhook so'rovini tekshirish uchun tasodifiy satr |
 | `OPENAI_API_KEY` | Ovozni matnga o'girish zaxirasi (ixtiyoriy; asosiysi — Gemini) |
+| `TTS_PROVAYDER` | Ovozli javob: `gemini` yoki `yoq` (standart: `yoq`) |
+| `GEMINI_TTS_MODEL` | TTS modeli (standart: `gemini-2.5-flash-preview-tts`) |
+| `GEMINI_TTS_OVOZ` | Ovoz nomi (standart: `Kore`) |
 
 Kamida bitta provayder kaliti bo'lishi shart; ikkalasi bo'lsa tizim avtomatik
 zaxiraga o'tishni qo'llaydi.

@@ -9,13 +9,20 @@ from typing import Dict, Optional, Tuple
 REJIMLAR = ("oddiy", "pro")
 STANDART_REJIM = "oddiy"
 
+# Ovozli javob sozlamasi:
+#   avto  — ovozli savolga ovozli javob, matnli savolga faqat matn (standart)
+#   doim  — har javobga ovoz qo'shiladi
+#   yoq   — ovozli javob umuman yuborilmaydi
+OVOZ_TANLOVLARI = ("avto", "doim", "yoq")
+STANDART_OVOZ = "avto"
+
 # Bir foydalanuvchi uchun: DAVR soniyada eng ko'pi bilan CHEGARA ta so'rov.
 # Maqsad — bitta odam butun AI byudjetini yoqib yuborishining oldini olish.
 CHEKLOV_DAVRI = 600
 CHEKLOV_CHEGARASI = 20
 
 _rejimlar: Dict[int, str] = {}
-_ovoz_yoqilgan: Dict[int, bool] = {}
+_ovoz_sozlamalari: Dict[int, str] = {}
 _oxirgi_javob: Dict[int, dict] = {}
 _sorovlar: Dict[int, list] = {}
 _band: Dict[int, float] = {}
@@ -35,15 +42,30 @@ def rejim_belgila(foydalanuvchi_id: int, yangi: str) -> str:
     return _rejimlar[foydalanuvchi_id]
 
 
-def ovoz_yoqilgan(foydalanuvchi_id: int) -> bool:
-    """Ovozli javob yoqilganmi (5-bosqich). Standart holat: o'chiq —
-    ovozli savolga ovoz bilan javob berish alohida hal qilinadi."""
-    return _ovoz_yoqilgan.get(foydalanuvchi_id, False)
+def ovoz_sozlamasi(foydalanuvchi_id: int) -> str:
+    return _ovoz_sozlamalari.get(foydalanuvchi_id, STANDART_OVOZ)
 
 
-def ovoz_almashtir(foydalanuvchi_id: int) -> bool:
-    _ovoz_yoqilgan[foydalanuvchi_id] = not ovoz_yoqilgan(foydalanuvchi_id)
-    return _ovoz_yoqilgan[foydalanuvchi_id]
+def ovoz_belgila(foydalanuvchi_id: int, yangi: str) -> str:
+    _ovoz_sozlamalari[foydalanuvchi_id] = (
+        yangi if yangi in OVOZ_TANLOVLARI else STANDART_OVOZ
+    )
+    return _ovoz_sozlamalari[foydalanuvchi_id]
+
+
+def ovoz_kerakmi(foydalanuvchi_id: int, ovozli_savol: bool) -> bool:
+    """Shu javobga ovoz qo'shiladimi.
+
+    Standart "avto" mantiqi: ovozli savol bergan odam javobni ham quloqqa
+    kutadi (ehtimol qo'li band yoki o'qishga qiynaladi), matn yozgan odam esa
+    kutmagan ovozdan bezovta bo'ladi.
+    """
+    sozlama = ovoz_sozlamasi(foydalanuvchi_id)
+    if sozlama == "doim":
+        return True
+    if sozlama == "yoq":
+        return False
+    return ovozli_savol
 
 
 def javobni_saqla(foydalanuvchi_id: int, savol: str, javob) -> None:
@@ -90,5 +112,5 @@ def bandni_bosat(foydalanuvchi_id: int) -> None:
 
 def tozala() -> None:
     """Testlar uchun."""
-    for saqlagich in (_rejimlar, _ovoz_yoqilgan, _oxirgi_javob, _sorovlar, _band):
+    for saqlagich in (_rejimlar, _ovoz_sozlamalari, _oxirgi_javob, _sorovlar, _band):
         saqlagich.clear()

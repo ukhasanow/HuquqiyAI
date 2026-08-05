@@ -190,9 +190,14 @@ class SoxtaXabar:
         self.chat = type("Chat", (), {"id": chat_id})()
         self.bot = SoxtaBot()
         self.yuborilgan = []
+        self.yuborilgan_audio = []
 
     async def answer(self, matn, reply_markup=None, disable_web_page_preview=None):
         self.yuborilgan.append(matn)
+        return self
+
+    async def answer_audio(self, fayl, title=None, caption=None):
+        self.yuborilgan_audio.append(fayl)
         return self
 
     async def delete(self):
@@ -422,3 +427,131 @@ def test_ovozli_sorov_statistikada_belgilanadi(monkeypatch):
     monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a: yozilgan.append(a))
     _ishga_tushir(handlers.ovozli_xabar(SoxtaOvozliXabar(SoxtaOvoz(), chat_id=106)))
     assert yozilgan[0][5] is True
+
+
+# ---------- Ovozli javob (TTS) ----------
+
+def _tts_yoq(monkeypatch, handlers, bayt=b"WAV-baytlar"):
+    """TTS'ni yoqadi va soxta audio qaytaradi."""
+    monkeypatch.setattr(handlers.ovoz, "tts_mavjud", lambda: True)
+    monkeypatch.setattr(handlers.ovoz, "ovozga_ogir", lambda matn: (bayt, "audio/wav"))
+    monkeypatch.setattr(handlers, "ovozli_javobni_yoz", lambda: None)
+
+
+def test_ovoz_sozlamasi_uch_holatli():
+    assert holat.ovoz_sozlamasi(1) == "avto"
+    assert holat.ovoz_belgila(1, "doim") == "doim"
+    assert holat.ovoz_sozlamasi(1) == "doim"
+    assert holat.ovoz_belgila(1, "notogri") == "avto"
+
+
+def test_avto_holatda_faqat_ovozli_savolga_ovoz():
+    """Matn yozgan odam kutilmagan ovozli xabardan bezovta bo'ladi."""
+    assert holat.ovoz_kerakmi(2, ovozli_savol=True)
+    assert not holat.ovoz_kerakmi(2, ovozli_savol=False)
+
+
+def test_doim_holatida_matnli_savolga_ham_ovoz():
+    holat.ovoz_belgila(3, "doim")
+    assert holat.ovoz_kerakmi(3, ovozli_savol=False)
+
+
+def test_yoq_holatida_ovozli_savolga_ham_ovoz_yubormaydi():
+    holat.ovoz_belgila(4, "yoq")
+    assert not holat.ovoz_kerakmi(4, ovozli_savol=True)
+
+
+def test_ovozli_savolga_ovozli_javob_qoshiladi(monkeypatch):
+    from app.bot import handlers
+
+    _tts_yoq(monkeypatch, handlers)
+    monkeypatch.setattr(handlers.ovoz, "mavjud", lambda: True)
+    monkeypatch.setattr(handlers.ovoz, "matnga_ogir", lambda *a, **k: "Aliment qancha")
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: _javob())
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a: None)
+    xabar = SoxtaOvozliXabar(SoxtaOvoz(), chat_id=110)
+    _ishga_tushir(handlers.ovozli_xabar(xabar))
+    assert len(xabar.yuborilgan_audio) == 1
+
+
+def test_matnli_savolga_ovoz_yuborilmaydi(monkeypatch):
+    from app.bot import handlers
+
+    _tts_yoq(monkeypatch, handlers)
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: _javob())
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a, **k: None)
+    xabar = SoxtaXabar("savol", chat_id=111)
+    _ishga_tushir(handlers._savolga_javob_ber(xabar, "savol"))
+    assert xabar.yuborilgan_audio == []
+
+
+def test_tts_xatosi_matnli_javobni_yiqitmaydi(monkeypatch):
+    """Ovoz — qo'shimcha. U ishlamasa ham odam javobini olishi shart."""
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers.ovoz, "tts_mavjud", lambda: True)
+    monkeypatch.setattr(handlers.ovoz, "ovozga_ogir",
+                        lambda matn: (_ for _ in ()).throw(RuntimeError("TTS yiqildi")))
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: _javob())
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a, **k: None)
+    holat.ovoz_belgila(112, "doim")
+    xabar = SoxtaXabar("savol", chat_id=112)
+    _ishga_tushir(handlers._savolga_javob_ber(xabar, "savol"))
+
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Sudga murojaat qiling." in matn  # matnli javob yetib bordi
+    assert xabar.yuborilgan_audio == []
+
+
+def test_ovozga_faqat_tavsiya_ogiriladi(monkeypatch):
+    """Modda matnlari uzun va quruq — audio'ga tushmasligi kerak."""
+    from app.bot import handlers
+
+    ogirilgan = []
+    monkeypatch.setattr(handlers.ovoz, "tts_mavjud", lambda: True)
+    monkeypatch.setattr(handlers.ovoz, "ovozga_ogir",
+                        lambda matn: ogirilgan.append(matn) or (b"wav", "audio/wav"))
+    monkeypatch.setattr(handlers, "ovozli_javobni_yoz", lambda: None)
+    monkeypatch.setattr(handlers, "javob_ol",
+                        lambda *a, **k: _javob(moddalar=[_modda(matn="Juda uzun modda matni.")]))
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a, **k: None)
+    holat.ovoz_belgila(113, "doim")
+    _ishga_tushir(handlers._savolga_javob_ber(SoxtaXabar("savol", chat_id=113), "savol"))
+
+    assert ogirilgan == ["Sudga murojaat qiling."]
+    assert "Juda uzun modda matni." not in ogirilgan[0]
+
+
+def test_javob_topilmasa_ovoz_yuborilmaydi(monkeypatch):
+    from app.bot import handlers
+
+    _tts_yoq(monkeypatch, handlers)
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: _javob(topildi=False, moddalar=[]))
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a, **k: None)
+    holat.ovoz_belgila(114, "doim")
+    xabar = SoxtaXabar("savol", chat_id=114)
+    _ishga_tushir(handlers._savolga_javob_ber(xabar, "savol"))
+    assert xabar.yuborilgan_audio == []
+
+
+def test_ovoz_buyrugi_sozlanmagan_bolsa_tushuntiradi(monkeypatch):
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers.ovoz, "tts_mavjud", lambda: False)
+    xabar = SoxtaXabar("/ovoz", chat_id=115)
+    _ishga_tushir(handlers.ovoz_buyrugi(xabar))
+    assert any("sozlanmagan" in x for x in xabar.yuborilgan)
+
+
+# ---------- Noma'lum buyruq ----------
+
+def test_notanish_buyruq_llm_ga_bormaydi(monkeypatch):
+    """"/ovozz" kabi xato buyruq huquqiy savol sifatida AI'ga yuborilmasin."""
+    from app.bot import handlers
+
+    chaqirildi = []
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: chaqirildi.append(1))
+    xabar = SoxtaXabar("/ovozz", chat_id=116)
+    _ishga_tushir(handlers.notanish_buyruq(xabar))
+    assert not chaqirildi
+    assert any("Bunday buyruq yo'q" in x for x in xabar.yuborilgan)

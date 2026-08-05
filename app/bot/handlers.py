@@ -27,6 +27,7 @@ from ..services.javob import (
     AiSozlanmagan,
     AiXato,
     javob_ol,
+    ovozli_javobni_yoz,
     statistikani_yoz,
     uch_qismli_javob,
 )
@@ -48,10 +49,12 @@ SALOM = (
 YORDAM = (
     "<b>Nima qila olaman</b>\n\n"
     "• Savolingizni yozing — qonun moddasi, tavsiya va murojaat organi bilan javob beraman\n"
+    "• 🎤 Ovozli xabar yuboring — tinglab, matnga o'girib javob beraman\n"
     "• 📄 PDF, DOCX yoki TXT hujjat yuboring — huquqiy tahlil qilaman\n"
     "• Javobdan keyin «Ariza tayyorlash» tugmasi chiqadi\n\n"
     "<b>Buyruqlar</b>\n"
     "/rejim — javob uslubi: <b>oddiy</b> (sodda til) yoki <b>pro</b> (protsessual tafsilotlar)\n"
+    "/ovoz — javobni ovozli ham yuborish sozlamasi\n"
     "/yordam — shu xabar\n\n"
     "⚠️ <i>Bergan ma'lumotim tanishtiruv xarakteriga ega va professional huquqiy "
     "maslahat o'rnini bosmaydi. Rasmiy manba — lex.uz</i>"
@@ -92,6 +95,17 @@ def _ariza_tugmasi() -> InlineKeyboardMarkup:
     ]])
 
 
+def _ovoz_tugmalari(joriy: str) -> InlineKeyboardMarkup:
+    nomlar = {"avto": "Avto", "doim": "Doim", "yoq": "O'chiq"}
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(
+            text=("✅ " if tanlov == joriy else "") + nomlar[tanlov],
+            callback_data=f"ovoz:{tanlov}",
+        )
+        for tanlov in holat.OVOZ_TANLOVLARI
+    ]])
+
+
 async def _yubor(xabar: Message, bolaklar: List[str], klaviatura=None) -> None:
     """Bo'laklarni ketma-ket yuboradi; klaviatura oxirgisiga qo'shiladi."""
     for i, bolak in enumerate(bolaklar):
@@ -124,6 +138,34 @@ async def _javobni_yubor(xabar: Message, javob, savol: str) -> None:
 
     holat.javobni_saqla(xabar.chat.id, savol, javob)
     await _yubor(xabar, formatlash.tavsiya_xabari(javob), _ariza_tugmasi())
+
+
+async def _ovozli_javob_yubor(xabar: Message, javob) -> None:
+    """Tavsiya qismini ovozga o'girib yuboradi.
+
+    Ovozga FAQAT tavsiya tushadi: modda matnlari uzun va quloqqa quruq, ularni
+    o'qib berish audio'ni bir necha daqiqaga cho'zadi. Matnli javob esa doim
+    to'liq yuboriladi — ovoz uning o'rnini emas, qo'shimchasini bajaradi.
+
+    Bu yerdagi har qanday xato yutiladi: TTS ishlamay qolgani foydalanuvchini
+    javobsiz qoldirmasligi kerak.
+    """
+    matn = (javob.tavsiya or "").strip() or (javob.xulosa or "").strip()
+    if not matn or not ovoz.tts_mavjud():
+        return
+    try:
+        bayt, mime = await asyncio.to_thread(ovoz.ovozga_ogir, matn)
+        # sendVoice faqat OGG/Opus qabul qiladi, bizda esa WAV (ffmpeg yo'q) —
+        # shuning uchun audio fayl sifatida yuboriladi.
+        kengaytma = "ogg" if "ogg" in mime else "wav"
+        await xabar.answer_audio(
+            BufferedInputFile(bayt, filename=f"javob.{kengaytma}"),
+            title="Tavsiya (ovozli)",
+            caption="🔊 Tavsiyaning ovozli varianti",
+        )
+        await asyncio.to_thread(ovozli_javobni_yoz)
+    except Exception:
+        log.exception("Ovozli javob yuborilmadi (chat_id=%s)", xabar.chat.id)
 
 
 async def _savolga_javob_ber(
@@ -177,6 +219,8 @@ async def _savolga_javob_ber(
             pass  # xabar allaqachon o'chirilgan bo'lishi mumkin
 
     await _javobni_yubor(xabar, javob, savol)
+    if javob.javob_topildi and holat.ovoz_kerakmi(id_, ovozli):
+        await _ovozli_javob_yubor(xabar, javob)
     await asyncio.to_thread(
         statistikani_yoz, javob, rejim, f"tg:{id_}", savol, "bot", ovozli
     )
@@ -211,6 +255,30 @@ async def rejim_tanlandi(soro: CallbackQuery) -> None:
     yangi = holat.rejim_belgila(soro.message.chat.id, soro.data.split(":", 1)[1])
     await soro.message.edit_reply_markup(reply_markup=_rejim_tugmalari(yangi))
     await soro.answer(f"Rejim: {yangi}")
+
+
+@router.message(Command("ovoz"))
+async def ovoz_buyrugi(xabar: Message) -> None:
+    if not ovoz.tts_mavjud():
+        await xabar.answer(
+            "🔊 Ovozli javob bu serverda sozlanmagan — javoblar faqat matn bilan keladi."
+        )
+        return
+    await xabar.answer(
+        "Ovozli javobni qachon yuboray?\n\n"
+        "<b>Avto</b> — ovozli savolga ovozli javob (standart)\n"
+        "<b>Doim</b> — har javobga ovoz qo'shiladi\n"
+        "<b>O'chiq</b> — faqat matn\n\n"
+        "<i>Ovozga tavsiya qismi tushadi; qonun moddalari doim matn bilan keladi.</i>",
+        reply_markup=_ovoz_tugmalari(holat.ovoz_sozlamasi(xabar.chat.id)),
+    )
+
+
+@router.callback_query(F.data.startswith("ovoz:"))
+async def ovoz_tanlandi(soro: CallbackQuery) -> None:
+    yangi = holat.ovoz_belgila(soro.message.chat.id, soro.data.split(":", 1)[1])
+    await soro.message.edit_reply_markup(reply_markup=_ovoz_tugmalari(yangi))
+    await soro.answer(f"Ovozli javob: {yangi}")
 
 
 # ---------- Ariza (dialog) ----------
@@ -374,6 +442,23 @@ async def ovozli_xabar(xabar: Message) -> None:
 
 
 # ---------- Oddiy matn ----------
+
+@router.message(F.text.startswith("/"))
+async def notanish_buyruq(xabar: Message) -> None:
+    """Ro'yxatda yo'q buyruq.
+
+    Bu handler umumiy matn handleridan OLDIN turishi shart: aks holda "/ovozz"
+    kabi xato yozilgan buyruq huquqiy savol sifatida AI'ga yuboriladi va
+    foydalanuvchi 20 soniya kutib, mutlaqo aloqasiz javob oladi.
+    """
+    await xabar.answer(
+        "Bunday buyruq yo'q. Mavjud buyruqlar:\n"
+        "/rejim — javob uslubi\n"
+        "/ovoz — ovozli javob sozlamasi\n"
+        "/yordam — nima qila olaman\n\n"
+        "Savolingizni oddiy matn bilan yozsangiz ham bo'ladi."
+    )
+
 
 @router.message(F.text)
 async def savol(xabar: Message) -> None:
