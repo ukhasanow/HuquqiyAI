@@ -69,41 +69,40 @@ def modda_xabari(modda: dict) -> List[str]:
     return [bosh + bolaklar[0]] + bolaklar[1:]
 
 
-def xulosa_xabari(javob) -> List[str]:
-    """Umumiy xulosa — javobning eng boshida, moddalardan OLDIN.
+def asosiy_javob_xabari(javob) -> List[str]:
+    """Odam o'qiydigan javob — bitta xabarda: xulosa, tavsiya, organ, ogohlantirish.
 
-    Odam avval "menda ahvol qanday?" degan savolga javob oladi, so'ng qonun
-    matnini o'qiydi. Teskarisi bo'lsa, uzun modda matni ostida asosiy fikr
-    ko'rinmay qoladi.
+    Ilgari bu uch alohida xabar edi va uch moddali javob 5-6 ta xabarga
+    bo'linib ketardi: suhbat emas, hujjat oqimiga o'xshardi. Endi odam bitta
+    xabarda to'liq javob oladi, qonun matnini esa xohlasa tugma orqali ochadi.
     """
-    if not getattr(javob, "xulosa", ""):
-        return []
-    return bolaklarga_bol("📌 <b>Qisqacha</b>\n\n" + _tozala(javob.xulosa))
-
-
-def tavsiya_xabari(javob) -> List[str]:
-    """Tavsiya + murojaat organi + disclaimer."""
     qismlar = []
+    if getattr(javob, "xulosa", ""):
+        qismlar.append(_tozala(javob.xulosa))
     if javob.tavsiya:
         qismlar.append("💡 <b>Nima qilish kerak</b>\n\n" + _tozala(javob.tavsiya))
-
-    organ = javob.murojaat
-    if organ:
-        qatorlar = [f"🏛 <b>Qayerga murojaat qilasiz</b>\n\n<b>{_tozala(organ.nomi)}</b>"]
-        if organ.tavsif:
-            qatorlar.append(_tozala(organ.tavsif))
-        if organ.telefon:
-            qatorlar.append(f"☎️ {_tozala(organ.telefon)}")
-        if organ.manzil:
-            qatorlar.append(f"📍 {_tozala(organ.manzil)}")
-        if organ.ish_vaqti:
-            qatorlar.append(f"🕘 {_tozala(organ.ish_vaqti)}")
-        if organ.onlayn_murojaat:
-            qatorlar.append(f"🌐 {_tozala(organ.onlayn_murojaat)}")
-        qismlar.append("\n".join(qatorlar))
-
+    organ_matni = _organ_matni(javob.murojaat)
+    if organ_matni:
+        qismlar.append(organ_matni)
     qismlar.append(f"⚠️ <i>{_tozala(javob.disclaimer)}</i>")
     return bolaklarga_bol("\n\n".join(qismlar))
+
+
+def _organ_matni(organ) -> str:
+    if not organ:
+        return ""
+    qatorlar = [f"🏛 <b>Qayerga murojaat qilasiz</b>\n\n<b>{_tozala(organ.nomi)}</b>"]
+    if organ.tavsif:
+        qatorlar.append(_tozala(organ.tavsif))
+    if organ.telefon:
+        qatorlar.append(f"☎️ {_tozala(organ.telefon)}")
+    if organ.manzil:
+        qatorlar.append(f"📍 {_tozala(organ.manzil)}")
+    if organ.ish_vaqti:
+        qatorlar.append(f"🕘 {_tozala(organ.ish_vaqti)}")
+    if organ.onlayn_murojaat:
+        qatorlar.append(f"🌐 {_tozala(organ.onlayn_murojaat)}")
+    return "\n".join(qatorlar)
 
 
 def topilmadi_xabari(javob) -> List[str]:

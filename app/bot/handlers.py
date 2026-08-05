@@ -89,10 +89,23 @@ def _modda_tugmasi(modda: dict) -> InlineKeyboardMarkup:
     ]])
 
 
-def _ariza_tugmasi() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="📄 Ariza tayyorlash", callback_data="ariza:boshla")
-    ]])
+def _javob_tugmalari(kalit: str, moddalar_soni: int) -> InlineKeyboardMarkup:
+    """Asosiy javob ostidagi tugmalar.
+
+    Qonun moddalari tugma ortida turadi: ular javobning ishonch asosi, lekin
+    ko'pchilik odam avval "menga nima qilish kerak" degan savolga javob oladi
+    va faqat kerak bo'lganda asl matnni ochadi.
+    """
+    qatorlar = []
+    if moddalar_soni:
+        qatorlar.append([InlineKeyboardButton(
+            text=f"📖 Qonun moddalari ({moddalar_soni})",
+            callback_data=f"moddalar:{kalit}",
+        )])
+    qatorlar.append([InlineKeyboardButton(
+        text="📄 Ariza tayyorlash", callback_data=f"ariza:{kalit}"
+    )])
+    return InlineKeyboardMarkup(inline_keyboard=qatorlar)
 
 
 def _ovoz_tugmalari(joriy: str) -> InlineKeyboardMarkup:
@@ -117,27 +130,38 @@ async def _yubor(xabar: Message, bolaklar: List[str], klaviatura=None) -> None:
 
 
 async def _javobni_yubor(xabar: Message, javob, savol: str) -> None:
+    """Javobni suhbat ko'rinishida yuboradi — bitta xabar va tugmalar.
+
+    Ilgari har modda alohida xabar bo'lib, bitta savolga 5-6 ta xabar ketardi.
+    Endi odam bir xabarda to'liq javobni oladi, qonun matnini esa "Qonun
+    moddalari" tugmasi orqali ochadi.
+    """
     if not javob.javob_topildi:
         await _yubor(xabar, formatlash.topilmadi_xabari(javob))
         return
 
-    # Avval umumiy xulosa: odam "menda ahvol qanday?" degan savolga javobni
-    # uzun modda matnlarini o'qimasdan oldin oladi.
-    xulosa = formatlash.xulosa_xabari(javob)
-    if xulosa:
-        await _yubor(xabar, xulosa)
+    kalit = holat.javobni_saqla(xabar.chat.id, savol, javob)
+    await _yubor(
+        xabar,
+        formatlash.asosiy_javob_xabari(javob),
+        _javob_tugmalari(kalit, len(javob.moddalar)),
+    )
 
-    for modda in javob.moddalar:
-        bolaklar = formatlash.modda_xabari(modda.model_dump())
+
+async def _moddalarni_yubor(xabar: Message, moddalar: List[dict]) -> None:
+    """Qonun moddalari — har biri o'z xabarida, lex.uz tugmasi bilan.
+
+    Modda matni QISQARTIRILMAYDI: qonunning asl matni loyihaning asosiy
+    va'dasi. Uzuni xatboshi chegarasi bo'yicha bo'linadi.
+    """
+    for modda in moddalar:
+        bolaklar = formatlash.modda_xabari(modda)
         for i, bolak in enumerate(bolaklar):
             await xabar.answer(
                 bolak,
-                reply_markup=_modda_tugmasi(modda.model_dump()) if i == len(bolaklar) - 1 else None,
+                reply_markup=_modda_tugmasi(modda) if i == len(bolaklar) - 1 else None,
                 disable_web_page_preview=True,
             )
-
-    holat.javobni_saqla(xabar.chat.id, savol, javob)
-    await _yubor(xabar, formatlash.tavsiya_xabari(javob), _ariza_tugmasi())
 
 
 async def _ovozli_javob_yubor(xabar: Message, javob) -> None:
@@ -281,15 +305,38 @@ async def ovoz_tanlandi(soro: CallbackQuery) -> None:
     await soro.answer(f"Ovozli javob: {yangi}")
 
 
+# ---------- Qonun moddalarini ochish ----------
+
+ESKI_JAVOB = (
+    "Bu javob eskirdi — savolni qaytadan bering, moddalarni yangi javobdan ochasiz."
+)
+
+
+@router.callback_query(F.data.startswith("moddalar:"))
+async def moddalarni_koraat(soro: CallbackQuery) -> None:
+    malumot = holat.javob_malumoti(soro.data.split(":", 1)[1])
+    if not malumot:
+        await soro.answer(ESKI_JAVOB, show_alert=True)
+        return
+    moddalar = [m for mid in malumot["modda_idlari"] if (m := storage.modda_top(mid))]
+    if not moddalar:
+        await soro.answer("Moddalar topilmadi.", show_alert=True)
+        return
+    await soro.answer()
+    await _moddalarni_yubor(soro.message, moddalar)
+
+
 # ---------- Ariza (dialog) ----------
 
-@router.callback_query(F.data == "ariza:boshla")
+@router.callback_query(F.data.startswith("ariza:"))
 async def ariza_boshla(soro: CallbackQuery, state: FSMContext) -> None:
-    oxirgi = holat.oxirgi_javob(soro.message.chat.id)
-    if not oxirgi or not oxirgi["modda_idlari"]:
-        await soro.answer("Avval savol bering — ariza javobdagi moddalar asosida tuziladi.", show_alert=True)
+    kalit = soro.data.split(":", 1)[1]
+    malumot = holat.javob_malumoti(kalit)
+    if not malumot or not malumot["modda_idlari"]:
+        await soro.answer(ESKI_JAVOB, show_alert=True)
         return
     await state.set_state(ArizaHolati.fish)
+    await state.update_data(javob_kaliti=kalit)
     await soro.message.answer(
         "📄 <b>Ariza tayyorlash</b>\n\nTo'liq familiya, ism va otangizning ismini yozing.\n\n"
         "<i>Bekor qilish uchun: /start</i>"
@@ -322,7 +369,7 @@ async def ariza_telefon(xabar: Message, state: FSMContext) -> None:
     malumot = await state.get_data()
     await state.clear()
 
-    oxirgi = holat.oxirgi_javob(xabar.chat.id)
+    oxirgi = holat.javob_malumoti(malumot.get("javob_kaliti", ""))
     if not oxirgi:
         await xabar.answer("Javob ma'lumoti topilmadi. Savolni qaytadan bering.")
         return

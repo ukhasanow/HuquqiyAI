@@ -82,11 +82,26 @@ def test_juda_uzun_modda_qisqartirilmaydi():
     assert yigilgan.count("Modda matni.") == 2000
 
 
-def test_tavsiya_xabarida_organ_va_disclaimer_bor():
-    matn = "\n".join(formatlash.tavsiya_xabari(_javob()))
+def test_asosiy_javobda_tavsiya_organ_va_disclaimer_bor():
+    matn = "\n".join(formatlash.asosiy_javob_xabari(_javob()))
     assert "Sudga murojaat qiling." in matn
     assert "1008" in matn
     assert "professional" in matn  # disclaimer
+
+
+def test_asosiy_javob_xulosadan_boshlanadi():
+    """Odam avval "menda ahvol qanday?" degan savolga javob olishi kerak."""
+    javob = _javob()
+    javob.xulosa = "Qonun bo'yicha siz haqsiz."
+    bolaklar = formatlash.asosiy_javob_xabari(javob)
+    assert bolaklar[0].startswith("Qonun bo'yicha siz haqsiz.")
+
+
+def test_asosiy_javobda_modda_matni_yoq():
+    """Modda matni tugma ortida — asosiy xabar uzun bo'lib ketmasligi kerak."""
+    javob = _javob(moddalar=[_modda(matn="Juda uzun modda matni bu yerda.")])
+    matn = "\n".join(formatlash.asosiy_javob_xabari(javob))
+    assert "Juda uzun modda matni" not in matn
 
 
 def test_topilmadi_xabari_halol():
@@ -124,11 +139,27 @@ def test_band_ikkinchi_sorovni_toxtatadi():
     assert holat.band_qil(5)
 
 
-def test_oxirgi_javob_ariza_uchun_saqlanadi():
-    holat.javobni_saqla(3, "nikohdan ajrashaman", _javob())
-    saqlangan = holat.oxirgi_javob(3)
+def test_javob_kalit_boyicha_saqlanadi():
+    kalit = holat.javobni_saqla(3, "nikohdan ajrashaman", _javob())
+    saqlangan = holat.javob_malumoti(kalit)
     assert saqlangan["modda_idlari"] == ["oila-41"]
     assert saqlangan["murojaat_mavzusi"] == "oila"
+
+
+def test_har_javob_oz_kalitiga_ega():
+    """Eski xabardagi tugma yangi javobning moddalarini ochib yubormasligi kerak."""
+    birinchi = holat.javobni_saqla(3, "birinchi savol", _javob())
+    ikkinchi = holat.javobni_saqla(3, "ikkinchi savol", _javob(moddalar=[_modda(mid="mehnat-1")]))
+    assert birinchi != ikkinchi
+    assert holat.javob_malumoti(birinchi)["modda_idlari"] == ["oila-41"]
+    assert holat.javob_malumoti(ikkinchi)["modda_idlari"] == ["mehnat-1"]
+
+
+def test_eski_javoblar_xotiradan_chiqadi():
+    kalitlar = [holat.javobni_saqla(3, "savol", _javob())
+                for _ in range(holat.JAVOB_XOTIRASI + 5)]
+    assert holat.javob_malumoti(kalitlar[0]) is None   # eng eskisi chiqib ketdi
+    assert holat.javob_malumoti(kalitlar[-1]) is not None
 
 
 # ---------- Webhook ----------
@@ -217,11 +248,24 @@ def test_savolga_javob_oqimi(monkeypatch):
     _ishga_tushir(handlers._savolga_javob_ber(xabar, xabar.text))
 
     matn = "\n".join(xabar.yuborilgan)
-    assert "41-modda" in matn          # modda
     assert "Sudga murojaat qiling." in matn  # tavsiya
     assert "1008" in matn              # organ
-    assert holat.oxirgi_javob(99)      # ariza uchun saqlandi
     assert holat.band_qil(99)          # band belgisi bo'shatilgan
+
+
+def test_javob_bitta_xabarda_keladi(monkeypatch):
+    """Suhbat ko'rinishi: uch moddali javob ham bitta xabar bo'lib kelsin."""
+    from app.bot import handlers
+
+    javob = _javob(moddalar=[_modda(mid="oila-41"), _modda(mid="oila-42"),
+                             _modda(mid="oila-43")])
+    monkeypatch.setattr(handlers, "javob_ol", lambda *a, **k: javob)
+    monkeypatch.setattr(handlers, "statistikani_yoz", lambda *a, **k: None)
+    xabar = SoxtaXabar("savol", chat_id=120)
+    _ishga_tushir(handlers._savolga_javob_ber(xabar, "savol"))
+
+    mazmunli = [x for x in xabar.yuborilgan if x != handlers.KUTING]
+    assert len(mazmunli) == 1
 
 
 def test_ai_xatosi_foydalanuvchiga_ozbekcha_yetadi(monkeypatch):
@@ -312,14 +356,119 @@ def test_xulosa_javobning_boshida_yuboriladi(monkeypatch):
     xabar = SoxtaXabar("savol", chat_id=101)
     _ishga_tushir(handlers._savolga_javob_ber(xabar, "savol"))
 
-    # Kutish xabaridan keyingi birinchi mazmunli xabar — xulosa
     mazmunli = [x for x in xabar.yuborilgan if x != handlers.KUTING]
-    assert "Qonun bo'yicha siz haqsiz." in mazmunli[0]
-    assert "41-modda" in mazmunli[1]
+    assert mazmunli[0].startswith("Qonun bo'yicha siz haqsiz.")
 
 
-def test_xulosa_bosh_bolsa_xabar_yuborilmaydi():
-    assert formatlash.xulosa_xabari(_javob()) == []
+# ---------- Moddalarni tugma orqali ochish ----------
+
+class SoxtaSorov:
+    """CallbackQuery'ning handler'lar ishlatadigan qismi."""
+
+    def __init__(self, data, chat_id=99):
+        self.data = data
+        self.message = SoxtaXabar("", chat_id)
+        self.javoblar = []
+
+    async def answer(self, matn="", show_alert=False):
+        self.javoblar.append(matn)
+
+
+def test_moddalar_tugmasi_asl_matnni_ochadi(monkeypatch):
+    from app.bot import handlers
+
+    kalit = holat.javobni_saqla(99, "savol", _javob())
+    monkeypatch.setattr(handlers.storage, "modda_top",
+                        lambda mid: _modda(matn="Asl qonun matni.").model_dump())
+    soro = SoxtaSorov(f"moddalar:{kalit}")
+    _ishga_tushir(handlers.moddalarni_koraat(soro))
+
+    matn = "\n".join(soro.message.yuborilgan)
+    assert "Asl qonun matni." in matn
+    assert "41-modda" in matn
+
+
+def test_eskirgan_kalit_bosilganda_tushuntiriladi():
+    from app.bot import handlers
+
+    soro = SoxtaSorov("moddalar:99-99999")
+    _ishga_tushir(handlers.moddalarni_koraat(soro))
+    assert soro.message.yuborilgan == []
+    assert any("eskirdi" in j for j in soro.javoblar)
+
+
+# ---------- Ariza dialogi ----------
+
+class SoxtaHolat:
+    """FSMContext'ning handler'lar ishlatadigan qismi."""
+
+    def __init__(self):
+        self.holat = None
+        self.malumot = {}
+
+    async def set_state(self, holat):
+        self.holat = holat
+
+    async def update_data(self, **kw):
+        self.malumot.update(kw)
+
+    async def get_data(self):
+        return dict(self.malumot)
+
+    async def clear(self):
+        self.holat = None
+        self.malumot = {}
+
+
+class SoxtaHujjatliXabar(SoxtaXabar):
+    def __init__(self, matn="", chat_id=99):
+        super().__init__(matn, chat_id)
+        self.hujjatlar = []
+
+    async def answer_document(self, fayl, caption=None):
+        self.hujjatlar.append((fayl, caption))
+        return self
+
+
+def test_ariza_tugmasi_javob_kalitini_eslab_qoladi():
+    """Ariza AYNAN o'sha javobdagi moddalar asosida tuzilishi kerak."""
+    from app.bot import handlers
+
+    kalit = holat.javobni_saqla(99, "savol", _javob())
+    soro = SoxtaSorov(f"ariza:{kalit}")
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.ariza_boshla(soro, hol))
+    assert hol.malumot["javob_kaliti"] == kalit
+    assert hol.holat == handlers.ArizaHolati.fish
+
+
+def test_ariza_qoralamasi_fayl_bolib_yuboriladi(monkeypatch):
+    from app.bot import handlers
+
+    kalit = holat.javobni_saqla(99, "Ish haqi berilmayapti", _javob())
+    monkeypatch.setattr(handlers.storage, "modda_top", lambda mid: _modda().model_dump())
+    monkeypatch.setattr(handlers.storage, "organ_top", lambda mavzu: {"nomi": "Sud"})
+    monkeypatch.setattr(handlers.ariza_xizmati, "ariza_tuz",
+                        lambda **kw: "ARIZA MATNI: " + kw["fish"])
+
+    hol = SoxtaHolat()
+    hol.malumot = {"javob_kaliti": kalit, "fish": "Aliyev Vali", "manzil": "Toshkent"}
+    xabar = SoxtaHujjatliXabar("+998901234567")
+    _ishga_tushir(handlers.ariza_telefon(xabar, hol))
+
+    assert len(xabar.hujjatlar) == 1
+    assert xabar.hujjatlar[0][0].filename == "ariza.txt"
+
+
+def test_ariza_kaliti_yoqolsa_tushuntiriladi():
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.malumot = {"javob_kaliti": "99-99999", "fish": "Aliyev Vali"}
+    xabar = SoxtaHujjatliXabar("-")
+    _ishga_tushir(handlers.ariza_telefon(xabar, hol))
+    assert any("topilmadi" in x for x in xabar.yuborilgan)
+    assert xabar.hujjatlar == []
 
 
 def test_bot_batafsil_javob_soraydi(monkeypatch):

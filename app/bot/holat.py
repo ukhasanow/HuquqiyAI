@@ -4,6 +4,7 @@
 # tushganda rejim standart holatga qaytadi — bu yo'qotish arzimas, buning
 # uchun baza qo'shish esa ortiqcha murakkablik.
 import time
+from collections import OrderedDict
 from typing import Dict, Optional, Tuple
 
 REJIMLAR = ("oddiy", "pro")
@@ -23,9 +24,16 @@ CHEKLOV_CHEGARASI = 20
 
 _rejimlar: Dict[int, str] = {}
 _ovoz_sozlamalari: Dict[int, str] = {}
-_oxirgi_javob: Dict[int, dict] = {}
 _sorovlar: Dict[int, list] = {}
 _band: Dict[int, float] = {}
+
+# Yuborilgan javoblar: tugmalar (moddalarni ochish, ariza) qaysi javobga
+# tegishli ekanini shu kalit orqali biladi. Faqat oxirgisini saqlash yetmaydi —
+# odam eski xabardagi tugmani bosganda unga yangi javobning moddalari
+# ochilib ketardi.
+_javoblar: "OrderedDict[str, dict]" = OrderedDict()
+JAVOB_XOTIRASI = 50
+_javob_sanagichi = 0
 
 # Bitta so'rov shuncha soniyadan uzoq davom etsa, "band" belgisi eskirgan
 # hisoblanadi (masalan jarayon xato bergan). Aks holda foydalanuvchi bot
@@ -68,17 +76,27 @@ def ovoz_kerakmi(foydalanuvchi_id: int, ovozli_savol: bool) -> bool:
     return ovozli_savol
 
 
-def javobni_saqla(foydalanuvchi_id: int, savol: str, javob) -> None:
-    """Ariza tuzish uchun oxirgi javobning modda va mavzusi kerak bo'ladi."""
-    _oxirgi_javob[foydalanuvchi_id] = {
+def javobni_saqla(foydalanuvchi_id: int, savol: str, javob) -> str:
+    """Javobni saqlaydi va uning kalitini qaytaradi.
+
+    Kalit inline tugmalarning callback_data'sida yuradi: moddalarni ochish ham,
+    ariza tuzish ham AYNAN o'sha javobga tegishli bo'lishi kerak.
+    """
+    global _javob_sanagichi
+    _javob_sanagichi += 1
+    kalit = f"{foydalanuvchi_id}-{_javob_sanagichi}"
+    _javoblar[kalit] = {
         "savol": savol,
         "modda_idlari": [m.id for m in javob.moddalar][:3],
         "murojaat_mavzusi": javob.murojaat_mavzusi,
     }
+    while len(_javoblar) > JAVOB_XOTIRASI:
+        _javoblar.popitem(last=False)
+    return kalit
 
 
-def oxirgi_javob(foydalanuvchi_id: int) -> Optional[dict]:
-    return _oxirgi_javob.get(foydalanuvchi_id)
+def javob_malumoti(kalit: str) -> Optional[dict]:
+    return _javoblar.get(kalit)
 
 
 def cheklovdan_otdi(foydalanuvchi_id: int) -> Tuple[bool, int]:
@@ -112,5 +130,5 @@ def bandni_bosat(foydalanuvchi_id: int) -> None:
 
 def tozala() -> None:
     """Testlar uchun."""
-    for saqlagich in (_rejimlar, _ovoz_sozlamalari, _oxirgi_javob, _sorovlar, _band):
+    for saqlagich in (_rejimlar, _ovoz_sozlamalari, _javoblar, _sorovlar, _band):
         saqlagich.clear()

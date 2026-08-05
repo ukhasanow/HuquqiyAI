@@ -150,6 +150,12 @@ Bir nechta nozik joy ataylab shunday qilingan:
   qayta yuboradi va foydalanuvchi bir savolga ikki marta javob olardi.
 - **Javob alohida oqimda hisoblanadi** (`asyncio.to_thread`). Aks holda LLM
   so'rovi butun event loop'ni — bot bilan birga saytni ham — qotirib qo'yadi.
+- **Javob bitta xabarda keladi.** Ilgari xulosa, har modda va tavsiya alohida
+  xabar edi — uch moddali javob 5-6 ta xabarga bo'linib, suhbat emas, hujjat
+  oqimiga o'xshardi. Endi odam bitta xabarda xulosa, tavsiya va murojaat
+  organini oladi; qonun matnini «📖 Qonun moddalari» tugmasi orqali ochadi.
+  Tugmadagi kalit AYNAN o'sha javobga bog'langan, shuning uchun eski xabardagi
+  tugma yangi javobning moddalarini ochib yubormaydi.
 - **Modda matni qisqartirilmaydi.** Telegram'da xabar 4096 belgi bilan
   cheklangan, shuning uchun uzun modda xatboshi chegarasi bo'yicha bir necha
   xabarga bo'linadi.
