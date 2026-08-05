@@ -426,6 +426,58 @@ body {
 .band-modda summary { cursor: pointer; color: var(--urgu); padding: 3px 0; }
 .band-modda .modda-matn { margin: 6px 0; white-space: pre-wrap; }
 .band-modda a { color: var(--urgu); font-size: .8rem; }
+
+/* Jarima tekshiruvi */
+.vosita-qator { margin: 10px 0 4px; }
+.vosita-tugma {
+  border: 1px solid var(--chiziq);
+  background: var(--krem);
+  color: var(--asosiy);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.vosita-tugma:hover { background: #fff; border-color: var(--urgu); }
+.jarima-forma { display: grid; gap: 8px; margin-top: 8px; }
+.jarima-maydon { display: flex; flex-direction: column; gap: 3px; font-size: .82rem; color: var(--sokin); }
+.jarima-maydon input {
+  border: 1px solid var(--chiziq);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: .88rem;
+  color: var(--matn);
+}
+.jarima-belgi { flex-direction: row; align-items: center; gap: 7px; }
+.jarima-belgi input { width: auto; }
+.jarima-tekshir {
+  border: 0;
+  background: var(--urgu);
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font: inherit;
+  font-size: .9rem;
+  cursor: pointer;
+  justify-self: start;
+}
+.jarima-tekshir:disabled { opacity: .5; cursor: default; }
+.shikoyat-muddat {
+  background: #fdf6ec;
+  border: 1px solid #e6c98f;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: .87rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+/* Tekshiruv kartalari band-karta uslubini qayta ishlatadi */
+.band-karta.asos { border-left-color: #d64545; background: #fdf6f6; }
+.band-karta.diqqat { border-left-color: #d99b2b; background: #fdfaf3; }
+.band-karta.joyida { border-left-color: #6b9c6b; }
 .fayl-nomi {
   font-size: .78rem;
   color: var(--urgu);

@@ -23,6 +23,8 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   foydalanuvchi faqat F.I.Sh kiritadi; hujjatda yoziladigan yagona joy — imzo)
 - **Uch yozuvda ishlaydi** — o'zbek lotin, o'zbek kirill va rus tilidagi
   savollarga o'sha til/yozuvda javob (kirill uchun transliteratsiyali qidiruv)
+- **Jarima qonuniyligini tekshirish** — yo'l jarimasi qarorini muddatlar va
+  rasmiylashtirish bo'yicha tekshiradi (AI'siz, aniq arifmetika bilan)
 - **Shartnoma tahlili** — mehnat, ijara, kredit yoki oldi-sotdi shartnomasini
   yuklang: har band xavf darajasi (🔴 qonunga zid · 🟡 noqulay · 🟢 e'tibor bering)
   va tegishli qonun moddasi bilan ko'rsatiladi
@@ -35,6 +37,35 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   ovozli savol va javob), mavzular bo'yicha taqsimot, manba bo'yicha
   ajratilgan 30 kunlik grafik va javob topilmagan savollar ro'yxati
   (bazani kengaytirish uchun)
+
+## Jarima qonuniyligini tekshirish
+
+`POST /api/jarima` (saytda tugma, botda `/jarima`) yo'l jarimasi qarorini
+tekshiruv ro'yxati bo'yicha baholaydi.
+
+**Bu yerda AI yo'q va bu ataylab.** Jarimaning taqdirini muddatlar hal qiladi,
+muddat esa sanalar ayirmasi. Model bir kun xato hisoblasa, odam asossiz shikoyat
+beradi yoki haqiqiy asosdan voz kechadi. Shuning uchun tekshiruvlar oddiy
+arifmetika bilan bajariladi, izohlar bazadagi asl modda matniga havola qiladi.
+Javob **0,04 soniyada** qaytadi va AI provayder ishlamay qolganda ham ishlaydi.
+
+Tekshiruvlar (muddatlar MJK matnidan olingan):
+
+| Modda | Nima tekshiriladi |
+|---|---|
+| **36** + 271(7) | javobgarlikka tortish muddati: hodisadan **1 yil**, kamera orqali qayd etilganda **1 oy**. O'tgan bo'lsa ish tugatilishi lozim — eng kuchli asos |
+| **316** | shikoyat muddati: qaror **nusxasi olingan** kundan 10 kun |
+| **330** | qaror 3 oy ijroga qaratilmasa, ijro etilmaydi |
+| **309¹** | kamera jarimasi mashina egasiga yoziladi — boshqa shaxs boshqargan bo'lsa asos bor |
+| **281**, **311** | bayonnoma mazmuni va qaror nusxasi topshirilishi |
+
+**Tizim hech qachon "jarima noqonuniy, to'lamang" demaydi** — faqat "shu asos
+tekshirishga arziydi" deydi va shikoyat muddatini eslatadi. Yakuniy bahoni sud
+yoki vakolatli organ beradi. Bu qoida testda qayd etilgan.
+
+Muddat konstantalari qonun matniga test orqali bog'langan: qonun o'zgarib,
+`--tekshir` bilan baza yangilanganda test yiqiladi va konstantalarni eslatadi.
+Kalendar oy arifmetikasi 30 kun emas — 31-yanvar + 1 oy = 28-fevral.
 
 ## Shartnoma tahlili
 

@@ -58,6 +58,10 @@
       ["Sayt / Telegram bot", sayt + " / " + bot],
       ["🎤 Ovozli savol / 🔊 javob", (s.ovozli_sorovlar || 0) + " / " + (s.ovozli_javoblar || 0)],
       ["📋 Shartnoma tahlillari", s.shartnoma_tahlillari || 0],
+      [
+        "🚗 Jarima tekshiruvi (asos topilgan)",
+        (s.jarima_tekshiruvlari || 0) + " (" + (s.jarima_asos_topildi || 0) + ")",
+      ],
       ["Oddiy / Pro", oddiy + " / " + pro],
       [
         "Foydalanuvchilar (sayt / bot)",

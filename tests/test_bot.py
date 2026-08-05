@@ -778,6 +778,67 @@ def test_shartnoma_xatosi_botni_jim_qoldirmaydi(monkeypatch):
     assert holat.band_qil(131)
 
 
+# ---------- Jarima tekshiruvi ----------
+
+def test_sana_turli_shakllarda_tushuniladi():
+    from datetime import date
+
+    from app.bot import handlers
+
+    assert handlers._sana_ol("02.05.2026") == date(2026, 5, 2)
+    assert handlers._sana_ol("2026-05-02") == date(2026, 5, 2)
+    assert handlers._sana_ol("2/5/2026") == date(2026, 5, 2)
+    assert handlers._sana_ol("kecha") is None
+
+
+def test_notogri_sana_qayta_soraladi():
+    """Sanani taxmin qilib bo'lmaydi — bir kunlik xato natijani teskari qiladi."""
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.holat = handlers.JarimaHolati.hodisa_sanasi
+    xabar = SoxtaXabar("o'tgan bahorda", chat_id=140)
+    _ishga_tushir(handlers.jarima_hodisa_sanasi(xabar, hol))
+    assert any("tushunmadim" in x for x in xabar.yuborilgan)
+    assert hol.holat == handlers.JarimaHolati.hodisa_sanasi  # holat o'zgarmadi
+
+
+def test_jarima_dialogi_asosni_topadi(monkeypatch):
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers, "jarimani_hisobla", lambda *a: None)
+    hol = SoxtaHolat()
+    hol.malumot = {
+        "hodisa_sanasi": "2026-04-01",
+        "qaror_sanasi": "2026-07-01",
+        "kamera": True,
+    }
+    xabar = SoxtaXabar("128-3", chat_id=141)
+    _ishga_tushir(handlers.jarima_modda(xabar, hol))
+
+    matn = "\n".join(xabar.yuborilgan)
+    assert "asos topildi" in matn
+    assert "36-modda" in matn
+    assert hol.holat is None  # dialog yakunlandi
+
+
+def test_jarima_xabarida_belgilar_va_disclaimer_bor():
+    from datetime import date
+
+    from app.models import JarimaSorov
+    from app.services import jarima
+
+    javob = jarima.jarimani_tekshir(
+        JarimaSorov(hodisa_sanasi=date(2026, 4, 1), qaror_sanasi=date(2026, 7, 1), kamera=True),
+        bugun=date(2026, 8, 5),
+    )
+    matn = "\n".join(formatlash.jarima_xabari(javob))
+    assert "🔴" in matn
+    assert "asos topildi" in matn
+    assert "sud yoki vakolatli organ" in matn  # disclaimer
+    assert "to'lamang" not in matn.lower()
+
+
 # ---------- Noma'lum buyruq ----------
 
 def test_notanish_buyruq_llm_ga_bormaydi(monkeypatch):

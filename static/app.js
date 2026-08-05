@@ -48,6 +48,140 @@
     if (!bor) shartnomaBelgi.checked = false;
   });
 
+  // ---- Jarima tekshiruvi ----
+  // Sanalar forma orqali so'raladi, erkin matndan taxmin qilinmaydi: jarimaning
+  // taqdirini aynan muddat hal qiladi va bir kunlik xato natijani teskari
+  // qilib qo'yadi. Tekshiruvning o'zi serverda AI'siz, arifmetika bilan.
+  document.getElementById("jarima-och").addEventListener("click", jarimaFormasiniOch);
+
+  const JARIMA_HOLAT = {
+    asos: ["🔴", "Bekor qilish uchun asos"],
+    diqqat: ["🟡", "Tekshirib ko'ring"],
+    joyida: ["🟢", "Muammo ko'rinmayapti"],
+    "noma'lum": ["⚪️", "Ma'lumot yetarli emas"],
+  };
+
+  function jarimaFormasiniOch() {
+    const x = el("div", "xabar bot");
+    x.appendChild(avatarYarat());
+    const ich = el("div", "xabar-ich");
+    ich.appendChild(el("div", "qism-sarlavha", "🚗 Jarima qonuniyligini tekshirish"));
+    ich.appendChild(
+      el("p", "", "Qarordagi ma'lumotlarni kiriting. Sanalar eng muhimi — " +
+        "jarimaning qonuniyligi ko'pincha muddatga bog'liq.")
+    );
+
+    const forma = el("form", "jarima-forma");
+    const maydonlar = [
+      ["hodisa_sanasi", "Qoidabuzarlik sodir bo'lgan sana", "date"],
+      ["qaror_sanasi", "Qaror chiqarilgan sana", "date"],
+      ["qaror_olingan_sanasi", "Qaror nusxasini olgan sana", "date"],
+      ["modda", "MJK moddasi (masalan 128-3)", "text"],
+      ["band", "Qoidalar bandi (masalan 116)", "text"],
+      ["summa", "Jarima summasi", "text"],
+    ];
+    const kiritishlar = {};
+    maydonlar.forEach(([nomi, yorliq, turi]) => {
+      const qator = el("label", "jarima-maydon");
+      qator.appendChild(el("span", "", yorliq));
+      const kiritish = el("input");
+      kiritish.type = turi;
+      if (turi === "text") kiritish.maxLength = 60;
+      kiritishlar[nomi] = kiritish;
+      qator.appendChild(kiritish);
+      forma.appendChild(qator);
+    });
+
+    const kameraQator = el("label", "jarima-maydon jarima-belgi");
+    const kamera = el("input");
+    kamera.type = "checkbox";
+    kameraQator.append(kamera, el("span", "", "Kamera (foto-video) orqali qayd etilgan"));
+    forma.appendChild(kameraQator);
+
+    const tugma = el("button", "jarima-tekshir", "Tekshirish");
+    tugma.type = "submit";
+    forma.appendChild(tugma);
+    ich.appendChild(forma);
+    x.appendChild(ich);
+    chat.appendChild(x);
+    pastgaSur();
+
+    forma.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      tugma.disabled = true;
+      const sorov = { kamera: kamera.checked };
+      Object.entries(kiritishlar).forEach(([nomi, kiritish]) => {
+        if (kiritish.value) sorov[nomi] = kiritish.value;
+      });
+      try {
+        const javob = await fetch("/api/jarima", {
+          method: "POST",
+          headers: Object.assign(
+            { "Content-Type": "application/json" },
+            foydalanuvchiId ? { "X-Foydalanuvchi-Id": foydalanuvchiId } : {}
+          ),
+          body: JSON.stringify(sorov),
+        });
+        const d = await javob.json();
+        if (!javob.ok) {
+          botXatoQosh(d.detail || "Tekshirib bo'lmadi.");
+          return;
+        }
+        jarimaJavobQosh(d);
+      } catch (err) {
+        botXatoQosh("Server bilan bog'lanib bo'lmadi: " + err.message);
+      } finally {
+        tugma.disabled = false;
+      }
+    });
+  }
+
+  function jarimaJavobQosh(d) {
+    const x = el("div", "xabar bot");
+    x.appendChild(avatarYarat());
+    const ich = el("div", "xabar-ich");
+
+    const bosh = d.asoslar_soni
+      ? `⚠️ Bekor qilishni so'rashga ${d.asoslar_soni} ta asos topildi`
+      : "Muddatlar bo'yicha aniq asos topilmadi";
+    ich.appendChild(el("div", "qism-sarlavha", bosh));
+
+    if (d.shikoyat_kunlari !== null && d.shikoyat_kunlari >= 0) {
+      ich.appendChild(
+        el("div", "shikoyat-muddat", `⏳ Shikoyat berishga ${d.shikoyat_kunlari} kun qoldi`)
+      );
+    }
+
+    d.tekshiruvlar.forEach((t) => {
+      const [belgi, daraja] = JARIMA_HOLAT[t.holat] || ["⚪️", ""];
+      const karta = el("div", "band-karta " + t.holat);
+      const sarlavha = el("div", "band-bosh");
+      sarlavha.append(el("span", "band-belgi", belgi), el("span", "band-mazmun", t.nomi));
+      karta.appendChild(sarlavha);
+      karta.appendChild(el("div", "band-daraja", daraja));
+      karta.appendChild(el("div", "band-izoh", t.izoh));
+      if (t.modda) {
+        const modda = el("details", "band-modda");
+        modda.appendChild(el("summary", "", "📖 " + t.modda.qonun_nomi + ", " + t.modda.modda_raqami));
+        modda.appendChild(el("div", "modda-matn", t.modda.matn));
+        const havola = el("a", "", "lex.uz'da ochish ↗");
+        havola.href = t.modda.lex_url;
+        havola.target = "_blank";
+        havola.rel = "noopener";
+        modda.appendChild(havola);
+        karta.appendChild(modda);
+      }
+      ich.appendChild(karta);
+    });
+
+    ich.appendChild(el("div", "qism-sarlavha", "✅ Xulosa"));
+    ich.appendChild(el("div", "tavsiya", d.xulosa));
+    ich.appendChild(el("div", "disclaimer", d.disclaimer || ""));
+    x.appendChild(ich);
+    chat.appendChild(x);
+    pastgaSur();
+  }
+
   // ---- Ovozli savol ----
   // Transkript to'g'ridan-to'g'ri YUBORILMAYDI, matn maydoniga qo'yiladi: nutq
   // noto'g'ri tanilsa, odam buni javobdan oldin ko'rib tuzatadi (Telegram

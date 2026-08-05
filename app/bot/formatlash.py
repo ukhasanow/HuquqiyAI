@@ -166,6 +166,42 @@ def shartnoma_xabari(javob) -> List[str]:
     return bolaklarga_bol("\n\n".join(qismlar))
 
 
+JARIMA_BELGI = {"asos": "🔴", "diqqat": "🟡", "joyida": "🟢", "noma'lum": "⚪️"}
+JARIMA_DARAJA = {
+    "asos": "bekor qilish uchun asos",
+    "diqqat": "tekshirib ko'ring",
+    "joyida": "muammo ko'rinmayapti",
+    "noma'lum": "ma'lumot yetarli emas",
+}
+
+
+def jarima_xabari(javob) -> List[str]:
+    """Jarima tekshiruvi natijasi."""
+    if javob.asoslar_soni:
+        bosh = f"⚠️ <b>Bekor qilishni so'rashga {javob.asoslar_soni} ta asos topildi</b>"
+    else:
+        bosh = "🚗 <b>Muddatlar bo'yicha aniq asos topilmadi</b>"
+    if javob.shikoyat_kunlari is not None and javob.shikoyat_kunlari >= 0:
+        bosh += f"\n⏳ Shikoyat berishga <b>{javob.shikoyat_kunlari} kun</b> qoldi."
+    qismlar = [bosh]
+
+    for t in javob.tekshiruvlar:
+        matn = (
+            f"{JARIMA_BELGI.get(t.holat, '⚪️')} <b>{_tozala(t.nomi)}</b> — "
+            f"<i>{JARIMA_DARAJA.get(t.holat, '')}</i>\n{_tozala(t.izoh)}"
+        )
+        if t.modda:
+            matn += (
+                f"\n\n📖 <a href=\"{t.modda.lex_url}\">"
+                f"{_tozala(t.modda.qonun_nomi)}, {_tozala(t.modda.modda_raqami)}</a>"
+            )
+        qismlar.append(matn)
+
+    qismlar.append("✅ <b>Xulosa</b>\n\n" + _tozala(javob.xulosa))
+    qismlar.append(f"⚠️ <i>{_tozala(javob.disclaimer)}</i>")
+    return bolaklarga_bol("\n\n".join(qismlar))
+
+
 def topilmadi_xabari(javob) -> List[str]:
     """Baza savolga javob bera olmaganda — bo'sh javob o'rniga halol xabar."""
     matn = (

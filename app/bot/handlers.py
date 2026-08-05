@@ -5,6 +5,7 @@
 import asyncio
 import html
 import logging
+from datetime import date, datetime
 from typing import List, Optional
 
 from aiogram import F, Router
@@ -22,11 +23,14 @@ from aiogram.types import (
 from .. import storage
 from ..config import MAX_HUJJAT_HAJMI, MAX_OVOZ_DAVOMIYLIGI, MAX_OVOZ_HAJMI
 from ..services import ariza as ariza_xizmati
+from ..models import JarimaSorov
 from ..services import documents, ovoz
+from ..services import jarima as jarima_xizmati
 from ..services import shartnoma as shartnoma_xizmati
 from ..services.javob import (
     AiSozlanmagan,
     AiXato,
+    jarimani_hisobla,
     javob_ol,
     ovozli_javobni_yoz,
     shartnomani_hisobla,
@@ -53,9 +57,11 @@ YORDAM = (
     "• Savolingizni yozing — qonun moddasi, tavsiya va murojaat organi bilan javob beraman\n"
     "• 🎤 Ovozli xabar yuboring — tinglab, matnga o'girib javob beraman\n"
     "• 📄 PDF, DOCX yoki TXT hujjat yuboring — huquqiy tahlil qilaman\n"
+    "• 🚗 <b>/jarima</b> — yo'l jarimasi qonuniyligini qonun bo'yicha tekshiraman\n"
     "• Javobdan keyin «Ariza tayyorlash» tugmasi chiqadi\n\n"
     "<b>Buyruqlar</b>\n"
     "/rejim — javob uslubi: <b>oddiy</b> (sodda til) yoki <b>pro</b> (protsessual tafsilotlar)\n"
+    "/jarima — jarima qonuniyligini tekshirish\n"
     "/ovoz — javobni ovozli ham yuborish sozlamasi\n"
     "/yordam — shu xabar\n\n"
     "⚠️ <i>Bergan ma'lumotim tanishtiruv xarakteriga ega va professional huquqiy "
@@ -77,6 +83,18 @@ class ArizaHolati(StatesGroup):
     fish = State()
     manzil = State()
     telefon = State()
+
+
+class JarimaHolati(StatesGroup):
+    """Jarima ma'lumotlari ketma-ket so'raladi.
+
+    Erkin matndan sana taxmin qilinmaydi: jarimaning taqdirini aynan muddat
+    hal qiladi va bir kunlik xato natijani teskari qilib qo'yadi.
+    """
+    hodisa_sanasi = State()
+    qaror_sanasi = State()
+    kamera = State()
+    modda = State()
 
 
 # ---------- Yordamchi ----------
@@ -310,6 +328,89 @@ async def ovoz_tanlandi(soro: CallbackQuery) -> None:
     yangi = holat.ovoz_belgila(soro.message.chat.id, soro.data.split(":", 1)[1])
     await soro.message.edit_reply_markup(reply_markup=_ovoz_tugmalari(yangi))
     await soro.answer(f"Ovozli javob: {yangi}")
+
+
+# ---------- Jarima tekshiruvi ----------
+
+SANA_NAMUNASI = "Sanani <b>kun.oy.yil</b> ko'rinishida yozing, masalan <code>02.05.2026</code>."
+OTKAZISH = "Bilmasangiz «-» yuboring."
+
+
+def _sana_ol(matn: str) -> Optional[date]:
+    """kun.oy.yil yoki yil-oy-kun. Noto'g'ri bo'lsa None."""
+    matn = (matn or "").strip().replace("/", ".").replace(" ", "")
+    for shakl in ("%d.%m.%Y", "%Y-%m-%d", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(matn, shakl).date()
+        except ValueError:
+            continue
+    return None
+
+
+@router.message(Command("jarima"))
+async def jarima_buyrugi(xabar: Message, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(JarimaHolati.hodisa_sanasi)
+    await xabar.answer(
+        "🚗 <b>Jarima qonuniyligini tekshirish</b>\n\n"
+        "Bir necha savol beraman va qarorni qonun bo'yicha tekshirib beraman.\n\n"
+        f"<b>1/4.</b> Qoidabuzarlik qachon sodir bo'lgan?\n{SANA_NAMUNASI}\n\n"
+        "<i>Bekor qilish uchun: /start</i>"
+    )
+
+
+@router.message(JarimaHolati.hodisa_sanasi)
+async def jarima_hodisa_sanasi(xabar: Message, state: FSMContext) -> None:
+    sana = _sana_ol(xabar.text or "")
+    if not sana and (xabar.text or "").strip() != "-":
+        await xabar.answer(f"Sanani tushunmadim. {SANA_NAMUNASI} {OTKAZISH}")
+        return
+    await state.update_data(hodisa_sanasi=sana.isoformat() if sana else None)
+    await state.set_state(JarimaHolati.qaror_sanasi)
+    await xabar.answer(f"<b>2/4.</b> Jarima qarori qachon chiqarilgan?\n{SANA_NAMUNASI} {OTKAZISH}")
+
+
+@router.message(JarimaHolati.qaror_sanasi)
+async def jarima_qaror_sanasi(xabar: Message, state: FSMContext) -> None:
+    sana = _sana_ol(xabar.text or "")
+    if not sana and (xabar.text or "").strip() != "-":
+        await xabar.answer(f"Sanani tushunmadim. {SANA_NAMUNASI} {OTKAZISH}")
+        return
+    await state.update_data(qaror_sanasi=sana.isoformat() if sana else None)
+    await state.set_state(JarimaHolati.kamera)
+    await xabar.answer(
+        "<b>3/4.</b> Jarima kamera (foto-video) orqali qayd etilganmi?\n"
+        "<code>ha</code> yoki <code>yo'q</code> deb yozing.\n\n"
+        "<i>Kamera jarimasi uchun muddat ancha qisqa — shuning uchun bu muhim.</i>"
+    )
+
+
+@router.message(JarimaHolati.kamera)
+async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
+    javob = (xabar.text or "").strip().lower()
+    await state.update_data(kamera=javob.startswith(("ha", "да", "yes")))
+    await state.set_state(JarimaHolati.modda)
+    await xabar.answer(
+        "<b>4/4.</b> Qarorda qaysi modda ko'rsatilgan?\n"
+        "Masalan <code>128-3</code>. Bilmasangiz «-» yuboring."
+    )
+
+
+@router.message(JarimaHolati.modda)
+async def jarima_modda(xabar: Message, state: FSMContext) -> None:
+    modda = (xabar.text or "").strip()
+    malumot = await state.get_data()
+    await state.clear()
+
+    sorov = JarimaSorov(
+        hodisa_sanasi=malumot.get("hodisa_sanasi"),
+        qaror_sanasi=malumot.get("qaror_sanasi"),
+        kamera=bool(malumot.get("kamera")),
+        modda="" if modda == "-" else modda[:40],
+    )
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    await _yubor(xabar, formatlash.jarima_xabari(javob))
+    await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{xabar.chat.id}")
 
 
 # ---------- Qonun moddalarini ochish ----------
@@ -555,6 +656,7 @@ async def notanish_buyruq(xabar: Message) -> None:
     await xabar.answer(
         "Bunday buyruq yo'q. Mavjud buyruqlar:\n"
         "/rejim — javob uslubi\n"
+        "/jarima — jarima qonuniyligini tekshirish\n"
         "/ovoz — ovozli javob sozlamasi\n"
         "/yordam — nima qila olaman\n\n"
         "Savolingizni oddiy matn bilan yozsangiz ham bo'ladi."

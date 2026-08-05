@@ -167,3 +167,11 @@ def shartnomani_hisobla(turi: str, foydalanuvchi_id: Optional[str] = None) -> No
         statistika.shartnoma_hisobla(turi, foydalanuvchi_id)
     except Exception:
         pass
+
+
+def jarimani_hisobla(asoslar_soni: int, foydalanuvchi_id: Optional[str] = None) -> None:
+    """Jarima tekshiruvini hisobga oladi (statistikani_yoz uslubida)."""
+    try:
+        statistika.jarima_hisobla(asoslar_soni, foydalanuvchi_id)
+    except Exception:
+        pass
