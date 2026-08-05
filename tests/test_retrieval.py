@@ -49,9 +49,13 @@ SAVOLLAR = [
     # Murojaatlar
     ("arizamga necha kunda javob berishadi", "murojaat"),
     ("hokimiyatga shikoyat qilsam ko'rib chiqishadimi", "murojaat"),
-    # Yo'l harakati
+    # Yo'l harakati (Qonun)
     ("haydovchilik guvohnomasi qanday olinadi", "yhq"),
     ("guvohnomamni bekor qilishdi", "yhq"),
+    # Yo'l harakati qoidalari — jarima qaysi bandni buzganini ko'rsatadi
+    ("temir yo'l kesishmasidan qanday o'tish kerak", "yhqoida"),
+    ("quvib o'tish qachon taqiqlanadi", "yhqoida"),
+    ("qayerda to'xtab turish mumkin emas", "yhqoida"),
     # Konstitutsiya
     ("ta'lim olish huquqim bormi", "konst"),
     ("pensiya olish huquqi konstitutsiyada bormi", "konst"),

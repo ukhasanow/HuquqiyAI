@@ -75,13 +75,15 @@ lex.uz'dan olib bo'lmagan matnlar to'qib chiqarilmaydi — ular bazada
 `needs_verification` deb belgilanadi va UI'da "matn tekshirilmoqda" ko'rinishida,
 faqat lex.uz havolasi bilan chiqadi.
 
-### Baza: 348 modda, 13 ta hujjat
+### Baza: 587 modda/band, 14 ta hujjat
 
 Barcha modda matnlari `tools/lex_import.py` orqali lex.uz'dan olingan
 (`verified`) — qo'lda ham, AI orqali ham yozilmagan (pastda "Bazani to'ldirish").
 
 | Hujjat | Modda | Nimani qamraydi |
 |---|---|---|
+| **Yo'l harakati qoidalari** | **186** | to'liq matn: tezlik, quvib o'tish, to'xtash, chorraha, temir yo'l kesishmasi |
+| **Ma'muriy javobgarlik kodeksi** | **76** | jarimalar, yo'l qoidabuzarliklari **va jarima protsedurasi** (bayonnoma, qaror, shikoyat, ijro muddatlari) |
 | Mehnat kodeksi | 49 | ishdan bo'shatish, ish haqi, ta'til, sinov muddati, mehnat nizolari |
 | Fuqarolik kodeksi | 42 | shartnoma, ijara, qarz, meros, zarar qoplash |
 | Oila kodeksi | 34 | ajrashish, aliment, er-xotin mulki, bola tarbiyasi |
@@ -89,7 +91,6 @@ Barcha modda matnlari `tools/lex_import.py` orqali lex.uz'dan olingan
 | Yer kodeksi | 31 | tomorqa, uchastka ajratish, olib qo'yish, yer nizolari |
 | Fuqarolik protsessual kodeksi | 28 | da'vo arizasi, davlat boji, muddatlar, apellyatsiya |
 | Konstitutsiya | 28 | inson huquqlari (mehnat, uy-joy, ta'lim, sud himoyasi) |
-| Ma'muriy javobgarlik kodeksi | 23 | jarimalar, yo'l qoidalari, jamoat tartibi |
 | Uy-joy kodeksi | 18 | ijara, ko'chirish, kommunal to'lovlar |
 | Iste'molchilar huquqlari qonuni | 18 | nuqsonli tovar, almashtirish, pul qaytarish |
 | Jinoyat kodeksi | 16 | o'g'rilik, firibgarlik, tan jarohati |
@@ -98,6 +99,17 @@ Barcha modda matnlari `tools/lex_import.py` orqali lex.uz'dan olingan
 
 Har kodeksdan butun matn emas, fuqaro savolida eng ko'p uchraydigan moddalar
 tanlangan: baza kattaligi javob sifatini emas, faqat qidiruv shovqinini oshiradi.
+Istisno — **Yo'l harakati qoidalari to'liq olingan** (186 band): jarima qarorida
+istalgan band ko'rsatilishi mumkin va yarim baza bilan "band topilmadi" javobi
+juda ko'p chiqar edi.
+
+**Jarima qonuniyligini tekshirish uchun ikki hujjat kerak.** Jarima qarorida
+doim ikkalasi ko'rsatiladi: **MJK moddasi** (javobgarlik va jarima miqdori) va
+**Qoidalar bandi** (aynan nima buzilgan). Shu sababli MJK'dan qoidabuzarlik
+moddalaridan tashqari protsessual moddalar ham olingan — jarima ko'pincha
+mazmuni emas, tartibi buzilgani uchun bekor qilinadi: bayonnoma noto'g'ri
+tuzilgan (281-modda), qaror nusxasi topshirilmagan (311-modda), javobgarlikka
+tortish muddati o'tgan (36-modda), ijro muhlati tugagan (330-modda).
 
 ```
 app/
@@ -112,7 +124,7 @@ app/
 │   └── documents.py     # PDF/DOCX matn ajratish
 └── bot/                 # Telegram bot (handlers, formatlash, holat)
 data/
-├── qonunlar.json        # 348 modda, 13 hujjat (hammasi lex.uz'dan)
+├── qonunlar.json        # 587 modda/band, 14 hujjat (hammasi lex.uz'dan)
 └── organlar.json        # organlar va kontaktlar bazasi
 tools/
 └── lex_import.py        # lex.uz'dan modda import qilish
@@ -218,10 +230,25 @@ python tools/lex_import.py --hujjat yer --quruq
 python tools/lex_import.py --hujjat mehnat --tekshir
 ```
 
-Yangi hujjat qo'shish: `HUJJATLAR` registriga `(akt id, prefiks, qonun_nomi)`
-yozuvini qo'shing. **lex.uz'da kuchini yo'qotgan tahrirlar ham ochilaveradi** —
-akt id ni tanlashda hujjat amaldaligiga ishonch hosil qiling (registrda ikkita
-bunday tuzoq izohda ko'rsatilgan).
+Yangi hujjat qo'shish: `HUJJATLAR` registriga
+`(akt id, prefiks, qonun_nomi, tuzilma)` yozuvini qo'shing.
+**lex.uz'da kuchini yo'qotgan tahrirlar ham ochilaveradi** — akt id ni tanlashda
+hujjat amaldaligiga ishonch hosil qiling (registrda uchta bunday tuzoq izohda
+ko'rsatilgan).
+
+**Ikki xil tuzilma.** Kodeks va qonunlar `"modda"` tuzilmasida
+(`13-modda. Sarlavha`). Hukumat qarori ilovalari — masalan Yo'l harakati
+qoidalari — `"band"` tuzilmasida: sarlavhasiz, faqat raqamlangan bandlar
+(`116. Transport vositalarining haydovchilari...`). Band parseri uchta tuzoqni
+hisobga oladi va ularning har biri testda qayd etilgan:
+
+- hujjat **qarordan** boshlanadi va uning "1.", "2." punktlari band emas —
+  bandlar faqat ilovadagi Qoidalarda;
+- Qoidalardan **keyin yana ilovalar** keladi ("Yo'l belgilari") va raqamlashni
+  birdan boshlaydi — chegara qo'yilmasa 1-band butun ilovani yutib yuboradi;
+- lex.uz matnida `117.Temir yoʻl...` — nuqtadan keyin bo'sh joy yo'q. Bo'sh
+  joyni majburiy qilsak bu band yo'qoladi, raqamga ruxsat bersak `5.1. yoʻl
+  belgisi` band bo'lib ketadi.
 
 Import avtomatik teg taklif qiladi (sarlavhadan), lekin foydalanuvchi
 "tomorqa", "guvohnoma" deb yozadi — bunday jonli so'zlar qo'lda qo'shiladi.

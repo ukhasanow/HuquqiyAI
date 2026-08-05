@@ -125,7 +125,7 @@ def test_registrdagi_qonun_nomlari_bazaga_mos(baza):
     prefiks_nomlari = {}
     for m in baza.values():
         prefiks_nomlari.setdefault(m["id"].split("-")[0], set()).add(m["qonun_nomi"])
-    for kalit, (_akt, prefiks, nom) in lex_import.HUJJATLAR.items():
+    for kalit, (_akt, prefiks, nom, _tuzilma) in lex_import.HUJJATLAR.items():
         mavjud = prefiks_nomlari.get(prefiks)
         if mavjud:
             assert nom in mavjud, f"{kalit}: registrdagi nom bazadagidan farq qiladi"
@@ -174,3 +174,86 @@ def test_bazaga_qosh_dublikat_yaratmaydi(tmp_path, monkeypatch):
     lex_import.bazaga_qosh([yozuv])
     lex_import.bazaga_qosh([yozuv])
     assert len(json.loads(fayl.read_text(encoding="utf-8"))) == 1
+
+
+# ---------- Band tuzilmali hujjat (Yo'l harakati qoidalari) ----------
+#
+# Qoidalar moddalardan emas, raqamlangan bandlardan iborat. Fixture ataylab
+# uch tuzoqni qamraydi: qarorning o'z punktlari, ilova chegarasi va lex.uz
+# matnidagi "117.Temir" (nuqtadan keyin bo'sh joy yo'q).
+
+def _bandlar():
+    return lex_import.bandlarni_ajrat(_fixture("lex_yhqoida.html"), "-5953883")
+
+
+def test_bandlar_ajratiladi():
+    raqamlar = [b["raqam"] for b in _bandlar()]
+    assert raqamlar == ["1", "2", "116", "117", "118"]
+
+
+def test_qaror_punktlari_band_deb_olinmaydi():
+    """Hujjat qarordan boshlanadi va uning "1.", "2." punktlari bor —
+    lekin bandlar faqat ILOVADAGI Qoidalarda."""
+    birinchi = _bandlar()[0]
+    assert birinchi["matn"].startswith("Ushbu Yoʻl harakati qoidalari")
+    assert "Shunday tartib oʻrnatilsin" not in birinchi["matn"]
+
+
+def test_bosh_joysiz_band_topiladi():
+    """lex.uz matnida "117.Temir yoʻl..." — nuqtadan keyin bo'sh joy yo'q.
+    Bo'sh joy majburiy qilinsa, bu band butunlay yo'qoladi."""
+    band = next(b for b in _bandlar() if b["raqam"] == "117")
+    assert band["matn"].startswith("Temir yoʻl kesishmasiga yaqinlashib")
+
+
+def test_yol_belgisi_raqami_band_deb_olinmaydi():
+    """"5.1. yoʻl belgisi bilan belgilangan" — band emas, band ichidagi
+    belgi raqami. Aks holda yoʻl belgilari bandlarni ustidan yozadi."""
+    bloklar = (
+        '<div class="ACT_TITLE_APPL"><div id="-1">Yoʻl harakati qoidalari</div></div>'
+        '<div class="ACT_TEXT"><div id="-2">7. Avtomagistralda harakatlanish tartibi:</div></div>'
+        '<div class="ACT_TEXT"><div id="-3">5.1. yoʻl belgisi bilan belgilangan yoʻl.</div></div>'
+    )
+    bandlar = lex_import.bandlarni_ajrat(bloklar, "-5953883")
+    assert [b["raqam"] for b in bandlar] == ["7"]
+    assert "5.1. yoʻl belgisi" in bandlar[0]["matn"]
+
+
+def test_keyingi_ilova_bandlarni_bosib_ketmaydi():
+    """Qoidalardan keyin "Yoʻl belgilari" ilovasi keladi va raqamlashni
+    birdan boshlaydi — chegara qo'yilmasa 1-band butun ilovani yutadi."""
+    bandlar = _bandlar()
+    birinchi = next(b for b in bandlar if b["raqam"] == "1")
+    assert len(birinchi["matn"]) < 300
+    assert "Ogohlantiruvchi belgilar" not in birinchi["matn"]
+
+
+def test_band_sarlavhasiga_bob_nomi_qoshiladi():
+    """Bandlarning o'z sarlavhasi yo'q — bob nomi qidiruvda vazn beradi."""
+    band = next(b for b in _bandlar() if b["raqam"] == "116")
+    assert band["sarlavha"] == "116-band. Temir yoʻl kesishmalari orqali harakatlanish"
+
+
+def test_band_davomi_yigiladi():
+    """Bandning keyingi xatboshilari o'sha bandga qo'shilishi kerak."""
+    band = next(b for b in _bandlar() if b["raqam"] == "118")
+    assert "svetofor ishorasidan qatʼi nazar" in band["matn"]
+
+
+def test_bandlar_bazadagi_yozuvlarga_mos(baza):
+    """Regressiya to'ri: fixture'dan olingan matn bazadagi yozuv bilan
+    belgima-belgi mos kelishi shart."""
+    for band in _bandlar():
+        yozuv = baza.get(f"yhqoida-{band['raqam']}")
+        assert yozuv, f"yhqoida-{band['raqam']} bazada yo'q"
+        assert yozuv["matn"] == band["matn"]
+        assert yozuv["sarlavha"] == band["sarlavha"]
+        assert yozuv["lex_url"] == band["lex_url"]
+
+
+def test_qoidalar_registrda_band_tuzilmasida():
+    akt, prefiks, _, tuzilma = lex_import.HUJJATLAR["yhqoida"]
+    assert tuzilma == "band"
+    assert prefiks == "yhqoida"
+    # Kuchini yo'qotgan 2015-yilgi tahrir (-2850459) ishlatilmasligi kerak
+    assert akt == "-5953883"

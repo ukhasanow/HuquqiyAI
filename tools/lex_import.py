@@ -33,7 +33,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 QONUNLAR_FAYL = BASE_DIR / "data" / "qonunlar.json"
 KESH_DIR = BASE_DIR / ".cache" / "lex"
 
-# Ma'lum hujjatlar: kalit -> (lex.uz akt id, modda id prefiksi, qonun_nomi).
+# Ma'lum hujjatlar: kalit -> (lex.uz akt id, modda id prefiksi, qonun_nomi, tuzilma).
+#
+# `tuzilma`:
+#   "modda" — qonun/kodeks, "13-modda. Sarlavha" ko'rinishidagi bloklar
+#   "band"  — hukumat qarori ilovasi (Yo'l harakati qoidalari), sarlavhasiz
+#             raqamlangan bandlar: "116. Transport vositalarining haydovchilari..."
 #
 # `qonun_nomi` ataylab qo'lda yozilgan: lex.uz sarlavhani BOSH HARFLARDA beradi
 # ("OʻZBEKISTON RESPUBLIKASINING OILA KODEKSI"), bazada esa u foydalanuvchiga
@@ -42,21 +47,24 @@ KESH_DIR = BASE_DIR / ".cache" / "lex"
 #
 # Fuqarolik kodeksi lex.uz'da ikki qismga bo'lingan (1- va 2-qism), lekin
 # bazada bitta kodeks sifatida — ikkalasi ham "fuqarolik" prefiksini oladi.
-HUJJATLAR: Dict[str, Tuple[str, str, str]] = {
-    "oila": ("-104720", "oila", "O'zbekiston Respublikasining Oila kodeksi"),
-    "mehnat": ("-6257288", "mehnat", "O'zbekiston Respublikasining Mehnat kodeksi"),
-    "fuqarolik-1": ("-111189", "fuqarolik", "O'zbekiston Respublikasining Fuqarolik kodeksi"),
-    "fuqarolik-2": ("-180552", "fuqarolik", "O'zbekiston Respublikasining Fuqarolik kodeksi"),
-    "istemol": ("-4704", "istemol", "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni"),
-    "uyjoy": ("-106136", "uyjoy", "O'zbekiston Respublikasining Uy-joy kodeksi"),
-    "mjk": ("-97664", "mjk", "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi"),
-    "jk": ("-111453", "jk", "O'zbekiston Respublikasining Jinoyat kodeksi"),
-    "soliq": ("-4674902", "soliq", "O'zbekiston Respublikasining Soliq kodeksi"),
-    "konst": ("-6445145", "konst", "O'zbekiston Respublikasi Konstitutsiyasi"),
-    "yer": ("-152653", "yer", "O'zbekiston Respublikasining Yer kodeksi"),
-    "fpk": ("-3517337", "fpk", "O'zbekiston Respublikasining Fuqarolik protsessual kodeksi"),
-    "murojaat": ("-2509996", "murojaat", "O'zbekiston Respublikasining \"Jismoniy va yuridik shaxslarning murojaatlari to'g'risida\"gi Qonuni"),
-    "yhq": ("-6764454", "yhq", "O'zbekiston Respublikasining \"Yo'l harakati to'g'risida\"gi Qonuni"),
+HUJJATLAR: Dict[str, Tuple[str, str, str, str]] = {
+    "oila": ("-104720", "oila", "O'zbekiston Respublikasining Oila kodeksi", "modda"),
+    "mehnat": ("-6257288", "mehnat", "O'zbekiston Respublikasining Mehnat kodeksi", "modda"),
+    "fuqarolik-1": ("-111189", "fuqarolik", "O'zbekiston Respublikasining Fuqarolik kodeksi", "modda"),
+    "fuqarolik-2": ("-180552", "fuqarolik", "O'zbekiston Respublikasining Fuqarolik kodeksi", "modda"),
+    "istemol": ("-4704", "istemol", "O'zbekiston Respublikasining \"Iste'molchilarning huquqlarini himoya qilish to'g'risida\"gi Qonuni", "modda"),
+    "uyjoy": ("-106136", "uyjoy", "O'zbekiston Respublikasining Uy-joy kodeksi", "modda"),
+    "mjk": ("-97664", "mjk", "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi", "modda"),
+    "jk": ("-111453", "jk", "O'zbekiston Respublikasining Jinoyat kodeksi", "modda"),
+    "soliq": ("-4674902", "soliq", "O'zbekiston Respublikasining Soliq kodeksi", "modda"),
+    "konst": ("-6445145", "konst", "O'zbekiston Respublikasi Konstitutsiyasi", "modda"),
+    "yer": ("-152653", "yer", "O'zbekiston Respublikasining Yer kodeksi", "modda"),
+    "fpk": ("-3517337", "fpk", "O'zbekiston Respublikasining Fuqarolik protsessual kodeksi", "modda"),
+    "murojaat": ("-2509996", "murojaat", "O'zbekiston Respublikasining \"Jismoniy va yuridik shaxslarning murojaatlari to'g'risida\"gi Qonuni", "modda"),
+    "yhq": ("-6764454", "yhq", "O'zbekiston Respublikasining \"Yo'l harakati to'g'risida\"gi Qonuni", "modda"),
+    # Qoidalar — Qonundan ALOHIDA hujjat. Jarima qarorida ikkalasi ham
+    # ko'rsatiladi: MJK moddasi (javobgarlik) va Qoidalar bandi (nima buzilgan).
+    "yhqoida": ("-5953883", "yhqoida", "O'zbekiston Respublikasining Yo'l harakati qoidalari", "band"),
 }
 
 # Kuchini yo'qotgan, ATAYLAB ishlatilmaydigan tahrirlar — bir xil nom bilan
@@ -65,6 +73,8 @@ HUJJATLAR: Dict[str, Tuple[str, str, str]] = {
 #            o'rniga -6764454 "Yo'l harakati to'g'risida" (O'RQ-900)
 #   -186105  Fuqarolik protsessual kodeksi (1997) — 01.04.2018 dan kuchsiz,
 #            o'rniga -3517337 (2018)
+#   -2850459 Yo'l harakati qoidalari (VM 370-son, 2015) — 01.05.2022 dan kuchsiz,
+#            o'rniga -5953883 (VM 172-son, 2022). Qidiruvda ikkalasi ham chiqadi.
 
 # 128<sup>1</sup> — teglar shunchaki olib tashlansa "1281" bo'lib ketadi,
 # aslida 128¹. Shuning uchun avval Unicode ustki indeksga aylantiramiz.
@@ -73,6 +83,20 @@ USTKIDAN_ODDIY = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
 
 # "13-modda." yoki "128¹-modda." — bob sarlavhalaridan ("1-bob.") ajratish uchun
 MODDA_SARLAVHA = re.compile(r"^(\d+[⁰¹²³⁴⁵⁶⁷⁸⁹]*)-modda\.")
+
+# Band boshi: "116. Transport vositalarining..." yoki (lex.uz matnida uchraydi)
+# bo'sh joysiz "117.Temir yoʻl kesishmasiga...".
+#
+# Nuqtadan keyin RAQAM kelmasligi shart: "5.1. yoʻl belgisi bilan belgilangan"
+# — bu band emas, band ichidagi yoʻl belgisi raqami. Bo'sh joyni majburiy
+# qilsak 117-band butunlay yo'qoladi, raqamga ruxsat bersak yoʻl belgilari
+# band bo'lib ketadi.
+BAND_BOSHI = re.compile(r"^(\d+)\.\s*(\D.*)$")
+
+# Bob sarlavhasi: "18-bob. Temir yoʻl kesishmalari orqali harakatlanish".
+# Qoidalardan keyingi ilovalarda ("Yoʻl belgilari") sarlavhalar boshqacha va
+# raqamlash qaytadan boshlanadi — shuning uchun ilova chegarasi tekshiriladi.
+BOB_SARLAVHA = re.compile(r"^\d+-bob\.\s*(.+)$")
 
 # Modda matnidan teg nomzodlarini ajratishda tashlab yuboriladigan so'zlar
 _TEG_STOP = {
@@ -187,6 +211,67 @@ def moddalarni_ajrat(html: str, akt: str) -> List[dict]:
         m["matn"] = "\n".join(m.pop("paragraflar"))
         m["lex_url"] = f"https://lex.uz/acts/{akt}#{m['anchor']}"
     return moddalar
+
+
+def bandlarni_ajrat(html: str, akt: str) -> List[dict]:
+    """Band tuzilmali hujjatdan (Yo'l harakati qoidalari) bandlarni ajratadi.
+
+    Hujjat ikki qismdan iborat: hukumat qarorining o'zi va uning ilovasidagi
+    QOIDALAR. Bandlar faqat ilovada, shuning uchun qarorning "1.", "2."
+    punktlari band deb olinmasligi kerak.
+
+    Qoidalardan keyin yana ilovalar keladi ("Yo'l belgilari" va h.k.) va ular
+    raqamlashni birdan boshlaydi. Chegara qo'yilmasa, ular mavjud bandlarni
+    ustidan yozib, 1-band butun ilova matnini yutib yuboradi.
+    """
+    bloklar = bloklarni_ajrat(html)
+
+    # Qoidalar matni: birinchi ilova sarlavhasidan keyingi ilova bannerigacha
+    boshlanish = None
+    for i, (sinf, _, paragraflar) in enumerate(bloklar):
+        if sinf == "ACT_TITLE_APPL" and paragraflar:
+            boshlanish = i + 1
+            break
+    if boshlanish is None:
+        return []
+    tugash = len(bloklar)
+    for i in range(boshlanish, len(bloklar)):
+        if bloklar[i][0] == "APPL_BANNER_LANDSCAPE_TITLE":
+            tugash = i
+            break
+
+    bandlar: List[dict] = []
+    joriy: Optional[dict] = None
+    bob = ""
+    for sinf, anchor, paragraflar in bloklar[boshlanish:tugash]:
+        if sinf == "TEXT_HEADER_DEFAULT" and paragraflar:
+            mos = BOB_SARLAVHA.match(" ".join(paragraflar).strip())
+            if mos:
+                bob = mos.group(1).strip()
+            continue
+        if sinf != "ACT_TEXT":
+            continue
+        for p in paragraflar:
+            mos = BAND_BOSHI.match(p)
+            if mos:
+                joriy = {
+                    "raqam": mos.group(1),
+                    "bob": bob,
+                    "anchor": anchor,
+                    "paragraflar": [mos.group(2).strip()],
+                }
+                bandlar.append(joriy)
+            elif joriy is not None:
+                joriy["paragraflar"].append(p)
+
+    for b in bandlar:
+        bob_nomi = b.pop("bob")
+        # Bandlarning o'z sarlavhasi yo'q — bob nomi ishlatiladi. Bu qidiruvda
+        # ham foyda beradi: sarlavha matnga nisbatan katta vaznga ega.
+        b["sarlavha"] = f"{b['raqam']}-band" + (f". {bob_nomi}" if bob_nomi else "")
+        b["matn"] = "\n".join(b.pop("paragraflar"))
+        b["lex_url"] = f"https://lex.uz/acts/{akt}#{b['anchor']}"
+    return bandlar
 
 
 def qonun_nomini_top(html: str) -> str:
@@ -324,6 +409,8 @@ def main(argv=None) -> int:
     p.add_argument("--akt", default="", help="lex.uz hujjat id, masalan -104720")
     p.add_argument("--prefiks", default="", help="modda id prefiksi, masalan oila")
     p.add_argument("--nom", default="", help="qonun_nomi (bo'sh bo'lsa lex.uz sarlavhasi)")
+    p.add_argument("--tuzilma", default="", choices=["", "modda", "band"],
+                   help="hujjat tuzilmasi: modda (standart) yoki band (qaror ilovasi)")
     p.add_argument("--faqat", default="", help="faqat shu modda raqamlari: 5,7,128-1")
     p.add_argument("--quruq", action="store_true", help="faylga yozmasdan ko'rsatish")
     p.add_argument("--tekshir", action="store_true", help="bazadagi moddalarni lex.uz bilan solishtirish")
@@ -335,20 +422,23 @@ def main(argv=None) -> int:
         if a.hujjat not in HUJJATLAR:
             print(f"Noma'lum hujjat: {a.hujjat}. Mavjud: {', '.join(HUJJATLAR)}", file=sys.stderr)
             return 1
-        akt, prefiks, nom = HUJJATLAR[a.hujjat]
+        akt, prefiks, nom, tuzilma = HUJJATLAR[a.hujjat]
         akt, prefiks, nom = a.akt or akt, a.prefiks or prefiks, a.nom or nom
+        tuzilma = a.tuzilma or tuzilma
     elif a.akt and a.prefiks:
-        akt, prefiks, nom = a.akt, a.prefiks, a.nom
+        akt, prefiks, nom, tuzilma = a.akt, a.prefiks, a.nom, a.tuzilma or "modda"
     else:
         print("--hujjat yoki (--akt bilan --prefiks) berilishi kerak", file=sys.stderr)
         return 1
 
     html = html_ol(akt, yangila=a.yangila)
-    moddalar = moddalarni_ajrat(html, akt)
+    birlik = "band" if tuzilma == "band" else "modda"
+    moddalar = bandlarni_ajrat(html, akt) if tuzilma == "band" else moddalarni_ajrat(html, akt)
     if not moddalar:
-        print("Modda topilmadi — HTML tuzilishi o'zgargan bo'lishi mumkin", file=sys.stderr)
+        print(f"{birlik.capitalize()} topilmadi — HTML tuzilishi o'zgargan bo'lishi mumkin",
+              file=sys.stderr)
         return 1
-    print(f"lex.uz/acts/{akt}: {len(moddalar)} ta modda topildi")
+    print(f"lex.uz/acts/{akt}: {len(moddalar)} ta {birlik} topildi")
 
     if a.tekshir:
         farq = tekshir(moddalar, prefiks, akt)
@@ -370,7 +460,7 @@ def main(argv=None) -> int:
         tayyor[mid] = {
             "id": mid,
             "qonun_nomi": nom,
-            "modda_raqami": f"{m['raqam']}-modda",
+            "modda_raqami": f"{m['raqam']}-{birlik}",
             "sarlavha": m["sarlavha"],
             "matn": m["matn"],
             "lex_url": m["lex_url"],
