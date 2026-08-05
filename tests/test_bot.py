@@ -381,7 +381,7 @@ def test_moddalar_tugmasi_asl_matnni_ochadi(monkeypatch):
     monkeypatch.setattr(handlers.storage, "modda_top",
                         lambda mid: _modda(matn="Asl qonun matni.").model_dump())
     soro = SoxtaSorov(f"moddalar:{kalit}")
-    _ishga_tushir(handlers.moddalarni_koraat(soro))
+    _ishga_tushir(handlers.moddalarni_korsat(soro))
 
     matn = "\n".join(soro.message.yuborilgan)
     assert "Asl qonun matni." in matn
@@ -392,7 +392,7 @@ def test_eskirgan_kalit_bosilganda_tushuntiriladi():
     from app.bot import handlers
 
     soro = SoxtaSorov("moddalar:99-99999")
-    _ishga_tushir(handlers.moddalarni_koraat(soro))
+    _ishga_tushir(handlers.moddalarni_korsat(soro))
     assert soro.message.yuborilgan == []
     assert any("eskirdi" in j for j in soro.javoblar)
 

@@ -313,7 +313,7 @@ ESKI_JAVOB = (
 
 
 @router.callback_query(F.data.startswith("moddalar:"))
-async def moddalarni_koraat(soro: CallbackQuery) -> None:
+async def moddalarni_korsat(soro: CallbackQuery) -> None:
     malumot = holat.javob_malumoti(soro.data.split(":", 1)[1])
     if not malumot:
         await soro.answer(ESKI_JAVOB, show_alert=True)
