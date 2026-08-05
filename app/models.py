@@ -64,6 +64,39 @@ class ArizaJavob(BaseModel):
     fayl_nomi: str = "ariza.txt"
 
 
+class ShartnomaBand(BaseModel):
+    """Shartnomadagi bitta band va uning huquqiy bahosi.
+
+    `modda` — bazadagi ASL modda (LLM yozgan matn emas): band qonunga zid
+    deyilsa, foydalanuvchi buni qonunning o'z matnidan tekshira olishi kerak.
+    """
+    band: str            # shartnomadagi raqami, masalan "4.3"
+    mazmuni: str         # bandda nima deyilgan — oddiy tilda
+    xavf: str            # "qizil" | "sariq" | "yashil"
+    izoh: str            # nega muammo (yoki nega odatiy)
+    modda: Optional[ModdaJavob] = None
+
+
+class ShartnomaMazmuni(BaseModel):
+    tomonlar: str = ""
+    predmet: str = ""
+    summa: str = ""
+    muddat: str = ""
+
+
+class ShartnomaJavob(BaseModel):
+    shartnoma_turi: str  # "mehnat" | "ijara" | "kredit" | "oldi-sotdi" | "boshqa"
+    umumiy_mazmun: ShartnomaMazmuni
+    bandlar: List[ShartnomaBand]
+    xulosa: str
+    bandlar_soni: int = 0  # shartnomada jami nechta band topildi
+    disclaimer: str = (
+        "Diqqat: bu tahlil tanishtiruv xarakteriga ega bo'lib, professional "
+        "huquqiy maslahat o'rnini bosmaydi. Muhim shartnomani imzolashdan "
+        "oldin advokat bilan maslahatlashing."
+    )
+
+
 class OvozJavob(BaseModel):
     """Ovozli xabar transkripti.
 

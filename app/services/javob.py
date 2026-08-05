@@ -159,3 +159,11 @@ def ovozli_javobni_yoz() -> None:
         statistika.ovozli_javob_hisobla()
     except Exception:
         pass
+
+
+def shartnomani_hisobla(turi: str, foydalanuvchi_id: Optional[str] = None) -> None:
+    """Shartnoma tahlilini hisobga oladi (statistikani_yoz uslubida)."""
+    try:
+        statistika.shartnoma_hisobla(turi, foydalanuvchi_id)
+    except Exception:
+        pass

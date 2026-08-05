@@ -37,8 +37,15 @@
     });
   });
 
+  // Shartnoma tahlili tanlovi faqat fayl biriktirilganda ko'rinadi
+  const shartnomaTanlov = document.getElementById("shartnoma-tanlov");
+  const shartnomaBelgi = document.getElementById("shartnoma-belgi");
+
   faylInput.addEventListener("change", () => {
-    faylNomi.textContent = faylInput.files.length ? faylInput.files[0].name : "";
+    const bor = faylInput.files.length > 0;
+    faylNomi.textContent = bor ? faylInput.files[0].name : "";
+    shartnomaTanlov.hidden = !bor;
+    if (!bor) shartnomaBelgi.checked = false;
   });
 
   // ---- Ovozli savol ----
@@ -182,16 +189,40 @@
     const fayl = faylInput.files[0] || null;
     if (!savol && !fayl) return;
 
-    userXabarQosh(fayl ? `📎 ${fayl.name}${savol ? " — " + savol : ""}` : savol);
+    const shartnomaRejimi = fayl && shartnomaBelgi.checked;
+    userXabarQosh(
+      fayl
+        ? `${shartnomaRejimi ? "📋" : "📎"} ${fayl.name}${savol ? " — " + savol : ""}`
+        : savol
+    );
     savolInput.value = "";
     savolInput.style.height = "auto";
     faylInput.value = "";
     faylNomi.textContent = "";
+    shartnomaTanlov.hidden = true;
+    shartnomaBelgi.checked = false;
 
     const kutish = kutishQosh();
     yuborTugma.disabled = true;
     try {
       let javob;
+      if (shartnomaRejimi) {
+        const fd = new FormData();
+        fd.append("fayl", fayl);
+        javob = await fetch("/api/shartnoma", {
+          method: "POST",
+          headers: foydalanuvchiId ? { "X-Foydalanuvchi-Id": foydalanuvchiId } : {},
+          body: fd,
+        });
+        const d = await javob.json();
+        kutish.remove();
+        if (!javob.ok) {
+          botXatoQosh(d.detail || "Shartnomani tahlil qilib bo'lmadi.");
+          return;
+        }
+        shartnomaJavobQosh(d);
+        return;
+      }
       if (fayl) {
         const fd = new FormData();
         fd.append("fayl", fayl);
@@ -379,6 +410,101 @@
     }
 
     ich.appendChild(el("div", "disclaimer", data.disclaimer || ""));
+    x.appendChild(ich);
+    chat.appendChild(x);
+    pastgaSur();
+  }
+
+  // Shartnoma tahlili: umumiy mazmun -> bandlar (xavf bo'yicha) -> xulosa.
+  // Uch qismli javobdan farqli tuzilma: odam shartnomadan "qaysi bandi menga
+  // zarar keltiradi?" degan savolga javob kutadi.
+  const XAVF_BELGI = { qizil: "🔴", sariq: "🟡", yashil: "🟢" };
+  const XAVF_NOMI = {
+    qizil: "Qonunga zid",
+    sariq: "Siz uchun noqulay",
+    yashil: "E'tibor bering",
+  };
+  const TUR_NOMI = {
+    mehnat: "Mehnat shartnomasi",
+    ijara: "Ijara shartnomasi",
+    kredit: "Kredit / qarz shartnomasi",
+    "oldi-sotdi": "Oldi-sotdi shartnomasi",
+    xizmat: "Xizmat ko'rsatish shartnomasi",
+    boshqa: "Shartnoma",
+  };
+
+  function shartnomaJavobQosh(d) {
+    const x = el("div", "xabar bot");
+    x.appendChild(avatarYarat());
+    const ich = el("div", "xabar-ich");
+
+    // Umumiy mazmun
+    ich.appendChild(el("div", "qism-sarlavha", "📋 " + (TUR_NOMI[d.shartnoma_turi] || TUR_NOMI.boshqa)));
+    const mazmun = el("div", "shartnoma-mazmun");
+    [
+      ["Tomonlar", d.umumiy_mazmun.tomonlar],
+      ["Predmet", d.umumiy_mazmun.predmet],
+      ["Summa", d.umumiy_mazmun.summa],
+      ["Muddat", d.umumiy_mazmun.muddat],
+    ].forEach(([nomi, qiymat]) => {
+      if (!qiymat) return;
+      const q = el("div", "mazmun-qator");
+      q.append(el("span", "mazmun-nomi", nomi), el("span", "", qiymat));
+      mazmun.appendChild(q);
+    });
+    ich.appendChild(mazmun);
+
+    // Bandlar
+    if (d.bandlar.length) {
+      const qizil = d.bandlar.filter((b) => b.xavf === "qizil").length;
+      const sarlavha =
+        "⚠️ Diqqat qiling — " + d.bandlar.length + " ta band" +
+        (d.bandlar_soni ? " (jami " + d.bandlar_soni + " tadan)" : "") +
+        (qizil ? ", shundan " + qizil + " tasi qonunga zid" : "");
+      ich.appendChild(el("div", "qism-sarlavha", sarlavha));
+
+      d.bandlar.forEach((b) => {
+        const karta = el("div", "band-karta " + b.xavf);
+        const bosh = el("div", "band-bosh");
+        bosh.append(
+          el("span", "band-belgi", XAVF_BELGI[b.xavf] || "🟡"),
+          el("span", "band-raqam", b.band),
+          el("span", "band-mazmun", b.mazmuni)
+        );
+        karta.appendChild(bosh);
+        karta.appendChild(el("div", "band-daraja", XAVF_NOMI[b.xavf] || ""));
+        karta.appendChild(el("div", "band-izoh", b.izoh));
+
+        // Modda — bazadagi ASL matn, o'zgartirilmagan
+        if (b.modda) {
+          const modda = el("details", "band-modda");
+          const sarl = el("summary", "", "📖 " + b.modda.qonun_nomi + ", " + b.modda.modda_raqami);
+          modda.appendChild(sarl);
+          modda.appendChild(el("div", "modda-matn", b.modda.matn));
+          const havola = el("a", "", "lex.uz'da ochish ↗");
+          havola.href = b.modda.lex_url;
+          havola.target = "_blank";
+          havola.rel = "noopener";
+          modda.appendChild(havola);
+          karta.appendChild(modda);
+        }
+        ich.appendChild(karta);
+      });
+    } else {
+      ich.appendChild(el("div", "tavsiya", "Diqqat talab qiladigan band topilmadi."));
+    }
+
+    // Xulosa
+    if (d.xulosa) {
+      ich.appendChild(el("div", "qism-sarlavha", "✅ Xulosa"));
+      const xulosa = el("div", "tavsiya");
+      d.xulosa.split(/\n+/).forEach((p) => {
+        if (p.trim()) xulosa.appendChild(qalinFormat(p.trim()));
+      });
+      ich.appendChild(xulosa);
+    }
+
+    ich.appendChild(el("div", "disclaimer", d.disclaimer || ""));
     x.appendChild(ich);
     chat.appendChild(x);
     pastgaSur();

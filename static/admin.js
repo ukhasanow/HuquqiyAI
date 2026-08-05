@@ -57,6 +57,7 @@
       ["Javob topilish ulushi", foizTopildi],
       ["Sayt / Telegram bot", sayt + " / " + bot],
       ["🎤 Ovozli savol / 🔊 javob", (s.ovozli_sorovlar || 0) + " / " + (s.ovozli_javoblar || 0)],
+      ["📋 Shartnoma tahlillari", s.shartnoma_tahlillari || 0],
       ["Oddiy / Pro", oddiy + " / " + pro],
       [
         "Foydalanuvchilar (sayt / bot)",
@@ -118,6 +119,20 @@
       son.textContent = n;
       q.append(nom, bar, son);
       mavzular.appendChild(q);
+    });
+
+    // Shartnoma turlari — qaysi shartnoma ko'proq tekshirilayotgani
+    const turlar = document.getElementById("stat-shartnomalar");
+    turlar.innerHTML = "";
+    const turJuftlar = Object.entries(s.shartnoma_turlari || {}).sort((a, b) => b[1] - a[1]);
+    if (!turJuftlar.length) {
+      turlar.textContent = "Hozircha shartnoma tahlil qilinmagan";
+    }
+    turJuftlar.forEach(([turi, n]) => {
+      const q = document.createElement("div");
+      q.className = "manba-qator";
+      q.innerHTML = "<span>" + esc(turi) + "</span><b>" + esc(String(n)) + "</b>";
+      turlar.appendChild(q);
     });
 
     // Topilmagan savollar ro'yxati

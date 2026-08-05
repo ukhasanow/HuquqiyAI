@@ -373,6 +373,59 @@ body {
   white-space: nowrap;
 }
 .ovoz-holati.yozilmoqda { color: #c8403f; }
+.shartnoma-tanlov {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .78rem;
+  color: var(--sokin);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.shartnoma-tanlov input { cursor: pointer; }
+
+/* Shartnoma tahlili */
+.shartnoma-mazmun {
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.mazmun-qator { display: flex; gap: 8px; font-size: .85rem; padding: 2px 0; }
+.mazmun-nomi { flex: 0 0 78px; color: var(--sokin); }
+.band-karta {
+  border: 1px solid var(--chiziq);
+  border-left: 3px solid var(--chiziq);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  background: #fff;
+}
+.band-karta.qizil { border-left-color: #d64545; background: #fdf6f6; }
+.band-karta.sariq { border-left-color: #d99b2b; background: #fdfaf3; }
+.band-karta.yashil { border-left-color: #6b9c6b; }
+.band-bosh { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+.band-belgi { font-size: .8rem; }
+.band-raqam {
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--asosiy);
+  flex: 0 0 auto;
+}
+.band-mazmun { font-weight: 600; font-size: .9rem; flex: 1 1 200px; }
+.band-daraja {
+  font-size: .72rem;
+  color: var(--sokin);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 4px 0 5px 22px;
+}
+.band-izoh { font-size: .87rem; line-height: 1.5; margin-left: 22px; }
+.band-modda { margin: 8px 0 0 22px; font-size: .82rem; }
+.band-modda summary { cursor: pointer; color: var(--urgu); padding: 3px 0; }
+.band-modda .modda-matn { margin: 6px 0; white-space: pre-wrap; }
+.band-modda a { color: var(--urgu); font-size: .8rem; }
 .fayl-nomi {
   font-size: .78rem;
   color: var(--urgu);

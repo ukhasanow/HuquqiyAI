@@ -23,11 +23,13 @@ from .. import storage
 from ..config import MAX_HUJJAT_HAJMI, MAX_OVOZ_DAVOMIYLIGI, MAX_OVOZ_HAJMI
 from ..services import ariza as ariza_xizmati
 from ..services import documents, ovoz
+from ..services import shartnoma as shartnoma_xizmati
 from ..services.javob import (
     AiSozlanmagan,
     AiXato,
     javob_ol,
     ovozli_javobni_yoz,
+    shartnomani_hisobla,
     statistikani_yoz,
     uch_qismli_javob,
 )
@@ -64,6 +66,11 @@ BAND_XABARI = "⏳ Oldingi savolingiz ustida ishlayapman — javobni kuting."
 # Batafsil javob ~20 soniya oladi. Kutish muddatini oldindan aytish kerak:
 # aks holda odam bot ishlamayapti deb o'ylab, savolni qayta yuboraveradi.
 KUTING = "🔎 Qonun bazasidan qidiryapman va javob tayyorlayapman — 20-30 soniya oling..."
+# Shartnoma tahlili uzunroq: har band alohida tekshiriladi.
+SHARTNOMA_KUTING = (
+    "📋 Shartnomani band-band tekshiryapman — 40-60 soniya oling...\n"
+    "<i>Har bandni qonun moddalari bilan solishtiraman.</i>"
+)
 
 
 class ArizaHolati(StatesGroup):
@@ -425,7 +432,54 @@ async def hujjat(xabar: Message) -> None:
         return
 
     savol = (xabar.caption or "").strip()
+    # Shartnoma bo'lsa band-band tahlil qilinadi: uch qismli javob shartnomaga
+    # to'g'ri kelmaydi — odam "qaysi bandi menga zarar keltiradi?" deb so'raydi.
+    if _shartnomaga_oxshaydi(matn):
+        await _shartnomani_tahlil_qil(xabar, matn)
+        return
     await _savolga_javob_ber(xabar, savol, hujjat_matni=matn)
+
+
+def _shartnomaga_oxshaydi(matn: str) -> bool:
+    """Hujjat shartnomami. Raqamlangan bandlar — eng ishonchli belgi."""
+    return (
+        shartnoma_xizmati.turni_taxmin(matn) != "boshqa"
+        and len(shartnoma_xizmati.bandlarga_ajrat(matn)) >= 3
+    )
+
+
+async def _shartnomani_tahlil_qil(xabar: Message, matn: str) -> None:
+    id_ = xabar.chat.id
+    ruxsat, kutish = holat.cheklovdan_otdi(id_)
+    if not ruxsat:
+        await xabar.answer(
+            f"⏳ Juda ko'p so'rov yubordingiz. Iltimos, {kutish // 60 + 1} daqiqadan so'ng urinib ko'ring."
+        )
+        return
+    if not holat.band_qil(id_):
+        await xabar.answer(BAND_XABARI)
+        return
+
+    kutish_xabari = await xabar.answer(SHARTNOMA_KUTING)
+    try:
+        await xabar.bot.send_chat_action(chat_id=id_, action="typing")
+        javob = await asyncio.to_thread(shartnoma_xizmati.shartnomani_tahlil, matn)
+    except (AiSozlanmagan, AiXato) as e:
+        await xabar.answer(f"⚠️ {e.foydalanuvchi_matni}")
+        return
+    except Exception:
+        log.exception("Shartnoma tahlilida kutilmagan xato (chat_id=%s)", id_)
+        await xabar.answer("⚠️ Shartnomani tahlil qilib bo'lmadi. Qaytadan urinib ko'ring.")
+        return
+    finally:
+        holat.bandni_bosat(id_)
+        try:
+            await kutish_xabari.delete()
+        except Exception:
+            pass
+
+    await _yubor(xabar, formatlash.shartnoma_xabari(javob))
+    await asyncio.to_thread(shartnomani_hisobla, javob.shartnoma_turi, f"tg:{id_}")
 
 
 # ---------- Ovozli xabar ----------

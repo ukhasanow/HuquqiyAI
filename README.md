@@ -23,6 +23,9 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   foydalanuvchi faqat F.I.Sh kiritadi; hujjatda yoziladigan yagona joy — imzo)
 - **Uch yozuvda ishlaydi** — o'zbek lotin, o'zbek kirill va rus tilidagi
   savollarga o'sha til/yozuvda javob (kirill uchun transliteratsiyali qidiruv)
+- **Shartnoma tahlili** — mehnat, ijara, kredit yoki oldi-sotdi shartnomasini
+  yuklang: har band xavf darajasi (🔴 qonunga zid · 🟡 noqulay · 🟢 e'tibor bering)
+  va tegishli qonun moddasi bilan ko'rsatiladi
 - **Ovozli savol** — saytda ham, Telegram botda ham mikrofon orqali
 - **Telegram bot** — matn, **ovozli xabar** va hujjat orqali savol; javob
   ovozli ham yuborilishi mumkin
@@ -32,6 +35,29 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   ovozli savol va javob), mavzular bo'yicha taqsimot, manba bo'yicha
   ajratilgan 30 kunlik grafik va javob topilmagan savollar ro'yxati
   (bazani kengaytirish uchun)
+
+## Shartnoma tahlili
+
+Oddiy savol-javob uch qismli javob beradi (modda → tavsiya → organ). Shartnomaga
+bu shakl to'g'ri kelmaydi: odam "qaysi bandi menga zarar keltiradi?" deb so'raydi,
+shartnomada esa 8-10 ta muammoli band bo'lishi mumkin va ular uch qadamli
+tavsiyaga sig'maydi. Shuning uchun `POST /api/shartnoma` alohida javob shaklini
+qaytaradi: **umumiy mazmun → bandlar ro'yxati (xavf bo'yicha saralangan) → xulosa**.
+
+Har band uchun: band raqami, oddiy tildagi mazmuni, xavf darajasi va **bazadagi
+asl modda**. Asl matn kafolati bu yerda ham kuchda — LLM faqat modda ID'sini
+tanlaydi, mavjud bo'lmagan ID qaytarsa band moddasiz ko'rsatiladi.
+
+**Imperativ normalar majburan qo'shiladi.** Leksik qidiruv "Ish kuni 09:00 dan
+21:00 gacha" bandini "Ish vaqtining normal davomiyligi" moddasi bilan bog'lay
+olmaydi — umumiy so'z yo'q. Shuning uchun shartnoma turi aniqlanadi va o'sha
+turga xos majburiy normalar (`services/shartnoma.py` dagi `ASOSIY_MODDALAR`)
+nomzodlarga doim kiritiladi. Test bu ro'yxatdagi har bir ID bazada mavjudligini
+tekshiradi.
+
+Telegram botda hujjat yuborilsa, shartnoma ekani avtomatik aniqlanadi
+(raqamlangan bandlar + turga xos so'zlar) va band-band tahlil ishga tushadi.
+Tahlil oddiy javobdan sekinroq (~40 soniya): har band alohida tekshiriladi.
 
 ## Arxitektura: asl matn kafolati
 

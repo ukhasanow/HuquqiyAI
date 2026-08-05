@@ -19,8 +19,17 @@ from .config import (
     TELEGRAM_WEBHOOK_SECRET,
     TELEGRAM_WEBHOOK_URL,
 )
-from .models import ArizaJavob, ArizaSorov, ChatJavob, ChatSorov, ModdaKiritish, OvozJavob
+from .models import (
+    ArizaJavob,
+    ArizaSorov,
+    ChatJavob,
+    ChatSorov,
+    ModdaKiritish,
+    OvozJavob,
+    ShartnomaJavob,
+)
 from .services import ariza, documents, ovoz, statistika
+from .services import shartnoma as shartnoma_xizmati
 from .services.javob import AiSozlanmagan, AiXato, javob_ol, statistikani_yoz, uch_qismli_javob
 
 log = logging.getLogger(__name__)
@@ -119,6 +128,35 @@ async def hujjat_tahlili(
     except (AiSozlanmagan, AiXato) as e:
         raise _http_xato(e)
     fon.add_task(statistikani_yoz, javob, rejim, x_foydalanuvchi_id, savol, "sayt")
+    return javob
+
+
+@app.post("/api/shartnoma", response_model=ShartnomaJavob)
+async def shartnoma_tahlili(
+    fon: BackgroundTasks,
+    fayl: UploadFile = File(...),
+    x_foydalanuvchi_id: Optional[str] = Header(None),
+):
+    """Shartnomani band-band tahlil qiladi.
+
+    /api/hujjat dan farqi — javob shakli: u yerda uch qismli javob (modda,
+    tavsiya, organ), bu yerda esa bandlar ro'yxati va har biriga xavf bahosi.
+    Shartnomada 8-10 ta muammoli band bo'lishi mumkin, ular uch qadamli
+    tavsiyaga sig'maydi.
+    """
+    bayt = await fayl.read()
+    if len(bayt) > MAX_HUJJAT_HAJMI:
+        raise HTTPException(status_code=413, detail="Fayl hajmi 10 MB dan oshmasligi kerak")
+    try:
+        matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt)
+    except documents.HujjatXato as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    try:
+        javob = await asyncio.to_thread(shartnoma_xizmati.shartnomani_tahlil, matn)
+    except (AiSozlanmagan, AiXato) as e:
+        raise _http_xato(e)
+
+    fon.add_task(statistika.shartnoma_hisobla, javob.shartnoma_turi, x_foydalanuvchi_id)
     return javob
 
 

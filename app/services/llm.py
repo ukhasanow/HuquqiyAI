@@ -191,6 +191,218 @@ _REJIMLAR = {
 }
 
 
+# ---------- Shartnoma tahlili ----------
+#
+# Bu alohida sxema: uch qismli javob (modda + tavsiya + organ) shartnomaga
+# to'g'ri kelmaydi. Odam shartnomadan "qaysi bandi menga zarar keltiradi?"
+# degan savolga javob kutadi, ya'ni natija BAND bo'yicha tuzilishi kerak.
+
+SHARTNOMA_TURLARI = ["mehnat", "ijara", "kredit", "oldi-sotdi", "xizmat", "boshqa"]
+XAVF_DARAJALARI = ["qizil", "sariq", "yashil"]
+
+MAX_BAND_SONI = 12
+BAND_MAZMUN_BELGI = 120
+BAND_IZOH_BELGI = 220
+SHARTNOMA_XULOSA_BELGI = 500
+
+_XAVF_TAVSIFI = (
+    "Bandning xavf darajasi: "
+    "'qizil' — qonunga ZID, ya'ni band haqiqiy emas yoki majburiy normani buzadi; "
+    "'sariq' — qonuniy, lekin foydalanuvchiga NOQULAY yoki xavf tug'diradi "
+    "(masalan katta neustoyka, bir tomonlama bekor qilish huquqi); "
+    "'yashil' — odatiy, e'tibor talab qiladigan muhim band. "
+    "Faqat HAQIQATAN diqqatga sazovor bandlarni qaytar — oddiy, xavfsiz "
+    "bandlarni ro'yxatga kiritma."
+)
+
+
+def _shartnoma_tool() -> dict:
+    return {
+        "name": "shartnoma_tahlili",
+        "description": "Shartnomani band-band tahlil qilib qaytarish",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "shartnoma_turi": {"type": "string", "enum": SHARTNOMA_TURLARI},
+                "umumiy_mazmun": {
+                    "type": "object",
+                    "description": "Shartnomaning bir qarashda mazmuni",
+                    "properties": {
+                        "tomonlar": {"type": "string", "maxLength": 150,
+                                     "description": "Kim kim bilan shartnoma tuzmoqda"},
+                        "predmet": {"type": "string", "maxLength": 150,
+                                    "description": "Shartnoma nima haqida"},
+                        "summa": {"type": "string", "maxLength": 100,
+                                  "description": "Asosiy pul miqdori; yo'q bo'lsa bo'sh satr"},
+                        "muddat": {"type": "string", "maxLength": 100,
+                                   "description": "Amal qilish muddati; yo'q bo'lsa bo'sh satr"},
+                    },
+                    "required": ["tomonlar", "predmet", "summa", "muddat"],
+                },
+                "bandlar_soni": {
+                    "type": "integer",
+                    "description": "Shartnomada jami nechta raqamlangan band bor",
+                },
+                "bandlar": {
+                    "type": "array",
+                    "maxItems": MAX_BAND_SONI,
+                    "description": (
+                        "Diqqat talab qiladigan bandlar, xavflisi birinchi. "
+                        "Bandlar shartnomadagi tartib raqami bilan ko'rsatilsin."
+                    ),
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "band": {"type": "string", "maxLength": 12,
+                                     "description": "Band raqami shartnomadagidek, masalan '4.3'"},
+                            "mazmuni": {"type": "string", "maxLength": BAND_MAZMUN_BELGI,
+                                        "description": "Bandda nima deyilgan — bir qisqa jumla, oddiy tilda"},
+                            "xavf": {"type": "string", "enum": XAVF_DARAJALARI,
+                                     "description": _XAVF_TAVSIFI},
+                            "izoh": {"type": "string", "maxLength": BAND_IZOH_BELGI,
+                                     "description": "Nega bu band muhim va odamga qanday ta'sir qiladi — 1-2 jumla"},
+                            "modda_id": {"type": "string",
+                                         "description": ("Bandga tegishli moddaning ID'si BERILGAN "
+                                                         "ro'yxatdan. Mos modda bo'lmasa bo'sh satr qaytar — "
+                                                         "ID'ni O'YLAB TOPMA.")},
+                        },
+                        "required": ["band", "mazmuni", "xavf", "izoh", "modda_id"],
+                    },
+                },
+                "xulosa": {
+                    "type": "string",
+                    "maxLength": SHARTNOMA_XULOSA_BELGI,
+                    "description": (
+                        "Yakuniy maslahat: imzolash mumkinmi, imzolashdan oldin qaysi "
+                        "bandlarni o'zgartirishni talab qilish kerak. 2-4 jumla, aniq "
+                        "band raqamlari bilan."
+                    ),
+                },
+            },
+            "required": ["shartnoma_turi", "umumiy_mazmun", "bandlar_soni", "bandlar", "xulosa"],
+        },
+    }
+
+
+def _gemini_shartnoma_sxemasi() -> dict:
+    return {
+        "type": "OBJECT",
+        "properties": {
+            "shartnoma_turi": {"type": "STRING", "enum": SHARTNOMA_TURLARI},
+            "umumiy_mazmun": {
+                "type": "OBJECT",
+                "properties": {
+                    "tomonlar": {"type": "STRING"},
+                    "predmet": {"type": "STRING"},
+                    "summa": {"type": "STRING"},
+                    "muddat": {"type": "STRING"},
+                },
+                "required": ["tomonlar", "predmet", "summa", "muddat"],
+            },
+            "bandlar_soni": {"type": "INTEGER"},
+            "bandlar": {
+                "type": "ARRAY",
+                "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "band": {"type": "STRING"},
+                        "mazmuni": {"type": "STRING"},
+                        "xavf": {"type": "STRING", "enum": XAVF_DARAJALARI},
+                        "izoh": {"type": "STRING"},
+                        "modda_id": {"type": "STRING"},
+                    },
+                    "required": ["band", "mazmuni", "xavf", "izoh", "modda_id"],
+                },
+            },
+            "xulosa": {"type": "STRING"},
+        },
+        "required": ["shartnoma_turi", "umumiy_mazmun", "bandlar_soni", "bandlar", "xulosa"],
+    }
+
+
+_SHARTNOMA_PROMPT = """Sen — HuquqiyAI, O'zbekiston fuqarolari uchun huquqiy yordamchisan.
+Foydalanuvchi shartnoma yukladi va uni imzolashdan oldin xavfini bilmoqchi.
+
+QAT'IY QOIDALAR:
+1. FAQAT quyida berilgan qonun moddalari asosida baho ber. Xotirangdagi boshqa
+   qonunlarga tayanma. Modda matnini QAYTA YOZMA va iqtibos KELTIRMA — asl matn
+   foydalanuvchiga bazadan alohida ko'rsatiladi. Sen faqat modda ID'sini tanlaysan.
+2. modda_id FAQAT berilgan ro'yxatdan bo'lishi mumkin. Mos modda topilmasa bo'sh
+   satr qaytar — bandni baribir ko'rsat, lekin ID'ni O'YLAB TOPMA. Bu qoida
+   loyihaning asosiy ishonch kafolati.
+3. Bandni "qonunga zid" (qizil) deb faqat berilgan moddaning majburiy normasiga
+   zid bo'lganda belgila. Shubha bo'lsa — "sariq" qo'y va nega xavfli ekanini tushuntir.
+4. Foydalanuvchi — shartnomaning KUCHSIZ tarafi (xodim, ijarachi, qarz oluvchi,
+   xaridor). Uning manfaati nuqtai nazaridan bahola.
+5. Har band uchun eng muhim narsani ayt: bu band unga amalda nima qilishini.
+   Umumiy gap ("bu band muhim") emas, aniq oqibat ("ishdan bo'shasangiz 5 mln to'laysiz").
+6. Faqat DIQQAT TALAB QILADIGAN bandlarni qaytar. Oddiy, xavfsiz bandlarni
+   (rekvizitlar, tomonlar nomi, umumiy iboralar) ro'yxatga kiritma.
+7. Shartnoma umuman shartnoma bo'lmasa yoki matn tushunarsiz bo'lsa —
+   bandlar ro'yxatini bo'sh qoldir va xulosada shuni ochiq ayt.
+8. TIL: shartnoma qaysi tilda bo'lsa, javobni ham o'sha tilda yoz (o'zbek lotin,
+   o'zbek kirill yoki rus). Aralash bo'lsa asosiy tilni tanla.
+9. SHAKL: oddiy matn. Markdown sarlavha, ro'yxat belgisi va jadval ISHLATMA."""
+
+
+def shartnoma_tahlil_yarat(hujjat_matni: str, nomzod_moddalar: List[dict]) -> dict:
+    """Shartnomani band-band tahlil qiladi. Provayderlar navbati javob_yarat kabi."""
+    tizim = _SHARTNOMA_PROMPT + "\n\nMAVJUD QONUN MODDALARI:\n" + _moddalar_bloki(nomzod_moddalar)
+    xabarlar = [{
+        "role": "user",
+        "content": "Shartnoma matni:\n<shartnoma>\n" + hujjat_matni + "\n</shartnoma>",
+    }]
+
+    oxirgi_xato: Optional[Exception] = None
+    if _client is not None:
+        try:
+            return _anthropic_shartnoma(tizim, xabarlar)
+        except Exception as e:
+            oxirgi_xato = e
+    if GEMINI_API_KEY:
+        try:
+            return _gemini_shartnoma(tizim, xabarlar)
+        except Exception as e:
+            oxirgi_xato = e
+    if oxirgi_xato:
+        raise oxirgi_xato
+    raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
+
+
+def _anthropic_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
+    javob = _client.messages.create(
+        model=MODEL,
+        max_tokens=4096,  # band ro'yxati uch qismli javobdan uzunroq
+        system=tizim + "\n\nJavobni faqat shartnoma_tahlili tool orqali qaytar.",
+        messages=xabarlar,
+        tools=[_shartnoma_tool()],
+        tool_choice={"type": "tool", "name": "shartnoma_tahlili"},
+    )
+    for blok in javob.content:
+        if blok.type == "tool_use" and blok.name == "shartnoma_tahlili":
+            return dict(blok.input)
+    raise RuntimeError("Model tool chaqirmadi")
+
+
+def _gemini_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
+    javob = httpx.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        params={"key": GEMINI_API_KEY},
+        json={
+            "system_instruction": {"parts": [{"text": tizim}]},
+            "contents": [{"role": "user", "parts": [{"text": xabarlar[0]["content"]}]}],
+            "generationConfig": {
+                "response_mime_type": "application/json",
+                "response_schema": _gemini_shartnoma_sxemasi(),
+                "maxOutputTokens": 4096,
+            },
+        },
+        timeout=90,
+    )
+    javob.raise_for_status()
+    return json.loads(javob.json()["candidates"][0]["content"]["parts"][0]["text"])
+
+
 # Model modda matnini qayta yozmaydi — u faqat qaysi modda mos kelishini
 # aniqlaydi. Shuning uchun uzun moddalarning boshini yuborish yetarli:
 # so'rov hajmi (va javob vaqti) sezilarli kamayadi. Foydalanuvchiga baribir
@@ -221,6 +433,27 @@ def _qisqartir(matn: str) -> str:
     if len(matn) <= MAX_MODDA_BELGI:
         return matn
     return matn[:MAX_MODDA_BELGI].rstrip() + "\n[…modda davomi bazada]"
+
+
+def _moddalar_bloki(moddalar: List[dict]) -> str:
+    """Nomzod moddalarni prompt uchun matn blokiga aylantiradi.
+
+    Uch qismli javob ham, shartnoma tahlili ham shu blokdan foydalanadi:
+    moddalarni ikki xil ko'rinishda berish model tanlovini ham ikki xil
+    qilib qo'yardi.
+    """
+    return "\n\n".join(
+        "<modda id=\"{id}\">\n{qonun} | {raqam}. {sarlavha}\n{matn}\n</modda>".format(
+            id=m["id"],
+            qonun=m["qonun_nomi"],
+            raqam=m["modda_raqami"],
+            sarlavha=m["sarlavha"],
+            matn=_qisqartir(m["matn"])
+            if m.get("holat") == "verified"
+            else "(matn hali tekshirilmagan — tanlama)",
+        )
+        for m in moddalar
+    )
 
 
 def _anthropic_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
@@ -283,18 +516,7 @@ def javob_yarat(
 
     Qaytaradi: {javob_topildi, tegishli_modda_idlari, tavsiya, murojaat_mavzusi}
     """
-    moddalar_blok = "\n\n".join(
-        "<modda id=\"{id}\">\n{qonun} | {raqam}. {sarlavha}\n{matn}\n</modda>".format(
-            id=m["id"],
-            qonun=m["qonun_nomi"],
-            raqam=m["modda_raqami"],
-            sarlavha=m["sarlavha"],
-            matn=_qisqartir(m["matn"])
-            if m.get("holat") == "verified"
-            else "(matn hali tekshirilmagan — tanlama)",
-        )
-        for m in nomzod_moddalar
-    )
+    moddalar_blok = _moddalar_bloki(nomzod_moddalar)
 
     tizim = _TIZIM_PROMPT.format(rejim_korsatmasi=_REJIMLAR.get(rejim, _REJIMLAR["oddiy"]))
     if batafsil:

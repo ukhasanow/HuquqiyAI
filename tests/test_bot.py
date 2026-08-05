@@ -692,6 +692,92 @@ def test_ovoz_buyrugi_sozlanmagan_bolsa_tushuntiradi(monkeypatch):
     assert any("sozlanmagan" in x for x in xabar.yuborilgan)
 
 
+# ---------- Shartnoma tahlili ----------
+
+SHARTNOMA_MATNI = """MEHNAT SHARTNOMASI № 47
+1.3. Sinov muddati 6 oy.
+2.2. Ish haqi oyiga bir marta to'lanadi.
+3.1. Ish kuni 09:00 dan 21:00 gacha.
+"""
+
+
+def _shartnoma_javobi():
+    from app.models import ShartnomaBand, ShartnomaJavob, ShartnomaMazmuni
+
+    return ShartnomaJavob(
+        shartnoma_turi="mehnat",
+        umumiy_mazmun=ShartnomaMazmuni(
+            tomonlar="MChJ va xodim", predmet="Sotuvchi lavozimi",
+            summa="3 000 000 so'm", muddat="6 oy",
+        ),
+        bandlar=[
+            ShartnomaBand(band="1.3", mazmuni="Sinov muddati 6 oy", xavf="qizil",
+                          izoh="Qonunga zid", modda=_modda()),
+            ShartnomaBand(band="2.2", mazmuni="Ish haqi oyiga bir marta",
+                          xavf="sariq", izoh="Noqulay"),
+        ],
+        xulosa="1.3-bandni olib tashlashni talab qiling.",
+        bandlar_soni=9,
+    )
+
+
+def test_shartnoma_taniladi():
+    from app.bot import handlers
+
+    assert handlers._shartnomaga_oxshaydi(SHARTNOMA_MATNI)
+
+
+def test_oddiy_hujjat_shartnoma_deb_hisoblanmaydi():
+    """Da'vo arizasi yoki ma'lumotnoma uch qismli javob oqimida qolsin."""
+    from app.bot import handlers
+
+    assert not handlers._shartnomaga_oxshaydi(
+        "Sizga ma'lum qilamizki, arizangiz ko'rib chiqildi va rad etildi."
+    )
+
+
+def test_shartnoma_xabarida_bandlar_va_xavf_bor():
+    matn = "\n".join(formatlash.shartnoma_xabari(_shartnoma_javobi()))
+    assert "1.3" in matn and "2.2" in matn
+    assert "🔴" in matn and "🟡" in matn
+    assert "qonunga zid" in matn
+    assert "jami 9 tadan" in matn
+    assert "professional" in matn  # disclaimer
+
+
+def test_shartnoma_xabarida_modda_havolasi_bor():
+    """Band qonunga zid deyilsa, odam asl moddani ocha olishi kerak."""
+    matn = "\n".join(formatlash.shartnoma_xabari(_shartnoma_javobi()))
+    assert "lex.uz/acts" in matn
+
+
+def test_bot_shartnomani_band_band_tahlil_qiladi(monkeypatch):
+    from app.bot import handlers
+
+    chaqirildi = []
+    monkeypatch.setattr(handlers.shartnoma_xizmati, "shartnomani_tahlil",
+                        lambda m: chaqirildi.append(m) or _shartnoma_javobi())
+    monkeypatch.setattr(handlers, "shartnomani_hisobla", lambda *a: None)
+    xabar = SoxtaXabar("", chat_id=130)
+    _ishga_tushir(handlers._shartnomani_tahlil_qil(xabar, SHARTNOMA_MATNI))
+
+    assert chaqirildi
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Sinov muddati 6 oy" in matn
+    assert holat.band_qil(130)  # band belgisi bo'shatilgan
+
+
+def test_shartnoma_xatosi_botni_jim_qoldirmaydi(monkeypatch):
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers.shartnoma_xizmati, "shartnomani_tahlil",
+                        lambda m: 1 / 0)
+    xabar = SoxtaXabar("", chat_id=131)
+    _ishga_tushir(handlers._shartnomani_tahlil_qil(xabar, SHARTNOMA_MATNI))
+    assert any("tahlil qilib bo'lmadi" in x for x in xabar.yuborilgan)
+    assert holat.band_qil(131)
+
+
 # ---------- Noma'lum buyruq ----------
 
 def test_notanish_buyruq_llm_ga_bormaydi(monkeypatch):

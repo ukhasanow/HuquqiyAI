@@ -1,31 +1,67 @@
 {
-  "jami_sorovlar": 9,
-  "javob_topildi": 8,
+  "jami_sorovlar": 15,
+  "javob_topildi": 14,
   "javob_topilmadi": 1,
   "rejimlar": {
-    "oddiy": 7,
+    "oddiy": 13,
     "pro": 2
   },
   "mavzular": {
-    "fuqarolik": 5,
+    "fuqarolik": 6,
     "oila-sud": 2,
-    "mehnat": 2
+    "mehnat": 6,
+    "umumiy": 1
   },
   "kunlik": {
     "2026-07-31": {
       "jami": 9,
       "topildi": 8
+    },
+    "2026-08-05": {
+      "jami": 6,
+      "topildi": 6,
+      "sayt": 2,
+      "bot": 4
     }
   },
   "foydalanuvchilar": [
     "anon-test-1",
     "anon-test-2",
-    "anon-ms8th0sp-9f2ynlh6"
+    "anon-ms8th0sp-9f2ynlh6",
+    "sinov-1",
+    "tg:5024527817",
+    "tg:6518253225"
   ],
   "topilmagan_savollar": [
     {
       "sana": "2026-07-31",
       "savol": "Onalik/otalikni belgilash: Bolaning otasini aniqlash yoki otalikni tan olmaslik."
     }
-  ]
+  ],
+  "manbalar": {
+    "sayt": 2,
+    "bot": 4
+  },
+  "ovozli_sorovlar": 2,
+  "ovozli_javoblar": 2,
+  "manba_kesimi": {
+    "sayt": {
+      "jami": 2,
+      "topildi": 2,
+      "ovozli": 0,
+      "oddiy": 2,
+      "pro": 0
+    },
+    "bot": {
+      "jami": 4,
+      "topildi": 4,
+      "ovozli": 2,
+      "oddiy": 4,
+      "pro": 0
+    }
+  },
+  "shartnoma_tahlillari": 9,
+  "shartnoma_turlari": {
+    "mehnat": 9
+  }
 }

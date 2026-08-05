@@ -105,6 +105,67 @@ def _organ_matni(organ) -> str:
     return "\n".join(qatorlar)
 
 
+XAVF_BELGI = {"qizil": "🔴", "sariq": "🟡", "yashil": "🟢"}
+XAVF_NOMI = {
+    "qizil": "qonunga zid",
+    "sariq": "siz uchun noqulay",
+    "yashil": "e'tibor bering",
+}
+TUR_NOMI = {
+    "mehnat": "Mehnat shartnomasi",
+    "ijara": "Ijara shartnomasi",
+    "kredit": "Kredit / qarz shartnomasi",
+    "oldi-sotdi": "Oldi-sotdi shartnomasi",
+    "xizmat": "Xizmat ko'rsatish shartnomasi",
+    "boshqa": "Shartnoma",
+}
+
+
+def shartnoma_xabari(javob) -> List[str]:
+    """Shartnoma tahlili — umumiy mazmun, bandlar, xulosa.
+
+    Modda matni bu yerga KIRITILMAYDI: bandlar ro'yxati o'zi uzun, har biriga
+    to'liq modda matnini qo'shsak xabar bir necha ekranga cho'ziladi. Asl
+    matnni foydalanuvchi "Qonun moddalari" tugmasi orqali ochadi.
+    """
+    m = javob.umumiy_mazmun
+    qatorlar = [f"📋 <b>{_tozala(TUR_NOMI.get(javob.shartnoma_turi, 'Shartnoma'))}</b>\n"]
+    for nomi, qiymat in (("Tomonlar", m.tomonlar), ("Predmet", m.predmet),
+                         ("Summa", m.summa), ("Muddat", m.muddat)):
+        if qiymat:
+            qatorlar.append(f"<b>{nomi}:</b> {_tozala(qiymat)}")
+    qismlar = ["\n".join(qatorlar)]
+
+    if javob.bandlar:
+        qizil = sum(1 for b in javob.bandlar if b.xavf == "qizil")
+        bosh = f"⚠️ <b>Diqqat qiling — {len(javob.bandlar)} ta band</b>"
+        if javob.bandlar_soni:
+            bosh += f" (jami {javob.bandlar_soni} tadan)"
+        if qizil:
+            bosh += f"\nShundan <b>{qizil} tasi qonunga zid</b>."
+        qismlar.append(bosh)
+
+        for b in javob.bandlar:
+            band = (
+                f"{XAVF_BELGI.get(b.xavf, '🟡')} <b>{_tozala(b.band)}-band</b> — "
+                f"<i>{XAVF_NOMI.get(b.xavf, '')}</i>\n"
+                f"{_tozala(b.mazmuni)}\n\n{_tozala(b.izoh)}"
+            )
+            if b.modda:
+                band += (
+                    f"\n\n📖 <a href=\"{b.modda.lex_url}\">"
+                    f"{_tozala(b.modda.qonun_nomi)}, {_tozala(b.modda.modda_raqami)}</a>"
+                )
+            qismlar.append(band)
+    else:
+        qismlar.append("Diqqat talab qiladigan band topilmadi.")
+
+    if javob.xulosa:
+        qismlar.append("✅ <b>Xulosa</b>\n\n" + _tozala(javob.xulosa))
+    qismlar.append(f"⚠️ <i>{_tozala(javob.disclaimer)}</i>")
+    return bolaklarga_bol("\n\n".join(qismlar))
+
+
 def topilmadi_xabari(javob) -> List[str]:
     """Baza savolga javob bera olmaganda — bo'sh javob o'rniga halol xabar."""
     matn = (
