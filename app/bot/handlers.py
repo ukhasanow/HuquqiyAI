@@ -95,6 +95,7 @@ class JarimaHolati(StatesGroup):
     hodisa_sanasi = State()
     qaror_sanasi = State()
     kamera = State()
+    radar = State()
     modda = State()
     tezlik = State()  # faqat tezlik moddasi ko'rsatilganda so'raladi
     fish = State()    # shikoyat qoralamasi uchun
@@ -357,7 +358,7 @@ async def jarima_buyrugi(xabar: Message, state: FSMContext) -> None:
     await xabar.answer(
         "🚗 <b>Jarima qonuniyligini tekshirish</b>\n\n"
         "Bir necha savol beraman va qarorni qonun bo'yicha tekshirib beraman.\n\n"
-        f"<b>1/4.</b> Qoidabuzarlik qachon sodir bo'lgan?\n{SANA_NAMUNASI}\n\n"
+        f"<b>1/5.</b> Qoidabuzarlik qachon sodir bo'lgan?\n{SANA_NAMUNASI}\n\n"
         "<i>Bekor qilish uchun: /start</i>"
     )
 
@@ -370,7 +371,7 @@ async def jarima_hodisa_sanasi(xabar: Message, state: FSMContext) -> None:
         return
     await state.update_data(hodisa_sanasi=sana.isoformat() if sana else None)
     await state.set_state(JarimaHolati.qaror_sanasi)
-    await xabar.answer(f"<b>2/4.</b> Jarima qarori qachon chiqarilgan?\n{SANA_NAMUNASI} {OTKAZISH}")
+    await xabar.answer(f"<b>2/5.</b> Jarima qarori qachon chiqarilgan?\n{SANA_NAMUNASI} {OTKAZISH}")
 
 
 @router.message(JarimaHolati.qaror_sanasi)
@@ -382,7 +383,7 @@ async def jarima_qaror_sanasi(xabar: Message, state: FSMContext) -> None:
     await state.update_data(qaror_sanasi=sana.isoformat() if sana else None)
     await state.set_state(JarimaHolati.kamera)
     await xabar.answer(
-        "<b>3/4.</b> Jarima kamera (foto-video) orqali qayd etilganmi?\n"
+        "<b>3/5.</b> Jarima kamera (foto-video) orqali qayd etilganmi?\n"
         "<code>ha</code> yoki <code>yo'q</code> deb yozing.\n\n"
         "<i>Kamera jarimasi uchun muddat ancha qisqa — shuning uchun bu muhim.</i>"
     )
@@ -392,9 +393,26 @@ async def jarima_qaror_sanasi(xabar: Message, state: FSMContext) -> None:
 async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
     javob = (xabar.text or "").strip().lower()
     await state.update_data(kamera=javob.startswith(("ha", "да", "yes")))
+    await state.set_state(JarimaHolati.radar)
+    await xabar.answer(
+        "<b>4/5.</b> Radar qanday edi?\n\n"
+        "<code>1</code> — uch oyoqli tagliksa (trenoga)\n"
+        "<code>2</code> — patrul avtomobilida\n"
+        "<code>3</code> — doimiy o'rnatilgan kamera\n"
+        "<code>-</code> — bilmayman\n\n"
+        "<i>Bu muhim: radar patrul avtomobilidan yechib olingan bo'lsa, "
+        "qaror yuridik kuchga ega bo'lmaydi.</i>"
+    )
+
+
+@router.message(JarimaHolati.radar)
+async def jarima_radar(xabar: Message, state: FSMContext) -> None:
+    tanlov = (xabar.text or "").strip().lower()
+    turlar = {"1": "trenoga", "2": "patrul", "3": "statsionar"}
+    await state.update_data(radar_turi=turlar.get(tanlov, ""))
     await state.set_state(JarimaHolati.modda)
     await xabar.answer(
-        "<b>4/4.</b> Qarorda qaysi modda ko'rsatilgan?\n"
+        "<b>5/5.</b> Qarorda qaysi modda ko'rsatilgan?\n"
         "Masalan <code>128-3</code>. Bilmasangiz «-» yuboring."
     )
 
@@ -459,6 +477,7 @@ def _jarima_sorovi(malumot: dict) -> JarimaSorov:
         qaror_sanasi=malumot.get("qaror_sanasi"),
         kamera=bool(malumot.get("kamera")),
         modda=malumot.get("modda", ""),
+        radar_turi=malumot.get("radar_turi", ""),
         qayd_etilgan_tezlik=malumot.get("qayd_etilgan_tezlik"),
         ruxsat_etilgan_tezlik=malumot.get("ruxsat_etilgan_tezlik"),
     )
