@@ -25,6 +25,7 @@ from .models import (
     ChatJavob,
     ChatSorov,
     JarimaJavob,
+    JarimaRasmJavob,
     JarimaSorov,
     ModdaKiritish,
     OvozJavob,
@@ -147,6 +148,27 @@ def jarima_tekshiruvi(sorov: JarimaSorov, fon: BackgroundTasks,
     javob = jarima_xizmati.jarimani_tekshir(sorov)
     fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
     return javob
+
+
+@app.post("/api/jarima/rasm", response_model=JarimaRasmJavob)
+async def jarima_rasmi(fon: BackgroundTasks, fayl: UploadFile = File(...),
+                       x_foydalanuvchi_id: Optional[str] = Header(None)):
+    """Jarima qarori rasmidan ma'lumotlarni o'qib, darhol tekshiradi.
+
+    AI faqat MATNNI O'QIYDI — huquqiy xulosani arifmetik tekshiruvlar beradi.
+    O'qilgan qiymatlar javobda qaytariladi va foydalanuvchi ularni tuzatishi
+    mumkin: model sanani xato o'qisa, butun xulosa noto'g'ri bo'lardi.
+    """
+    bayt = await fayl.read()
+    try:
+        sorov = await asyncio.to_thread(
+            jarima_xizmati.rasmdan_oqi, bayt, fayl.content_type or "image/jpeg"
+        )
+    except jarima_xizmati.RasmXato as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
+    return JarimaRasmJavob(oqilgan=sorov, tekshiruv=javob)
 
 
 @app.post("/api/jarima/shikoyat", response_model=ArizaJavob)

@@ -118,6 +118,15 @@ class JarimaSorov(BaseModel):
     qayd_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=400)
     ruxsat_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=200)
     jarima_bhm: Optional[float] = Field(default=None, ge=0, le=100)  # necha baravar BHM
+
+    # Radar qanday o'rnatilgan edi (YPX nizomining 28 va 32-bandlari).
+    # "trenoga"  — uch oyoqli tagliksa o'rnatilgan ko'chma radar
+    # "patrul"   — YPX patrul avtomobilida
+    # "statsionar" — doimiy o'rnatilgan kamera
+    # "" — noma'lum
+    radar_turi: str = Field(default="", max_length=20)
+    # Radarni xizmatga aloqasi bo'lmagan shaxs boshqargan bo'lsa (32-band)
+    begona_shaxs: bool = False
     tavsif: str = Field(default="", max_length=2000)  # nima bo'lgani, o'z so'zlari bilan
 
 
@@ -147,6 +156,16 @@ class JarimaJavob(BaseModel):
         "arziydigan asoslar ko'rsatiladi. Yakuniy qarorni sud yoki vakolatli "
         "organ qabul qiladi."
     )
+
+
+class JarimaRasmJavob(BaseModel):
+    """Rasmdan o'qilgan ma'lumot va uning asosidagi tekshiruv.
+
+    `oqilgan` foydalanuvchiga KO'RSATILADI: model xato o'qishi mumkin va odam
+    uni tuzatib, qaytadan tekshirtira olishi kerak.
+    """
+    oqilgan: JarimaSorov
+    tekshiruv: JarimaJavob
 
 
 class ShikoyatSorov(BaseModel):

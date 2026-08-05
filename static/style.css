@@ -673,3 +673,11 @@ body {
   line-height: 1.55;
 }
 .shikoyat-yoli li { margin: 5px 0; }
+.jarima-rasm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+}
+.jarima-rasm .vosita-tugma { margin: 0; }

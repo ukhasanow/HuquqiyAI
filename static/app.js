@@ -71,6 +71,18 @@
         "jarimaning qonuniyligi ko'pincha muddatga bog'liq.")
     );
 
+    // Rasm yuklash: qarorni qo'lda ko'chirib yozishdan ko'ra tez va xatosizroq
+    const rasmBlok = el("div", "jarima-rasm");
+    const rasmYorliq = el("label", "vosita-tugma", "📷 Qaror rasmini yuklash");
+    const rasmKirish = el("input");
+    rasmKirish.type = "file";
+    rasmKirish.accept = "image/*";
+    rasmKirish.hidden = true;
+    rasmYorliq.appendChild(rasmKirish);
+    const rasmHolati = el("span", "ovoz-holati");
+    rasmBlok.append(rasmYorliq, rasmHolati);
+    ich.appendChild(rasmBlok);
+
     const forma = el("form", "jarima-forma");
     const maydonlar = [
       ["hodisa_sanasi", "Qoidabuzarlik sodir bo'lgan sana", "date"],
@@ -108,6 +120,37 @@
     x.appendChild(ich);
     chat.appendChild(x);
     pastgaSur();
+
+    // Rasm o'qilgach maydonlar to'ldiriladi — foydalanuvchi ularni ko'rib,
+    // tuzatib, keyin o'zi "Tekshirish" bosadi. Model xato o'qishi mumkin.
+    rasmKirish.addEventListener("change", async () => {
+      const fayl = rasmKirish.files[0];
+      if (!fayl) return;
+      rasmHolati.textContent = "Qaror o'qilmoqda...";
+      try {
+        const fd = new FormData();
+        fd.append("fayl", fayl);
+        const javob = await fetch("/api/jarima/rasm", { method: "POST", body: fd });
+        const d = await javob.json();
+        if (!javob.ok) {
+          rasmHolati.textContent = d.detail || "Rasmni o'qib bo'lmadi";
+          return;
+        }
+        const o = d.oqilgan;
+        Object.entries(kiritishlar).forEach(([nomi, kiritish]) => {
+          if (o[nomi] !== null && o[nomi] !== undefined && o[nomi] !== "") {
+            kiritish.value = o[nomi];
+          }
+        });
+        kamera.checked = Boolean(o.kamera);
+        rasmHolati.textContent = "✓ O'qildi — tekshirib, kerak bo'lsa tuzating";
+        jarimaJavobQosh(d.tekshiruv, o);
+      } catch (err) {
+        rasmHolati.textContent = "Server bilan bog'lanib bo'lmadi";
+      } finally {
+        rasmKirish.value = "";
+      }
+    });
 
     forma.addEventListener("submit", async (e) => {
       e.preventDefault();

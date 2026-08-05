@@ -80,6 +80,36 @@ belgilaydi. Ro'yxatda bo'lmagan modda bo'yicha kamera jarimasi solingan bo'lsa �
 bu mustaqil asos. Shu moddaga ko'ra kamera jarimasida **takroriylik hisobga
 olinmaydi**.
 
+### Noqonuniy radar (YPX nizomi, VM 975-son)
+
+Nizomning ikki bandi jarima qarorini shunchaki "bekor qilinadigan" emas, balki
+**yuridik kuchga ega bo'lmagan** qilib qo'yadi:
+
+- **28-band** — sertifikatga ega bo'lmagan, sertifikat muddati tugagan yoki
+  ichki ishlar organlari hisobida bo'lmagan tezlik o'lchash vositasi asosida
+  chiqarilgan qarorlar *«yuridik kuchga ega bo'lmaydi va huquqiy oqibatlar
+  keltirib chiqarmaydi»*.
+- **32-band** — radarni patrul avtomobilidan **o'zboshimchalik bilan yechib
+  olish**, begona transport vositalariga o'rnatish va xizmatga aloqasi
+  bo'lmagan fuqarolarni jalb qilish **qat'iyan taqiqlanadi**; bunday holda
+  chiqarilgan qarorlar ham yuridik kuchga ega bo'lmaydi.
+
+Aynan shu — "uch oyoqli radar" (trenoga) holati. Tekshiruvda radar turi
+so'raladi va `trenoga` tanlansa 32-band bo'yicha asos ko'rsatiladi. Qo'shimcha:
+**33 va 34-bandlar** kameralar va ko'chma radarlar joyi tasdiqlangan
+dislokatsiya bilan belgilanishini talab qiladi — shikoyatda o'sha kungi
+dislokatsiya nusxasini so'rash mumkin.
+
+### Qaror rasmini yuklash
+
+`POST /api/jarima/rasm` (saytda tugma, botda oddiy surat yuborish) qaror
+suratidan sana, modda, band, tezlik va summani o'qiydi. **AI faqat matnni
+o'qiydi** — huquqiy xulosani baribir arifmetik tekshiruvlar beradi. O'qilgan
+qiymatlar javobda qaytariladi va foydalanuvchiga ko'rsatiladi: model sanani
+xato o'qisa, butun xulosa noto'g'ri bo'lardi, shuning uchun uni tuzatish
+imkoni bo'lishi shart. Chegaradan tashqari qiymatlar (masalan 900 km/soat)
+tashlab yuboriladi.
+
 ### Eskirgan argument ataylab ishlatilmaydi
 
 Vazirlar Mahkamasining 2018-yil 1-dekabrdagi 975-son qarori (31-band) ko'chma
@@ -155,7 +185,7 @@ lex.uz'dan olib bo'lmagan matnlar to'qib chiqarilmaydi — ular bazada
 `needs_verification` deb belgilanadi va UI'da "matn tekshirilmoqda" ko'rinishida,
 faqat lex.uz havolasi bilan chiqadi.
 
-### Baza: 587 modda/band, 14 ta hujjat
+### Baza: 602 modda/band, 15 ta hujjat
 
 Barcha modda matnlari `tools/lex_import.py` orqali lex.uz'dan olingan
 (`verified`) — qo'lda ham, AI orqali ham yozilmagan (pastda "Bazani to'ldirish").
@@ -204,7 +234,7 @@ app/
 │   └── documents.py     # PDF/DOCX matn ajratish
 └── bot/                 # Telegram bot (handlers, formatlash, holat)
 data/
-├── qonunlar.json        # 587 modda/band, 14 hujjat (hammasi lex.uz'dan)
+├── qonunlar.json        # 602 modda/band, 15 hujjat (hammasi lex.uz'dan)
 └── organlar.json        # organlar va kontaktlar bazasi
 tools/
 └── lex_import.py        # lex.uz'dan modda import qilish

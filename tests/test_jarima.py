@@ -482,3 +482,171 @@ def test_bekor_qilingan_talab_tavsiya_qilinmaydi():
     t = _tekshiruv(javob, "Kamera orqali")
     assert "bekor qilingan" in t.izoh
     assert "sertifikatni talab qiling" not in t.izoh
+
+
+# ---------- Radar qonuniyligi (YPX nizomi, 28 va 32-bandlar) ----------
+
+def test_ypx_bandlari_bazada_va_oqibat_yozilgan():
+    """28 va 32-bandlar "yuridik kuchga ega bo'lmaydi" deydi — tekshiruv
+    aynan shu kuchli oqibatga tayanadi."""
+    from app import storage
+
+    for mid in (jarima.SERTIFIKAT_MODDASI, jarima.RADAR_MODDASI):
+        m = storage.modda_top(mid)
+        assert m, f"{mid} bazada yo'q"
+        assert "yuridik kuchga ega boʻlmaydi" in m["matn"]
+
+
+def test_trenoga_radar_asos_beradi():
+    """Uch oyoqli tagliksa o'rnatilgan radar — 32-band taqiqi."""
+    javob = jarima.jarimani_tekshir(_sorov(radar_turi="trenoga"), bugun=BUGUN)
+    t = _tekshiruv(javob, "Radar patrul avtomobilidan")
+    assert t.holat == "asos"
+    assert t.modda.id == "ypx-32"
+    assert "yuridik kuchga ega bo'lmaydi" in t.izoh
+
+
+def test_begona_shaxs_asos_beradi():
+    javob = jarima.jarimani_tekshir(_sorov(begona_shaxs=True), bugun=BUGUN)
+    t = _tekshiruv(javob, "Radarni kim ishlatgan")
+    assert t.holat == "asos"
+
+
+def test_sertifikat_tekshiruvi_har_radarda_boladi():
+    for turi in ("trenoga", "kochma", "patrul"):
+        javob = jarima.jarimani_tekshir(_sorov(radar_turi=turi), bugun=BUGUN)
+        t = _tekshiruv(javob, "Radar sertifikati")
+        assert t.modda.id == "ypx-28"
+
+
+def test_kochma_radarda_dislokatsiya_soraladi():
+    javob = jarima.jarimani_tekshir(_sorov(radar_turi="kochma"), bugun=BUGUN)
+    t = _tekshiruv(javob, "Radar dislokatsiyaga")
+    assert t.modda.id == "ypx-34"
+
+
+def test_statsionar_kamerada_yechib_olish_asosi_yoq():
+    """Doimiy kamerani patrul avtomobilidan yechib olib bo'lmaydi."""
+    javob = jarima.jarimani_tekshir(_sorov(radar_turi="statsionar"), bugun=BUGUN)
+    assert not any(t.nomi.startswith("Radar patrul") for t in javob.tekshiruvlar)
+    assert _tekshiruv(javob, "Radar qonuniy o'rnatilganmi").modda.id == "ypx-33"
+
+
+def test_radar_turi_korsatilmasa_tekshiruv_yoq():
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True), bugun=BUGUN)
+    assert not any(t.nomi.startswith("Radar") for t in javob.tekshiruvlar)
+
+
+# ---------- Qaror rasmidan o'qish ----------
+
+class _SoxtaJavob:
+    def __init__(self, malumot):
+        self._m = malumot
+        self.status_code = 200
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._m
+
+
+def _gemini_rasm_javobi(natija):
+    import json as _json
+
+    return {"candidates": [{"content": {"parts": [{"text": _json.dumps(natija)}]}}]}
+
+
+def test_rasmdan_maydonlar_oqiladi(monkeypatch):
+    monkeypatch.setattr(jarima, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(jarima.httpx, "post", lambda *a, **k: _SoxtaJavob(
+        _gemini_rasm_javobi({
+            "hodisa_sanasi": "2026-07-20", "qaror_sanasi": "2026-08-01",
+            "modda": "128-3", "band": "79", "summa": "1 875 000 so'm",
+            "qaror_raqami": "KM-447", "qayd_etilgan_tezlik": 88,
+            "ruxsat_etilgan_tezlik": 70, "kamera": True, "jarima_bhm": 5,
+        })))
+    sorov = jarima.rasmdan_oqi(b"rasm-baytlari", "image/png")
+    assert sorov.hodisa_sanasi == date(2026, 7, 20)
+    assert sorov.qaror_sanasi == date(2026, 8, 1)
+    assert sorov.modda == "128-3"
+    assert sorov.qayd_etilgan_tezlik == 88
+    assert sorov.jarima_bhm == 5
+    assert sorov.kamera is True
+
+
+def test_rasmdan_oqilgan_sana_turli_shaklda(monkeypatch):
+    monkeypatch.setattr(jarima, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(jarima.httpx, "post", lambda *a, **k: _SoxtaJavob(
+        _gemini_rasm_javobi({"qaror_sanasi": "01.08.2026"})))
+    assert jarima.rasmdan_oqi(b"x").qaror_sanasi == date(2026, 8, 1)
+
+
+def test_rasmdan_bosh_qiymatlar_none_boladi(monkeypatch):
+    """Model ko'rmagan maydonni o'ylab topmasligi kerak."""
+    monkeypatch.setattr(jarima, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(jarima.httpx, "post", lambda *a, **k: _SoxtaJavob(
+        _gemini_rasm_javobi({"hodisa_sanasi": None, "modda": None})))
+    sorov = jarima.rasmdan_oqi(b"x")
+    assert sorov.hodisa_sanasi is None
+    assert sorov.modda == ""
+
+
+def test_rasmdan_notogri_tezlik_tashlanadi(monkeypatch):
+    """Model 900 km/soat qaytarsa, u hisobga olinmasligi kerak."""
+    monkeypatch.setattr(jarima, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(jarima.httpx, "post", lambda *a, **k: _SoxtaJavob(
+        _gemini_rasm_javobi({"qayd_etilgan_tezlik": 900, "ruxsat_etilgan_tezlik": 70})))
+    sorov = jarima.rasmdan_oqi(b"x")
+    assert sorov.qayd_etilgan_tezlik is None
+    assert sorov.ruxsat_etilgan_tezlik == 70
+
+
+def test_bosh_rasm_rad_etiladi():
+    import pytest as _pytest
+
+    with _pytest.raises(jarima.RasmXato):
+        jarima.rasmdan_oqi(b"")
+
+
+def test_katta_rasm_rad_etiladi():
+    import pytest as _pytest
+
+    with _pytest.raises(jarima.RasmXato) as e:
+        jarima.rasmdan_oqi(b"x" * (jarima.MAX_RASM_HAJMI + 1))
+    assert "juda katta" in str(e.value)
+
+
+def test_provayder_yoq_bolsa_tushunarli_xato(monkeypatch):
+    import pytest as _pytest
+
+    monkeypatch.setattr(jarima, "GEMINI_API_KEY", "")
+    with _pytest.raises(jarima.RasmXato) as e:
+        jarima.rasmdan_oqi(b"rasm")
+    assert "qo'lda kiriting" in str(e.value)
+
+
+def test_rasm_endpointi_oqilganni_ham_qaytaradi(monkeypatch):
+    """O'qilgan qiymatlar foydalanuvchiga ko'rsatilishi shart: model sanani
+    xato o'qisa, butun xulosa noto'g'ri bo'ladi."""
+    from app.models import JarimaSorov as _S
+
+    monkeypatch.setattr(jarima, "rasmdan_oqi", lambda *a, **k: _S(
+        hodisa_sanasi=date(2026, 4, 1), qaror_sanasi=date(2026, 7, 1), kamera=True))
+    r = client.post("/api/jarima/rasm",
+                    files={"fayl": ("qaror.png", b"soxta-rasm", "image/png")})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["oqilgan"]["hodisa_sanasi"] == "2026-04-01"
+    assert d["tekshiruv"]["asoslar_soni"] >= 1
+
+
+def test_rasm_endpointi_xatoni_tushunarli_qaytaradi(monkeypatch):
+    def portla(*a, **k):
+        raise jarima.RasmXato("Rasmni o'qib bo'lmadi.")
+
+    monkeypatch.setattr(jarima, "rasmdan_oqi", portla)
+    r = client.post("/api/jarima/rasm",
+                    files={"fayl": ("qaror.png", b"x", "image/png")})
+    assert r.status_code == 422
+    assert "o'qib bo'lmadi" in r.json()["detail"]

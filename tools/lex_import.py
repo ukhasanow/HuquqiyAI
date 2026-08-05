@@ -65,6 +65,12 @@ HUJJATLAR: Dict[str, Tuple[str, str, str, str]] = {
     # Qoidalar — Qonundan ALOHIDA hujjat. Jarima qarorida ikkalasi ham
     # ko'rsatiladi: MJK moddasi (javobgarlik) va Qoidalar bandi (nima buzilgan).
     "yhqoida": ("-5953883", "yhqoida", "O'zbekiston Respublikasining Yo'l harakati qoidalari", "band"),
+    # Radar va boshqa maxsus moslamalardan foydalanish tartibi. Jarima
+    # qonuniyligi uchun hal qiluvchi: 28 va 32-bandlar talablarga rioya
+    # qilinmay chiqarilgan qarorlar yuridik kuchga ega emasligini belgilaydi.
+    "ypxnizom": ("-4089917", "ypx",
+                 "Yo'l-patrul xizmati nizomi (Vazirlar Mahkamasining 2018-yil "
+                 "1-dekabrdagi 975-son qarori)", "band"),
 }
 
 # Kuchini yo'qotgan, ATAYLAB ishlatilmaydigan tahrirlar — bir xil nom bilan

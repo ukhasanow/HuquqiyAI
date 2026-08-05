@@ -56,6 +56,9 @@ SAVOLLAR = [
     ("temir yo'l kesishmasidan qanday o'tish kerak", "yhqoida"),
     ("quvib o'tish qachon taqiqlanadi", "yhqoida"),
     ("qayerda to'xtab turish mumkin emas", "yhqoida"),
+    # YPX nizomi — radardan foydalanish tartibi (jarima qonuniyligi uchun)
+    ("radar sertifikati bormi, tekshirsa bo'ladimi", "ypx"),
+    ("yo'l patrul xodimi meni to'xtatganda nima qilishi kerak", "ypx"),
     # Konstitutsiya
     ("ta'lim olish huquqim bormi", "konst"),
     ("pensiya olish huquqi konstitutsiyada bormi", "konst"),

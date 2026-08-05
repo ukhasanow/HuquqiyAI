@@ -589,6 +589,57 @@ async def ariza_telefon(xabar: Message, state: FSMContext) -> None:
     )
 
 
+# ---------- Jarima qarori rasmi ----------
+
+@router.message(F.photo)
+async def jarima_rasmi(xabar: Message) -> None:
+    """Jarima qarorining surati — o'qib, darhol tekshiriladi.
+
+    O'qilgan qiymatlar foydalanuvchiga KO'RSATILADI: model sanani xato
+    o'qisa, butun xulosa noto'g'ri bo'lardi va odam buni ko'rib turishi kerak.
+    """
+    if not jarima_xizmati.rasm_oqish_mavjud():
+        await xabar.answer(
+            "📷 Rasmdan o'qish bu serverda sozlanmagan. "
+            "Jarimani /jarima buyrug'i orqali qo'lda tekshiring."
+        )
+        return
+
+    id_ = xabar.chat.id
+    ruxsat, kutish = holat.cheklovdan_otdi(id_)
+    if not ruxsat:
+        await xabar.answer(
+            f"⏳ Juda ko'p so'rov yubordingiz. {kutish // 60 + 1} daqiqadan so'ng urinib ko'ring."
+        )
+        return
+
+    holati = await xabar.answer("📷 Qarorni o'qiyapman...")
+    try:
+        await xabar.bot.send_chat_action(chat_id=id_, action="typing")
+        # Telegram bir necha o'lchamda yuboradi, oxirgisi eng sifatlisi
+        buffer = await xabar.bot.download(xabar.photo[-1])
+        sorov = await asyncio.to_thread(jarima_xizmati.rasmdan_oqi, buffer.read(), "image/jpeg")
+    except jarima_xizmati.RasmXato as e:
+        await xabar.answer(f"⚠️ {e}")
+        return
+    except Exception:
+        log.exception("Jarima rasmini o'qib bo'lmadi (chat_id=%s)", id_)
+        await xabar.answer(
+            "⚠️ Rasmni o'qib bo'lmadi. /jarima orqali qo'lda kiritib ko'ring."
+        )
+        return
+    finally:
+        try:
+            await holati.delete()
+        except Exception:
+            pass
+
+    await _yubor(xabar, formatlash.oqilgan_jarima_xabari(sorov))
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    await _yubor(xabar, formatlash.jarima_xabari(javob))
+    await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{id_}")
+
+
 # ---------- Hujjat ----------
 
 @router.message(F.document)

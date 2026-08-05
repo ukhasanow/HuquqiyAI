@@ -175,6 +175,38 @@ JARIMA_DARAJA = {
 }
 
 
+def oqilgan_jarima_xabari(sorov) -> List[str]:
+    """Rasmdan o'qilgan ma'lumotlar — foydalanuvchi tekshirishi uchun.
+
+    Model sanani yoki tezlikni xato o'qishi mumkin, u holda butun xulosa
+    noto'g'ri bo'ladi. Shuning uchun o'qilgani albatta ko'rsatiladi.
+    """
+    qatorlar = ["📄 <b>Qarordan o'qidim:</b>\n"]
+    maydonlar = [
+        ("Qoidabuzarlik sanasi", sorov.hodisa_sanasi),
+        ("Qaror sanasi", sorov.qaror_sanasi),
+        ("Qaror raqami", sorov.qaror_raqami),
+        ("Modda", sorov.modda),
+        ("Qoidalar bandi", sorov.band),
+        ("Summa", sorov.summa),
+        ("Qayd etilgan tezlik", f"{sorov.qayd_etilgan_tezlik} km/soat"
+                                if sorov.qayd_etilgan_tezlik else ""),
+        ("Ruxsat etilgan tezlik", f"{sorov.ruxsat_etilgan_tezlik} km/soat"
+                                  if sorov.ruxsat_etilgan_tezlik else ""),
+        ("Kamera orqali", "ha" if sorov.kamera else ""),
+    ]
+    for nomi, qiymat in maydonlar:
+        if qiymat:
+            qatorlar.append(f"<b>{nomi}:</b> {_tozala(str(qiymat))}")
+    if len(qatorlar) == 1:
+        qatorlar.append("<i>Hech qanday ma'lumot o'qib bo'lmadi.</i>")
+    qatorlar.append(
+        "\n⚠️ <i>Noto'g'ri o'qilgan bo'lsa, /jarima orqali qo'lda kiriting — "
+        "xulosa aynan shu ma'lumotlarga tayanadi.</i>"
+    )
+    return bolaklarga_bol("\n".join(qatorlar))
+
+
 def jarima_xabari(javob) -> List[str]:
     """Jarima tekshiruvi natijasi."""
     if javob.asoslar_soni:
