@@ -1,4 +1,5 @@
 # So'rov/javob sxemalari (Pydantic)
+from datetime import date
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -94,6 +95,49 @@ class ShartnomaJavob(BaseModel):
         "Diqqat: bu tahlil tanishtiruv xarakteriga ega bo'lib, professional "
         "huquqiy maslahat o'rnini bosmaydi. Muhim shartnomani imzolashdan "
         "oldin advokat bilan maslahatlashing."
+    )
+
+
+class JarimaSorov(BaseModel):
+    """Jarima qarori ma'lumotlari.
+
+    Sanalar ataylab alohida maydonlarda: muddat hisobi jarimaning qonuniyligini
+    hal qiladigan asosiy narsa va uni erkin matndan taxmin qilib bo'lmaydi.
+    """
+    hodisa_sanasi: Optional[date] = None       # qoidabuzarlik sodir etilgan kun
+    qaror_sanasi: Optional[date] = None        # jarima qarori chiqarilgan kun
+    qaror_olingan_sanasi: Optional[date] = None  # qaror nusxasi qo'lga tekkan kun
+    kamera: bool = False                        # foto-video qayd etish vositasi orqalimi
+    modda: str = Field(default="", max_length=40)   # MJK moddasi, masalan "128-3"
+    band: str = Field(default="", max_length=40)    # Qoidalar bandi, masalan "106"
+    summa: str = Field(default="", max_length=60)
+    tavsif: str = Field(default="", max_length=2000)  # nima bo'lgani, o'z so'zlari bilan
+
+
+class JarimaTekshiruv(BaseModel):
+    """Bitta tekshiruv natijasi.
+
+    `holat`: "asos" — jarimani bekor qilish uchun asos bor;
+             "diqqat" — e'tibor talab qiladi, aniqlashtirish kerak;
+             "joyida" — bu jihatdan muammo ko'rinmayapti;
+             "noma'lum" — ma'lumot yetarli emas.
+    """
+    nomi: str
+    holat: str
+    izoh: str
+    modda: Optional[ModdaJavob] = None
+
+
+class JarimaJavob(BaseModel):
+    tekshiruvlar: List[JarimaTekshiruv]
+    asoslar_soni: int = 0            # nechta "asos" topildi
+    shikoyat_kunlari: Optional[int] = None  # shikoyat berishga qolgan kun
+    xulosa: str = ""
+    disclaimer: str = (
+        "Diqqat: bu tekshiruv tanishtiruv xarakteriga ega. Bu yerda jarima "
+        "\"noqonuniy\" deb e'lon qilinmaydi — faqat qonun bo'yicha tekshirishga "
+        "arziydigan asoslar ko'rsatiladi. Yakuniy qarorni sud yoki vakolatli "
+        "organ qabul qiladi."
     )
 
 

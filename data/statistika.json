@@ -61,9 +61,11 @@
       "pro": 0
     }
   },
-  "shartnoma_tahlillari": 14,
+  "shartnoma_tahlillari": 15,
   "shartnoma_turlari": {
-    "mehnat": 13,
+    "mehnat": 14,
     "ijara": 1
-  }
+  },
+  "jarima_tekshiruvlari": 5,
+  "jarima_asos_topildi": 3
 }

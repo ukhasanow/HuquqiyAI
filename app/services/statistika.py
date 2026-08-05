@@ -35,6 +35,8 @@ _BOSH_HOLAT = {
     "ovozli_javoblar": 0,  # TTS bilan yuborilgan javoblar
     "shartnoma_tahlillari": 0,
     "shartnoma_turlari": {},  # {"mehnat": 3, "ijara": 1, ...}
+    "jarima_tekshiruvlari": 0,
+    "jarima_asos_topildi": 0,  # shundan nechtasida bekor qilish asosi topilgan
     # Har manba bo'yicha to'liq kesim: bot va sayt ko'rsatkichlari bir joyda
     # turadi, lekin aralashmaydi — botning javob topilish ulushi saytnikidan
     # farq qiladi va buni ko'rmasdan bazani to'g'ri kengaytirib bo'lmaydi.
@@ -145,6 +147,24 @@ def shartnoma_hisobla(turi: str, foydalanuvchi_id: Optional[str] = None) -> None
         _saqla(s)
 
 
+def jarima_hisobla(asoslar_soni: int, foydalanuvchi_id: Optional[str] = None) -> None:
+    """Jarima tekshiruvini hisobga oladi.
+
+    Asos topilgan tekshiruvlar ulushi — funksiya haqiqatan foyda berayotganini
+    ko'rsatadigan yagona ko'rsatkich.
+    """
+    with _lock:
+        s = _oqi()
+        s["jarima_tekshiruvlari"] += 1
+        if asoslar_soni:
+            s["jarima_asos_topildi"] += 1
+        if foydalanuvchi_id:
+            fid = str(foydalanuvchi_id)[:64]
+            if fid not in s["foydalanuvchilar"]:
+                s["foydalanuvchilar"].append(fid)
+        _saqla(s)
+
+
 def ovozli_javob_hisobla() -> None:
     """Ovozli javob (TTS) yuborilganini hisobga oladi."""
     with _lock:
@@ -183,6 +203,8 @@ def statistika_oqi() -> dict:
         "manba_kesimi": s["manba_kesimi"],
         "shartnoma_tahlillari": s["shartnoma_tahlillari"],
         "shartnoma_turlari": s["shartnoma_turlari"],
+        "jarima_tekshiruvlari": s["jarima_tekshiruvlari"],
+        "jarima_asos_topildi": s["jarima_asos_topildi"],
         "mavzular": s["mavzular"],
         "kunlik_30": kunlik_30,
         "foydalanuvchilar_soni": len(s["foydalanuvchilar"]),

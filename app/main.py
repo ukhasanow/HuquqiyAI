@@ -24,11 +24,14 @@ from .models import (
     ArizaSorov,
     ChatJavob,
     ChatSorov,
+    JarimaJavob,
+    JarimaSorov,
     ModdaKiritish,
     OvozJavob,
     ShartnomaJavob,
 )
 from .services import ariza, documents, ovoz, statistika
+from .services import jarima as jarima_xizmati
 from .services import shartnoma as shartnoma_xizmati
 from .services.javob import AiSozlanmagan, AiXato, javob_ol, statistikani_yoz, uch_qismli_javob
 
@@ -128,6 +131,20 @@ async def hujjat_tahlili(
     except (AiSozlanmagan, AiXato) as e:
         raise _http_xato(e)
     fon.add_task(statistikani_yoz, javob, rejim, x_foydalanuvchi_id, savol, "sayt")
+    return javob
+
+
+@app.post("/api/jarima", response_model=JarimaJavob)
+def jarima_tekshiruvi(sorov: JarimaSorov, fon: BackgroundTasks,
+                      x_foydalanuvchi_id: Optional[str] = Header(None)):
+    """Jarima qarorini tekshiruv ro'yxati bo'yicha baholaydi.
+
+    AI ishlatilmaydi: jarimaning taqdirini muddatlar hal qiladi va sanalar
+    ayirmasini model taxmin qilishi mumkin emas. Shu sababli javob tez
+    qaytadi va provayder ishlamay qolganda ham ishlayveradi.
+    """
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
     return javob
 
 
