@@ -94,11 +94,18 @@ def _http_xato(e) -> HTTPException:
 
 @app.get("/health", include_in_schema=False)
 def health():
-    """Uptime monitoring va bosh sahifadagi ochiq hisoblagich uchun."""
+    """Uptime monitoring va bosh sahifadagi ochiq hisoblagich uchun.
+
+    `statistika_saqlash` — sozlash xatosini darhol ko'rsatadi: Render'da disk
+    vaqtinchalik, shuning uchun "fayl" qiymati statistika saqlanmasligini
+    anglatadi. Sir oshkor qilinmaydi, faqat qaysi usul faolligi.
+    """
     return {
         "holat": "ok",
         "moddalar_soni": len(storage.moddalarni_oqi()),
         "javoblar_soni": statistika.javoblar_soni(),
+        "statistika_saqlash": "tashqi" if statistika.tashqi_saqlash() else "fayl",
+        "bot": "yoqilgan" if telegram_bot.mavjud() else "o'chiq",
     }
 
 @app.post("/api/chat", response_model=ChatJavob)

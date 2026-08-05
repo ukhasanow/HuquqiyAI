@@ -247,3 +247,17 @@ def test_ovoz_endpointi_xatoni_tushunarli_qaytaradi(monkeypatch):
 def test_admin_parolsiz_yopiq():
     assert client.get("/api/admin/moddalar").status_code == 401
     assert client.get("/api/admin/moddalar", headers={"X-Admin-Parol": "xato"}).status_code == 401
+
+
+def test_health_sozlash_holatini_korsatadi():
+    """Render'da disk vaqtinchalik — "fayl" qiymati statistika
+    saqlanmasligini anglatadi va buni darhol ko'rish kerak."""
+    d = client.get("/health").json()
+    assert d["statistika_saqlash"] in ("tashqi", "fayl")
+    assert d["bot"] in ("yoqilgan", "o'chiq")
+
+
+def test_health_sir_oshkor_qilmaydi():
+    matn = client.get("/health").text
+    for sir in ("sk-ant", "AQ.", "upstash.io", "AAGnz"):
+        assert sir not in matn
