@@ -928,3 +928,75 @@ def test_notanish_buyruq_llm_ga_bormaydi(monkeypatch):
     _ishga_tushir(handlers.notanish_buyruq(xabar))
     assert not chaqirildi
     assert any("Bunday buyruq yo'q" in x for x in xabar.yuborilgan)
+
+
+# ---------- /start va /yordam ----------
+
+def test_start_barcha_imkoniyatlarni_sanaydi():
+    """/start — birinchi taassurot: odam bot nima qila olishini bilishi kerak."""
+    from app.bot import handlers
+
+    for kalit in ("Ovozli xabar", "Shartnoma", "Jarima", "shikoyat", "surat"):
+        assert kalit in handlers.SALOM, f"/start da yo'q: {kalit}"
+
+
+def test_yordam_barcha_buyruqlarni_sanaydi():
+    from app.bot import handlers
+
+    for buyruq in ("/jarima", "/rejim", "/ovoz", "/yordam"):
+        assert buyruq in handlers.YORDAM
+
+
+# ---------- Admin statistikasi ----------
+
+def test_statistika_faqat_admin_uchun(monkeypatch):
+    """Admin bo'lmaganga buyruq borligi ham oshkor qilinmasin."""
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers, "TELEGRAM_ADMIN_IDLAR", {"777"})
+    chaqirildi = []
+    monkeypatch.setattr(handlers.statistika_xizmati, "statistika_oqi",
+                        lambda: chaqirildi.append(1) or {})
+    xabar = SoxtaXabar("/statistika", chat_id=999)
+    _ishga_tushir(handlers.statistika_buyrugi(xabar))
+
+    assert not chaqirildi
+    assert any("Bunday buyruq yo'q" in x for x in xabar.yuborilgan)
+
+
+def test_admin_statistikani_koradi(monkeypatch):
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers, "TELEGRAM_ADMIN_IDLAR", {"777"})
+    monkeypatch.setattr(handlers.statistika_xizmati, "statistika_oqi", lambda: {
+        "jami_sorovlar": 100, "javob_topildi": 80,
+        "manba_kesimi": {"bot": {"jami": 60, "topildi": 50, "ovozli": 7,
+                                 "oddiy": 40, "pro": 20},
+                         "sayt": {"jami": 40, "topildi": 30, "ovozli": 2,
+                                  "oddiy": 35, "pro": 5}},
+        "foydalanuvchilar_soni": 25, "bot_foydalanuvchilar_soni": 15,
+        "sayt_foydalanuvchilar_soni": 10, "ovozli_javoblar": 5,
+        "shartnoma_tahlillari": 12, "shartnoma_turlari": {"mehnat": 8, "ijara": 4},
+        "jarima_tekshiruvlari": 30, "jarima_asos_topildi": 18,
+        "mavzular": {"mehnat": 40, "yol-harakati": 25},
+        "kunlik_30": [{"sana": "2026-08-06", "jami": 9, "topildi": 7}] * 30,
+        "topilmagan_savollar": [{"sana": "2026-08-06", "savol": "kosmik huquq"}],
+    })
+    xabar = SoxtaXabar("/statistika", chat_id=777)
+    _ishga_tushir(handlers.statistika_buyrugi(xabar))
+
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Jami so'rovlar:</b> 100" in matn
+    assert "80%" in matn                    # javob topilish ulushi
+    assert "Telegram bot" in matn and "Sayt" in matn
+    assert "Shartnoma tahlili: 12" in matn
+    assert "Jarima tekshiruvi: 30" in matn
+    assert "kosmik huquq" in matn           # topilmagan savollar
+
+
+def test_id_buyrugi_chat_idni_qaytaradi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar("/id", chat_id=12345)
+    _ishga_tushir(handlers.id_buyrugi(xabar))
+    assert any("12345" in x for x in xabar.yuborilgan)

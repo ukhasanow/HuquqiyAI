@@ -48,19 +48,31 @@
     const pro = (s.rejimlar && s.rejimlar.pro) || 0;
     const sayt = (s.manbalar && s.manbalar.sayt) || 0;
     const bot = (s.manbalar && s.manbalar.bot) || 0;
-    const foizTopildi = s.jami_sorovlar
-      ? Math.round((s.javob_topildi / s.jami_sorovlar) * 100) + "%"
-      : "—";
+    const foiz = (qism, butun) => (butun ? Math.round((qism / butun) * 100) + "%" : "—");
+    const kunlik = s.kunlik_30 || [];
+    const bugun = kunlik.length ? kunlik[kunlik.length - 1] : { jami: 0 };
+    const oxirgi7 = kunlik.slice(-7);
+    const hafta = oxirgi7.reduce((y, k) => y + (k.jami || 0), 0);
+    const oy = kunlik.reduce((y, k) => y + (k.jami || 0), 0);
+    const engFaol = kunlik.reduce((a, b) => ((b.jami || 0) > (a.jami || 0) ? b : a),
+                                  { jami: 0, sana: "—" });
+    const jarimalar = s.jarima_tekshiruvlari || 0;
+
     [
       ["Jami so'rovlar", s.jami_sorovlar],
+      ["Javob topilish ulushi", foiz(s.javob_topildi, s.jami_sorovlar)],
       ["Javob topildi / topilmadi", s.javob_topildi + " / " + s.javob_topilmadi],
-      ["Javob topilish ulushi", foizTopildi],
+      ["Bugun", bugun.jami || 0],
+      ["Oxirgi 7 kun", hafta],
+      ["Kuniga o'rtacha (30 kun)", (oy / 30).toFixed(1)],
+      ["Eng faol kun", (engFaol.jami || 0) + " · " + (engFaol.sana || "—")],
       ["Sayt / Telegram bot", sayt + " / " + bot],
       ["🎤 Ovozli savol / 🔊 javob", (s.ovozli_sorovlar || 0) + " / " + (s.ovozli_javoblar || 0)],
       ["📋 Shartnoma tahlillari", s.shartnoma_tahlillari || 0],
+      ["🚗 Jarima tekshiruvi", jarimalar],
       [
-        "🚗 Jarima tekshiruvi (asos topilgan)",
-        (s.jarima_tekshiruvlari || 0) + " (" + (s.jarima_asos_topildi || 0) + ")",
+        "🚗 Asos topilgan jarimalar",
+        (s.jarima_asos_topildi || 0) + " (" + foiz(s.jarima_asos_topildi || 0, jarimalar) + ")",
       ],
       ["Oddiy / Pro", oddiy + " / " + pro],
       [

@@ -51,6 +51,16 @@ TELEGRAM_WEBHOOK_URL = _webhook_manzili(os.getenv("TELEGRAM_WEBHOOK_URL", ""))
 # Manzilning o'zi maxfiy emas — sir shu header'da.
 TELEGRAM_WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
 
+
+# Bot statistikasini ko'ra oladigan chat ID lar (vergul bilan).
+# Parol emas, ID ishlatiladi: Telegram'da parol yozish uni suhbat tarixida
+# ochiq qoldiradi, chat ID ni esa boshqa odam soxtalashtira olmaydi.
+def _admin_idlar(xom: str) -> set:
+    return {q.strip() for q in (xom or "").split(",") if q.strip()}
+
+
+TELEGRAM_ADMIN_IDLAR = _admin_idlar(os.getenv("TELEGRAM_ADMIN_IDLAR", ""))
+
 # Ovozli xabar cheklovlari (5-bosqich)
 MAX_OVOZ_DAVOMIYLIGI = 60  # soniya
 MAX_OVOZ_HAJMI = 20 * 1024 * 1024

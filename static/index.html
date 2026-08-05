@@ -8,13 +8,15 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/logo-192.png">
   <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-  <link rel="stylesheet" href="/static/style.css?v=5">
+  <link rel="stylesheet" href="/static/style.css?v=6">
 </head>
 <body>
   <header class="sarlavha">
     <div class="sarlavha-ich">
       <div class="logo"><img src="/static/logo-192.png" alt="HuquqiyAI logotipi"> <span>Huquqiy<b>AI</b></span></div>
       <div class="sarlavha-ong">
+        <a class="bot-havola" href="https://t.me/HuquqiyAIbot" target="_blank" rel="noopener"
+           title="Telegram botda ochish">✈️ Telegram bot</a>
         <span id="baza-chip" class="baza-chip" title="Bazadagi tekshirilgan moddalar soni"></span>
         <div class="rejim-tanlash" role="radiogroup" aria-label="Rejim">
           <button id="rejim-oddiy" class="rejim-tugma faol" data-rejim="oddiy">Oddiy odam</button>
@@ -30,12 +32,21 @@
         <div class="avatar"><img src="/static/logo-192.png" alt=""></div>
         <div class="xabar-ich">
           <p><b>Assalomu alaykum!</b> Men — HuquqiyAI, O'zbekiston qonunlari bo'yicha yordamchingizman.</p>
-          <p>Savolingizni yozing yoki hujjat (PDF/DOCX) yuklang. Har bir javobda:</p>
+          <p>Savolingizni yozing. Har bir javobda:</p>
           <ol>
             <li><b>Qonun moddasi</b> — asl matn, lex.uz havolasi bilan</li>
             <li><b>Umumiy tavsiya</b> — nima qilish kerakligi</li>
             <li><b>Qayerga murojaat qilish</b> — organ va kontaktlar</li>
           </ol>
+          <p><b>Yana nima qila olaman:</b></p>
+          <ul class="imkoniyatlar">
+            <li>🎤 <b>Ovozli savol</b> — mikrofon tugmasini bosing</li>
+            <li>📋 <b>Shartnoma tahlili</b> — mehnat, ijara, kredit yoki oldi-sotdi
+                shartnomasini yuklang, har bandni qonun bilan solishtiraman</li>
+            <li>🚗 <b>Jarima tekshiruvi</b> — muddat, tezlik hisobi va radar
+                qonuniyligi; kerak bo'lsa shikoyat qoralamasi</li>
+            <li>📄 <b>PDF, DOCX yoki hujjat surati</b> — 📎 tugmasi orqali</li>
+          </ul>
           <p class="misollar">Masalan: <button class="misol">Ish beruvchi meni asossiz ishdan bo'shatmoqchi, nima qilay?</button>
           <button class="misol">Sotib olgan telefonim nuqsonli chiqdi, qaytarib bera olamanmi?</button>
           <button class="misol">Ajrashganda bola alimenti qanday undiriladi?</button>
@@ -43,6 +54,7 @@
           <button class="misol">Tilxat bilan qarz bergandim, qaytarmayapti. Qanday undirsam bo'ladi?</button></p>
           <p class="vosita-qator">
             <button type="button" id="jarima-och" class="vosita-tugma">🚗 Jarima qonuniyligini tekshirish</button>
+            <a class="vosita-tugma" href="https://t.me/HuquqiyAIbot" target="_blank" rel="noopener">✈️ Telegramda ochish</a>
           </p>
           <p id="hisoblagich" class="hisoblagich"></p>
         </div>
@@ -67,6 +79,6 @@
     <p class="pastki-eslatma">HuquqiyAI professional huquqiy maslahat o'rnini bosmaydi. Manba: <a href="https://lex.uz" target="_blank" rel="noopener">lex.uz</a></p>
   </main>
 
-  <script src="/static/app.js?v=12"></script>
+  <script src="/static/app.js?v=13"></script>
 </body>
 </html>

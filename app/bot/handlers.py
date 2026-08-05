@@ -22,11 +22,17 @@ from aiogram.types import (
 )
 
 from .. import storage
-from ..config import MAX_HUJJAT_HAJMI, MAX_OVOZ_DAVOMIYLIGI, MAX_OVOZ_HAJMI
+from ..config import (
+    MAX_HUJJAT_HAJMI,
+    MAX_OVOZ_DAVOMIYLIGI,
+    MAX_OVOZ_HAJMI,
+    TELEGRAM_ADMIN_IDLAR,
+)
 from ..services import ariza as ariza_xizmati
 from ..models import JarimaSorov
 from ..services import documents, ovoz
 from ..services import jarima as jarima_xizmati
+from ..services import statistika as statistika_xizmati
 from ..services import shartnoma as shartnoma_xizmati
 from ..services.javob import (
     AiSozlanmagan,
@@ -43,28 +49,44 @@ from . import formatlash, holat
 log = logging.getLogger(__name__)
 router = Router()
 
+# /start — birinchi taassurot. Odam bu yerda "bu bot menga nima bera oladi?"
+# degan savolga javob olishi kerak, shuning uchun imkoniyatlar aniq harakat
+# ko'rinishida yozilgan ("surat yuboring"), umumiy gap emas.
 SALOM = (
-    "Assalomu alaykum! Men <b>HuquqiyAI</b> — O'zbekiston qonunchiligi bo'yicha yordamchiman.\n\n"
-    "Savolingizni oddiy so'zlar bilan yozing, men sizga:\n"
-    "1️⃣ qonunning <b>asl moddasini</b> (o'zgartirmasdan, lex.uz havolasi bilan)\n"
-    "2️⃣ amaliy tavsiya\n"
-    "3️⃣ qaysi organga murojaat qilishni — aytaman.\n\n"
-    "📄 PDF/DOCX hujjat yuborsangiz, uni tahlil qilaman.\n\n"
-    "<i>Masalan: «Ish haqimni 2 oydan beri bermayapti, nima qilay?»</i>"
+    "Assalomu alaykum! Men <b>HuquqiyAI</b> — O'zbekiston qonunchiligi bo'yicha "
+    "yordamchingizman.\n\n"
+    "<b>Nima qila olaman:</b>\n\n"
+    "✍️ <b>Savolingizni yozing</b> — qonunning <b>asl moddasi</b> "
+    "(o'zgartirilmagan, lex.uz havolasi bilan), amaliy tavsiya va qaysi organga "
+    "murojaat qilish kerakligini aytaman\n\n"
+    "🎤 <b>Ovozli xabar yuboring</b> — tinglab, matnga o'girib javob beraman. "
+    "Javobni ham ovozli olishingiz mumkin\n\n"
+    "📋 <b>Shartnoma yuboring</b> (mehnat, ijara, kredit, oldi-sotdi) — har "
+    "bandni qonun bilan solishtirib, xavflilarini ko'rsataman\n\n"
+    "🚗 <b>Jarima keldimi?</b> Qaror suratini yuboring yoki /jarima buyrug'ini "
+    "bosing — muddat, tezlik hisobi va radar qonuniyligini tekshirib, kerak "
+    "bo'lsa <b>shikoyat qoralamasini</b> tayyorlab beraman\n\n"
+    "📄 <b>PDF, DOCX yoki hujjat surati</b> — huquqiy tahlil qilaman\n\n"
+    "<i>Masalan: «Ish haqimni 2 oydan beri bermayapti, nima qilay?»</i>\n\n"
+    "⚠️ <i>Bergan ma'lumotim tanishtiruv xarakteriga ega va professional "
+    "huquqiy maslahat o'rnini bosmaydi.</i>"
 )
 
 YORDAM = (
     "<b>Nima qila olaman</b>\n\n"
-    "• Savolingizni yozing — qonun moddasi, tavsiya va murojaat organi bilan javob beraman\n"
-    "• 🎤 Ovozli xabar yuboring — tinglab, matnga o'girib javob beraman\n"
-    "• 📄 PDF, DOCX yoki TXT hujjat yuboring — huquqiy tahlil qilaman\n"
-    "• 🚗 <b>/jarima</b> — yo'l jarimasi qonuniyligini qonun bo'yicha tekshiraman\n"
-    "• Javobdan keyin «Ariza tayyorlash» tugmasi chiqadi\n\n"
+    "✍️ <b>Matnli savol</b> — qonun moddasi, tavsiya va murojaat organi\n"
+    "🎤 <b>Ovozli xabar</b> — tinglab, matnga o'girib javob beraman\n"
+    "📋 <b>Shartnoma</b> (fayl yoki surat) — band-band tahlil, xavf darajasi bilan\n"
+    "🚗 <b>Jarima qarori</b> (surat yoki /jarima) — qonuniyligini tekshiraman\n"
+    "📄 <b>PDF / DOCX / surat</b> — huquqiy tahlil\n"
+    "📝 Javobdan keyin <b>ariza</b>, jarimadan keyin <b>shikoyat</b> qoralamasi\n\n"
     "<b>Buyruqlar</b>\n"
-    "/rejim — javob uslubi: <b>oddiy</b> (sodda til) yoki <b>pro</b> (protsessual tafsilotlar)\n"
     "/jarima — jarima qonuniyligini tekshirish\n"
+    "/rejim — javob uslubi: <b>oddiy</b> (sodda til) yoki <b>pro</b> (protsessual tafsilotlar)\n"
     "/ovoz — javobni ovozli ham yuborish sozlamasi\n"
     "/yordam — shu xabar\n\n"
+    "<b>Maslahat:</b> jarima yoki shartnomani qo'lda ko'chirib yozmang — "
+    "shunchaki <b>suratini yuboring</b>, o'zim o'qib olaman.\n\n"
     "⚠️ <i>Bergan ma'lumotim tanishtiruv xarakteriga ega va professional huquqiy "
     "maslahat o'rnini bosmaydi. Rasmiy manba — lex.uz</i>"
 )
@@ -332,6 +354,38 @@ async def ovoz_tanlandi(soro: CallbackQuery) -> None:
     yangi = holat.ovoz_belgila(soro.message.chat.id, soro.data.split(":", 1)[1])
     await soro.message.edit_reply_markup(reply_markup=_ovoz_tugmalari(yangi))
     await soro.answer(f"Ovozli javob: {yangi}")
+
+
+# ---------- Admin ----------
+
+def _adminmi(chat_id: int) -> bool:
+    return str(chat_id) in TELEGRAM_ADMIN_IDLAR
+
+
+@router.message(Command("statistika"))
+async def statistika_buyrugi(xabar: Message) -> None:
+    """Bot va sayt ko'rsatkichlari — faqat admin uchun.
+
+    Parol so'ralmaydi: Telegram'da yozilgan parol suhbat tarixida ochiq
+    qoladi. Chat ID esa foydalanuvchi tomonidan soxtalashtirilmaydi.
+    """
+    if not _adminmi(xabar.chat.id):
+        # Buyruq borligini oshkor qilmaymiz — noma'lum buyruq kabi javob
+        await notanish_buyruq(xabar)
+        return
+    s = await asyncio.to_thread(statistika_xizmati.statistika_oqi)
+    moddalar = len(storage.moddalarni_oqi())
+    await _yubor(xabar, formatlash.statistika_xabari(s, moddalar))
+
+
+@router.message(Command("id"))
+async def id_buyrugi(xabar: Message) -> None:
+    """Chat ID — admin ro'yxatiga qo'shish uchun kerak bo'ladi."""
+    await xabar.answer(
+        f"Sizning chat ID: <code>{xabar.chat.id}</code>\n\n"
+        "<i>Statistikani ko'rish uchun bu ID ni TELEGRAM_ADMIN_IDLAR "
+        "muhit o'zgaruvchisiga qo'shing.</i>"
+    )
 
 
 # ---------- Jarima tekshiruvi ----------
@@ -827,8 +881,8 @@ async def notanish_buyruq(xabar: Message) -> None:
     """
     await xabar.answer(
         "Bunday buyruq yo'q. Mavjud buyruqlar:\n"
-        "/rejim — javob uslubi\n"
         "/jarima — jarima qonuniyligini tekshirish\n"
+        "/rejim — javob uslubi\n"
         "/ovoz — ovozli javob sozlamasi\n"
         "/yordam — nima qila olaman\n\n"
         "Savolingizni oddiy matn bilan yozsangiz ham bo'ladi."

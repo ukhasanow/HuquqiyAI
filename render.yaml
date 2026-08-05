@@ -32,6 +32,9 @@ services:
         sync: false
       - key: TELEGRAM_WEBHOOK_SECRET
         sync: false
+      # Botda /statistika ko'ra oladigan chat ID lar
+      - key: TELEGRAM_ADMIN_IDLAR
+        sync: false
       # Webhook manzili — Render xizmatning o'z hostini beradi (sxemasiz,
       # https:// config.py da qo'shiladi)
       - key: TELEGRAM_WEBHOOK_URL

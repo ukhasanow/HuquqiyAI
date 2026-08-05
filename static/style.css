@@ -681,3 +681,18 @@ body {
   margin: 8px 0 4px;
 }
 .jarima-rasm .vosita-tugma { margin: 0; }
+.bot-havola {
+  font-size: .8rem;
+  color: var(--urgu);
+  text-decoration: none;
+  border: 1px solid var(--chiziq);
+  border-radius: 999px;
+  padding: 4px 11px;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.bot-havola:hover { background: var(--krem); border-color: var(--urgu); }
+.imkoniyatlar { padding-left: 20px; margin-top: 6px; }
+.imkoniyatlar li { margin: 5px 0; }
+.vosita-qator { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+a.vosita-tugma { text-decoration: none; display: inline-block; }

@@ -246,9 +246,22 @@ static/                  # chat UI + admin sahifa (sof HTML/JS)
 Bot saytdagi bilan **aynan bir xil** javob oqimini ishlatadi
 (`app/services/javob.py`) — mantiq takrorlanmaydi, kesh ham umumiy.
 
-Imkoniyatlari: savol-javob, **ovozli xabar**, **ovozli javob**, PDF/DOCX hujjat
-tahlili, `/rejim` (oddiy/pro), `/ovoz` (ovozli javob sozlamasi), javob ostidan
-ariza qoralamasini `.txt` fayl qilib olish.
+**Bot:** [@HuquqiyAIbot](https://t.me/HuquqiyAIbot) — saytning bosh sahifasida
+ham havolasi bor.
+
+Imkoniyatlari: savol-javob, **ovozli xabar** va **ovozli javob**, PDF/DOCX/surat
+tahlili, **shartnoma tahlili**, **jarima tekshiruvi** (`/jarima` yoki qaror
+surati), `/rejim` (oddiy/pro), `/ovoz`, javob ostidan ariza yoki shikoyat
+qoralamasini `.txt` fayl qilib olish.
+
+**Admin statistikasi.** `TELEGRAM_ADMIN_IDLAR` ga qo'shilgan chat ID
+`/statistika` buyrug'i orqali bot va sayt ko'rsatkichlarini ko'radi: so'rovlar,
+javob topilish ulushi, manba kesimi, ovozli savol/javob, shartnoma va jarima
+vositalari, eng ko'p mavzular, oxirgi 7 kun va javob topilmagan savollar.
+Parol emas, **chat ID** ishlatiladi: Telegram'da yozilgan parol suhbat
+tarixida ochiq qoladi, chat ID ni esa foydalanuvchi soxtalashtira olmaydi.
+Admin bo'lmaganga buyruq borligi ham oshkor qilinmaydi. O'z ID ingizni bilish
+uchun botga `/id` yozing.
 
 **Botdagi javob saytdagidan batafsilroq.** Botda ekran cheklovi yo'q, shuning
 uchun javob alohida **umumiy xulosa** bilan boshlanadi ("qonun bo'yicha
@@ -388,6 +401,7 @@ cp .env.example .env
 | `TELEGRAM_BOT_TOKEN` | Bot tokeni (@BotFather). Bo'sh bo'lsa bot o'chiq, sayt oldingidek ishlaydi |
 | `TELEGRAM_WEBHOOK_URL` | Ilovaning tashqi manzili. Berilsa webhook avtomatik o'rnatiladi |
 | `TELEGRAM_WEBHOOK_SECRET` | Webhook so'rovini tekshirish uchun tasodifiy satr |
+| `TELEGRAM_ADMIN_IDLAR` | Botda `/statistika` ko'ra oladigan chat ID lar (vergul bilan). O'z ID ingizni botga `/id` yozib bilib olasiz |
 | `OPENAI_API_KEY` | Ovozni matnga o'girish zaxirasi (ixtiyoriy; asosiysi — Gemini) |
 | `TTS_PROVAYDER` | Ovozli javob: `gemini` yoki `yoq` (standart: `yoq`) |
 | `GEMINI_TTS_MODEL` | TTS modeli (standart: `gemini-2.5-flash-preview-tts`) |

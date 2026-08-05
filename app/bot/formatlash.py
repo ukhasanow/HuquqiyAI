@@ -175,6 +175,72 @@ JARIMA_DARAJA = {
 }
 
 
+def statistika_xabari(s: dict, moddalar_soni: int) -> List[str]:
+    """Admin uchun bot va sayt ko'rsatkichlari."""
+    jami = s.get("jami_sorovlar", 0)
+    topildi = s.get("javob_topildi", 0)
+    kesim = s.get("manba_kesimi", {})
+    bot = kesim.get("bot", {})
+    sayt = kesim.get("sayt", {})
+
+    def ulush(qism, butun):
+        return f"{round(qism / butun * 100)}%" if butun else "—"
+
+    qatorlar = [
+        "📊 <b>HuquqiyAI statistikasi</b>\n",
+        f"<b>Jami so'rovlar:</b> {jami}",
+        f"<b>Javob topildi:</b> {topildi} ({ulush(topildi, jami)})",
+        f"<b>Foydalanuvchilar:</b> {s.get('foydalanuvchilar_soni', 0)} "
+        f"(bot {s.get('bot_foydalanuvchilar_soni', 0)} · "
+        f"sayt {s.get('sayt_foydalanuvchilar_soni', 0)})",
+        f"<b>Bazada:</b> {moddalar_soni} modda/band",
+        "",
+        "🤖 <b>Telegram bot</b>",
+        f"So'rovlar: {bot.get('jami', 0)} · topildi: {ulush(bot.get('topildi', 0), bot.get('jami', 0))}",
+        f"Ovozli savol: {bot.get('ovozli', 0)} · ovozli javob: {s.get('ovozli_javoblar', 0)}",
+        f"Oddiy / Pro: {bot.get('oddiy', 0)} / {bot.get('pro', 0)}",
+        "",
+        "🌐 <b>Sayt</b>",
+        f"So'rovlar: {sayt.get('jami', 0)} · topildi: {ulush(sayt.get('topildi', 0), sayt.get('jami', 0))}",
+        f"Ovozli savol: {sayt.get('ovozli', 0)}",
+        "",
+        "🧰 <b>Vositalar</b>",
+        f"📋 Shartnoma tahlili: {s.get('shartnoma_tahlillari', 0)}",
+        f"🚗 Jarima tekshiruvi: {s.get('jarima_tekshiruvlari', 0)} "
+        f"(asos topilgani: {s.get('jarima_asos_topildi', 0)})",
+    ]
+
+    turlar = s.get("shartnoma_turlari") or {}
+    if turlar:
+        eng = sorted(turlar.items(), key=lambda x: -x[1])[:5]
+        qatorlar.append("Shartnoma turlari: " + ", ".join(f"{t} — {n}" for t, n in eng))
+
+    mavzular = s.get("mavzular") or {}
+    if mavzular:
+        eng = sorted(mavzular.items(), key=lambda x: -x[1])[:5]
+        qatorlar += ["", "🏷 <b>Eng ko'p mavzular</b>"]
+        qatorlar += [f"{i}. {_tozala(m)} — {n}" for i, (m, n) in enumerate(eng, 1)]
+
+    kunlik = s.get("kunlik_30") or []
+    if kunlik:
+        oxirgi_7 = kunlik[-7:]
+        hafta = sum(k.get("jami", 0) for k in oxirgi_7)
+        qatorlar += [
+            "",
+            f"📅 <b>Oxirgi 7 kun:</b> {hafta} so'rov "
+            f"(kuniga o'rtacha {round(hafta / 7, 1)})",
+            f"Bugun: {kunlik[-1].get('jami', 0)}",
+        ]
+
+    topilmagan = s.get("topilmagan_savollar") or []
+    if topilmagan:
+        qatorlar += ["", f"❓ <b>Javob topilmagan savollar:</b> {len(topilmagan)} ta"]
+        for t in topilmagan[:5]:
+            qatorlar.append(f"• <i>{_tozala(str(t.get('savol', ''))[:90])}</i>")
+
+    return bolaklarga_bol("\n".join(qatorlar))
+
+
 def oqilgan_jarima_xabari(sorov) -> List[str]:
     """Rasmdan o'qilgan ma'lumotlar — foydalanuvchi tekshirishi uchun.
 
