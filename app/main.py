@@ -125,7 +125,7 @@ async def hujjat_tahlili(
     if len(bayt) > MAX_HUJJAT_HAJMI:
         raise HTTPException(status_code=413, detail="Fayl hajmi 10 MB dan oshmasligi kerak")
     try:
-        matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt)
+        matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt, fayl.content_type or "")
     except documents.HujjatXato as e:
         raise HTTPException(status_code=422, detail=str(e))
     try:
@@ -218,7 +218,7 @@ async def shartnoma_tahlili(
     if len(bayt) > MAX_HUJJAT_HAJMI:
         raise HTTPException(status_code=413, detail="Fayl hajmi 10 MB dan oshmasligi kerak")
     try:
-        matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt)
+        matn = documents.matn_ajrat(fayl.filename or "hujjat", bayt, fayl.content_type or "")
     except documents.HujjatXato as e:
         raise HTTPException(status_code=422, detail=str(e))
     try:

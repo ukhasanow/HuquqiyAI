@@ -188,3 +188,82 @@ def test_shartnoma_endpointi_notogri_format():
     r = client.post("/api/shartnoma",
                     files={"fayl": ("rasm.png", b"\x89PNG\r\n", "image/png")})
     assert r.status_code == 422
+
+
+# ---------- Hujjat surati (OCR) ----------
+
+class _SoxtaOcrJavob:
+    def __init__(self, malumot, holat=200):
+        self._m = malumot
+        self.status_code = holat
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"Client error '{self.status_code}'")
+
+    def json(self):
+        return self._m
+
+
+def _ocr_javobi(matn):
+    return {"candidates": [{"content": {"parts": [{"text": matn}]}}]}
+
+
+def test_rasmdan_matn_oqiladi(monkeypatch):
+    from app.services import documents
+
+    monkeypatch.setattr(documents, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(documents.httpx, "post",
+                        lambda *a, **k: _SoxtaOcrJavob(_ocr_javobi("  1.1. Band matni.  ")))
+    assert documents.rasm_matni(b"rasm") == "1.1. Band matni."
+
+
+def test_rasm_kengaytmasi_matn_ajratdan_otadi(monkeypatch):
+    """matn_ajrat rasmni ham qabul qilishi kerak — sayt va bot shu funksiyani
+    chaqiradi, ikkalasida alohida yo'l yozilmasin."""
+    from app.services import documents
+
+    monkeypatch.setattr(documents, "rasm_matni", lambda b, m="": "1.1. Rasmdan.")
+    assert documents.matn_ajrat("qaror.jpg", b"x") == "1.1. Rasmdan."
+    assert documents.matn_ajrat("hujjat", b"x", "image/png") == "1.1. Rasmdan."
+
+
+def test_notanish_format_rad_etiladi():
+    from app.services import documents
+
+    with pytest.raises(documents.HujjatXato) as e:
+        documents.matn_ajrat("fayl.exe", b"x")
+    assert "rasm" in str(e.value)
+
+
+def test_limit_xatosi_rasmga_agdarilmaydi(monkeypatch):
+    """429 da "suratni yorug'roq oling" deyish noto'g'ri — odam aybni o'z
+    rasmidan qidirib, qayta-qayta suratga oladi."""
+    from app.services import documents
+
+    monkeypatch.setattr(documents, "GEMINI_API_KEY", "kalit")
+    monkeypatch.setattr(documents.httpx, "post",
+                        lambda *a, **k: _SoxtaOcrJavob({}, holat=429))
+    with pytest.raises(documents.HujjatXato) as e:
+        documents.rasm_matni(b"rasm")
+    assert "limiti" in str(e.value)
+    assert "yorug'roq" not in str(e.value)
+
+
+def test_katta_rasm_rad_etiladi():
+    from app.services import documents
+
+    with pytest.raises(documents.HujjatXato) as e:
+        documents.rasm_matni(b"x" * (documents.MAX_RASM_HAJMI + 1))
+    assert "8 MB" in str(e.value)
+
+
+def test_shartnoma_endpointi_rasm_qabul_qiladi(monkeypatch):
+    from app.services import documents
+
+    monkeypatch.setattr(documents, "rasm_matni", lambda b, m="": MEHNAT_SHARTNOMASI)
+    monkeypatch.setattr(shartnoma.llm, "shartnoma_tahlil_yarat", lambda *a: _soxta_natija())
+    r = client.post("/api/shartnoma",
+                    files={"fayl": ("shartnoma.png", b"soxta-rasm", "image/png")})
+    assert r.status_code == 200
+    assert r.json()["shartnoma_turi"] == "mehnat"

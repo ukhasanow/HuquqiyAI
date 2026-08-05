@@ -611,16 +611,17 @@ async def ariza_telefon(xabar: Message, state: FSMContext) -> None:
 # ---------- Jarima qarori rasmi ----------
 
 @router.message(F.photo)
-async def jarima_rasmi(xabar: Message) -> None:
-    """Jarima qarorining surati — o'qib, darhol tekshiriladi.
+async def hujjat_rasmi(xabar: Message) -> None:
+    """Hujjat surati — matni o'qiladi va turiga qarab yo'naltiriladi.
 
-    O'qilgan qiymatlar foydalanuvchiga KO'RSATILADI: model sanani xato
-    o'qisa, butun xulosa noto'g'ri bo'lardi va odam buni ko'rib turishi kerak.
+    Surat shartnoma ham, jarima qarori ham bo'lishi mumkin. Foydalanuvchidan
+    so'ramaymiz: matn o'qilgach, shartnomaga o'xshasa band-band tahlil, aks
+    holda jarima tekshiruvi ishga tushadi.
     """
-    if not jarima_xizmati.rasm_oqish_mavjud():
+    if not documents.rasmdan_oqish_mavjud():
         await xabar.answer(
             "📷 Rasmdan o'qish bu serverda sozlanmagan. "
-            "Jarimani /jarima buyrug'i orqali qo'lda tekshiring."
+            "PDF/DOCX yuboring yoki /jarima orqali qo'lda kiriting."
         )
         return
 
@@ -632,26 +633,48 @@ async def jarima_rasmi(xabar: Message) -> None:
         )
         return
 
-    holati = await xabar.answer("📷 Qarorni o'qiyapman...")
+    holati = await xabar.answer("📷 Hujjatni o'qiyapman...")
     try:
         await xabar.bot.send_chat_action(chat_id=id_, action="typing")
         # Telegram bir necha o'lchamda yuboradi, oxirgisi eng sifatlisi
         buffer = await xabar.bot.download(xabar.photo[-1])
-        sorov = await asyncio.to_thread(jarima_xizmati.rasmdan_oqi, buffer.read(), "image/jpeg")
-    except jarima_xizmati.RasmXato as e:
+        rasm = buffer.read()
+        matn = await asyncio.to_thread(documents.rasm_matni, rasm, "image/jpeg")
+    except documents.HujjatXato as e:
         await xabar.answer(f"⚠️ {e}")
         return
     except Exception:
-        log.exception("Jarima rasmini o'qib bo'lmadi (chat_id=%s)", id_)
-        await xabar.answer(
-            "⚠️ Rasmni o'qib bo'lmadi. /jarima orqali qo'lda kiritib ko'ring."
-        )
+        log.exception("Hujjat rasmini o'qib bo'lmadi (chat_id=%s)", id_)
+        await xabar.answer("⚠️ Rasmni o'qib bo'lmadi. Suratni yorug'roq oling.")
         return
     finally:
         try:
             await holati.delete()
         except Exception:
             pass
+
+    if _shartnomaga_oxshaydi(matn):
+        await _shartnomani_tahlil_qil(xabar, matn)
+        return
+    await _jarima_rasmini_tekshir(xabar, rasm)
+
+
+async def _jarima_rasmini_tekshir(xabar: Message, rasm: bytes) -> None:
+    """Jarima qarori surati — maydonlar ajratib olinib, tekshiriladi.
+
+    O'qilgan qiymatlar foydalanuvchiga KO'RSATILADI: model sanani xato
+    o'qisa, butun xulosa noto'g'ri bo'lardi va odam buni ko'rib turishi kerak.
+    """
+    id_ = xabar.chat.id
+    try:
+        sorov = await asyncio.to_thread(jarima_xizmati.rasmdan_oqi, rasm, "image/jpeg")
+    except jarima_xizmati.RasmXato as e:
+        await xabar.answer(f"⚠️ {e}")
+        return
+    except Exception:
+        log.exception("Jarima rasmini o'qib bo'lmadi (chat_id=%s)", id_)
+        await xabar.answer("⚠️ Rasmni o'qib bo'lmadi. /jarima orqali qo'lda kiriting.")
+        return
 
     await _yubor(xabar, formatlash.oqilgan_jarima_xabari(sorov))
     javob = jarima_xizmati.jarimani_tekshir(sorov)
@@ -671,7 +694,8 @@ async def hujjat(xabar: Message) -> None:
     await xabar.bot.send_chat_action(chat_id=xabar.chat.id, action="typing")
     try:
         buffer = await xabar.bot.download(hujjat_fayl)
-        matn = documents.matn_ajrat(hujjat_fayl.file_name or "hujjat", buffer.read())
+        matn = documents.matn_ajrat(hujjat_fayl.file_name or "hujjat", buffer.read(),
+                                    hujjat_fayl.mime_type or "")
     except documents.HujjatXato as e:
         await xabar.answer(f"⚠️ {e}")
         return
