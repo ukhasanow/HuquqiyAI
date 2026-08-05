@@ -58,6 +58,37 @@ Tekshiruvlar (muddatlar MJK matnidan olingan):
 | **330** | qaror 3 oy ijroga qaratilmasa, ijro etilmaydi |
 | **309¹** | kamera jarimasi mashina egasiga yoziladi — boshqa shaxs boshqargan bo'lsa asos bor |
 | **281**, **311** | bayonnoma mazmuni va qaror nusxasi topshirilishi |
+| **128³** | tezlik jarimasida **5 km/soat chegirmasi** (pastda) |
+| **17¹** | kamera orqali qayd etiladigan moddalarning **yopiq ro'yxati** |
+
+### Tezlik jarimasi: 5 km/soat chegirmasi
+
+128³-moddaning oxirgi qismi o'lchash xatosi uchun **qayd etilgan tezlikdan
+soatiga 5 kilometr chegirib tashlashni** talab qiladi. Bu eng ko'p e'tibordan
+chetda qoladigan qoida va ikki xil asos beradi:
+
+- **Jarima umuman o'rinsiz.** 70 km/soat zonada radar 74 qayd etsa: 74 − 5 = 69,
+  ya'ni hisobga olinadigan oshirish yo'q.
+- **Jarima qismi noto'g'ri.** 70 zonada 95: chegirmasiz 25 km/soat (5 BHM),
+  chegirma bilan 20 km/soat (1 BHM) — summa besh baravar ortiqcha.
+
+Tizim ikkalasini ham hisoblab beradi (128³ qismlari: 20 gacha 1 BHM, 40 gacha 5,
+60 gacha 9, undan ortiq 15 BHM).
+
+**17¹-modda** kamera orqali qayd etiladigan huquqbuzarliklarning yopiq ro'yxatini
+belgilaydi. Ro'yxatda bo'lmagan modda bo'yicha kamera jarimasi solingan bo'lsa —
+bu mustaqil asos. Shu moddaga ko'ra kamera jarimasida **takroriylik hisobga
+olinmaydi**.
+
+### Eskirgan argument ataylab ishlatilmaydi
+
+Vazirlar Mahkamasining 2018-yil 1-dekabrdagi 975-son qarori (31-band) ko'chma
+radarda inspektordan ko'rsatkich va sertifikatni ko'rsatishni talab qilardi —
+Oliy sud 2023-yilda aynan shunga tayanib jarimani bekor qilgan. **Lekin bu talab
+2024-yil iyulda bekor qilindi** va endi mobil radarlar bayonnomasiz, 37-band
+tartibida rasmiylashtiriladi. Shu sababli tizim bu argumentni tavsiya qilmaydi
+va foydalanuvchini bundan ogohlantiradi — aks holda behuda shikoyatlar yozilardi.
+Buni test qo'riqlaydi.
 
 **Qaror qaysi holatda bekor qilinadi** — 321-modda to'rt asosni belgilaydi va
 ular tekshiruv ro'yxatiga kiritilgan: ishning bir tomonlama ko'rib chiqilishi;

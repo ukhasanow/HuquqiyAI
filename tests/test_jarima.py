@@ -381,3 +381,104 @@ def test_shikoyat_endpointi():
 def test_shikoyat_endpointi_fishsiz_422():
     r = client.post("/api/jarima/shikoyat", json={"fish": "", "jarima": {}})
     assert r.status_code == 422
+
+
+# ---------- 128³-modda: 5 km/soat chegirmasi ----------
+
+def test_chegirma_qonun_matnida_bor():
+    """Konstanta qonundan olingan — matn o'zgarsa test eslatadi."""
+    from app import storage
+
+    matn = storage.modda_top("mjk-128-3")["matn"]
+    assert "5 kilometr chegirib tashlangan holda" in matn
+    assert jarima.TEZLIK_CHEGIRMASI == 5
+
+
+def test_chegirmadan_keyin_oshirish_qolmasa_asos():
+    """70 zonada 74 qayd etilgan: 74-5=69, ya'ni oshirish yo'q."""
+    javob = jarima.jarimani_tekshir(_sorov(
+        qayd_etilgan_tezlik=74, ruxsat_etilgan_tezlik=70, kamera=True,
+    ), bugun=BUGUN)
+    t = _tekshiruv(javob, "Tezlik hisobi")
+    assert t.holat == "asos"
+    assert "jarima solish uchun asos yo'q" in t.izoh
+    assert t.modda.id == "mjk-128-3"
+
+
+def test_chegirma_chegarasida_aniq_hisoblanadi():
+    """75 → 75-5=70, oshirish 0 (asos). 76 → 71, oshirish 1 (jarima bor)."""
+    chegarada = jarima.jarimani_tekshir(_sorov(
+        qayd_etilgan_tezlik=75, ruxsat_etilgan_tezlik=70), bugun=BUGUN)
+    ustida = jarima.jarimani_tekshir(_sorov(
+        qayd_etilgan_tezlik=76, ruxsat_etilgan_tezlik=70), bugun=BUGUN)
+    assert _tekshiruv(chegarada, "Tezlik hisobi").holat == "asos"
+    assert _tekshiruv(ustida, "Tezlik hisobi").holat == "diqqat"
+
+
+def test_jarima_qismi_bhm_boyicha_hisoblanadi():
+    """128³ qismlari: 20 gacha 1 BHM, 40 gacha 5, 60 gacha 9, undan ortiq 15."""
+    assert jarima.kutilgan_bhm(1) == 1
+    assert jarima.kutilgan_bhm(20) == 1
+    assert jarima.kutilgan_bhm(21) == 5
+    assert jarima.kutilgan_bhm(40) == 5
+    assert jarima.kutilgan_bhm(41) == 9
+    assert jarima.kutilgan_bhm(60) == 9
+    assert jarima.kutilgan_bhm(61) == 15
+
+
+def test_chegirma_jarima_qismini_pasaytirsa_asos():
+    """95 km/soat, 70 zona: chegirmasiz 25 (5 BHM), chegirma bilan 20 (1 BHM)."""
+    javob = jarima.jarimani_tekshir(_sorov(
+        qayd_etilgan_tezlik=95, ruxsat_etilgan_tezlik=70, jarima_bhm=5,
+    ), bugun=BUGUN)
+    t = _tekshiruv(javob, "Tezlik hisobi")
+    assert t.holat == "asos"
+    assert "1 baravari" in t.izoh
+    assert "noto'g'ri tanlangan" in t.izoh
+
+
+def test_togri_hisoblangan_jarima_asos_bermaydi():
+    javob = jarima.jarimani_tekshir(_sorov(
+        qayd_etilgan_tezlik=95, ruxsat_etilgan_tezlik=70, jarima_bhm=1,
+    ), bugun=BUGUN)
+    assert _tekshiruv(javob, "Tezlik hisobi").holat == "diqqat"
+
+
+def test_tezliksiz_sorovda_tekshiruv_yoq():
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True), bugun=BUGUN)
+    assert not any(t.nomi.startswith("Tezlik hisobi") for t in javob.tekshiruvlar)
+
+
+# ---------- 17¹-modda: kamera moddalarining yopiq ro'yxati ----------
+
+def test_royxatda_yoq_modda_kamera_jarimasida_asos():
+    """131-modda (mastlik) kamera orqali qayd etilmaydi."""
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True, modda="131"), bugun=BUGUN)
+    t = _tekshiruv(javob, "Bu modda kamera")
+    assert t.holat == "asos"
+    assert "YOPIQ ro'yxatini" in t.izoh
+
+
+def test_royxatdagi_modda_joyida():
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True, modda="128-3"), bugun=BUGUN)
+    assert _tekshiruv(javob, "Bu modda kamera").holat == "joyida"
+
+
+def test_kamerasiz_jarimada_royxat_tekshirilmaydi():
+    javob = jarima.jarimani_tekshir(_sorov(kamera=False, modda="131"), bugun=BUGUN)
+    assert not any(t.nomi.startswith("Bu modda kamera") for t in javob.tekshiruvlar)
+
+
+def test_kamera_jarimasida_takroriylik_eslatiladi():
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True), bugun=BUGUN)
+    t = _tekshiruv(javob, "Takroriylik")
+    assert "takroriylik hisobga olinmaydi" in t.izoh.lower()
+
+
+def test_bekor_qilingan_talab_tavsiya_qilinmaydi():
+    """2024-yil iyulda inspektordan ko'rsatkich va sertifikat talab qilish
+    huquqi bekor qilingan — tizim eskirgan maslahat bermasligi kerak."""
+    javob = jarima.jarimani_tekshir(_sorov(kamera=True), bugun=BUGUN)
+    t = _tekshiruv(javob, "Kamera orqali")
+    assert "bekor qilingan" in t.izoh
+    assert "sertifikatni talab qiling" not in t.izoh

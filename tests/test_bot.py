@@ -813,7 +813,7 @@ def test_jarima_dialogi_asosni_topadi(monkeypatch):
         "qaror_sanasi": "2026-07-01",
         "kamera": True,
     }
-    xabar = SoxtaXabar("128-3", chat_id=141)
+    xabar = SoxtaXabar("135", chat_id=141)  # tezlik moddasi emas
     _ishga_tushir(handlers.jarima_modda(xabar, hol))
 
     matn = "\n".join(xabar.yuborilgan)
@@ -822,6 +822,46 @@ def test_jarima_dialogi_asosni_topadi(monkeypatch):
     # Tekshiruvdan keyin shikoyat qoralamasi taklif qilinadi
     assert hol.holat == handlers.JarimaHolati.fish
     assert "Shikoyat qoralamasini" in matn
+
+
+def test_tezlik_moddasida_tezlik_soraladi():
+    """128³ bo'lsa 5 km/soat chegirmasini hisoblash uchun tezliklar kerak."""
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.malumot = {"hodisa_sanasi": "2026-07-20", "qaror_sanasi": "2026-08-01"}
+    xabar = SoxtaXabar("128-3", chat_id=144)
+    _ishga_tushir(handlers.jarima_modda(xabar, hol))
+
+    assert hol.holat == handlers.JarimaHolati.tezlik
+    assert any("5 km/soat chegirib" in x for x in xabar.yuborilgan)
+
+
+def test_tezlik_javobidan_ikki_raqam_olinadi(monkeypatch):
+    from app.bot import handlers
+
+    monkeypatch.setattr(handlers, "jarimani_hisobla", lambda *a: None)
+    hol = SoxtaHolat()
+    hol.malumot = {"qaror_sanasi": "2026-08-01", "modda": "128-3", "kamera": True}
+    xabar = SoxtaXabar("74/70", chat_id=145)
+    _ishga_tushir(handlers.jarima_tezlik(xabar, hol))
+
+    assert hol.malumot["qayd_etilgan_tezlik"] == 74
+    assert hol.malumot["ruxsat_etilgan_tezlik"] == 70
+    matn = "\n".join(xabar.yuborilgan)
+    assert "74 − 5 = 69" in matn
+    assert "asos yo'q" in matn
+
+
+def test_tezlik_notogri_yozilsa_qayta_soraladi():
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.holat = handlers.JarimaHolati.tezlik
+    xabar = SoxtaXabar("tez ketayotgan edim", chat_id=146)
+    _ishga_tushir(handlers.jarima_tezlik(xabar, hol))
+    assert any("Ikkita raqam kerak" in x for x in xabar.yuborilgan)
+    assert hol.holat == handlers.JarimaHolati.tezlik
 
 
 def test_jarima_shikoyati_fayl_bolib_yuboriladi():

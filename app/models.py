@@ -113,6 +113,11 @@ class JarimaSorov(BaseModel):
     summa: str = Field(default="", max_length=60)
     qaror_raqami: str = Field(default="", max_length=60)
     tolangan: bool = False       # jarima allaqachon to'langanmi (324-modda)
+    # Tezlik oshirish jarimasi uchun (128³-modda): qayd etilgan tezlikdan
+    # 5 km/soat chegirib tashlanishi SHART
+    qayd_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=400)
+    ruxsat_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=200)
+    jarima_bhm: Optional[float] = Field(default=None, ge=0, le=100)  # necha baravar BHM
     tavsif: str = Field(default="", max_length=2000)  # nima bo'lgani, o'z so'zlari bilan
 
 

@@ -1,17 +1,18 @@
 {
-  "jami_sorovlar": 17,
-  "javob_topildi": 16,
-  "javob_topilmadi": 1,
+  "jami_sorovlar": 21,
+  "javob_topildi": 18,
+  "javob_topilmadi": 3,
   "rejimlar": {
-    "oddiy": 14,
+    "oddiy": 18,
     "pro": 3
   },
   "mavzular": {
     "fuqarolik": 6,
     "oila-sud": 2,
     "mehnat": 6,
-    "umumiy": 1,
-    "yol-harakati": 2
+    "umumiy": 3,
+    "yol-harakati": 3,
+    "ma'muriy": 1
   },
   "kunlik": {
     "2026-07-31": {
@@ -19,10 +20,10 @@
       "topildi": 8
     },
     "2026-08-05": {
-      "jami": 8,
-      "topildi": 8,
-      "sayt": 3,
-      "bot": 5
+      "jami": 12,
+      "topildi": 10,
+      "sayt": 4,
+      "bot": 8
     }
   },
   "foydalanuvchilar": [
@@ -37,35 +38,43 @@
     {
       "sana": "2026-07-31",
       "savol": "Onalik/otalikni belgilash: Bolaning otasini aniqlash yoki otalikni tan olmaslik."
+    },
+    {
+      "sana": "2026-08-05",
+      "savol": "Qanday bekor qila olama. Qollabma bormi"
+    },
+    {
+      "sana": "2026-08-05",
+      "savol": "salom qandaysan"
     }
   ],
   "manbalar": {
-    "sayt": 3,
-    "bot": 5
+    "sayt": 4,
+    "bot": 8
   },
-  "ovozli_sorovlar": 3,
-  "ovozli_javoblar": 3,
+  "ovozli_sorovlar": 4,
+  "ovozli_javoblar": 4,
   "manba_kesimi": {
     "sayt": {
-      "jami": 3,
-      "topildi": 3,
+      "jami": 4,
+      "topildi": 4,
       "ovozli": 0,
-      "oddiy": 2,
+      "oddiy": 3,
       "pro": 1
     },
     "bot": {
-      "jami": 5,
-      "topildi": 5,
-      "ovozli": 3,
-      "oddiy": 5,
+      "jami": 8,
+      "topildi": 6,
+      "ovozli": 4,
+      "oddiy": 8,
       "pro": 0
     }
   },
-  "shartnoma_tahlillari": 26,
+  "shartnoma_tahlillari": 31,
   "shartnoma_turlari": {
-    "mehnat": 25,
+    "mehnat": 30,
     "ijara": 1
   },
-  "jarima_tekshiruvlari": 30,
-  "jarima_asos_topildi": 15
+  "jarima_tekshiruvlari": 44,
+  "jarima_asos_topildi": 23
 }

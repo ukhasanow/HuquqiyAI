@@ -5,6 +5,7 @@
 import asyncio
 import html
 import logging
+import re
 from datetime import date, datetime
 from typing import List, Optional
 
@@ -95,7 +96,8 @@ class JarimaHolati(StatesGroup):
     qaror_sanasi = State()
     kamera = State()
     modda = State()
-    fish = State()   # shikoyat qoralamasi uchun
+    tezlik = State()  # faqat tezlik moddasi ko'rsatilganda so'raladi
+    fish = State()    # shikoyat qoralamasi uchun
 
 
 # ---------- Yordamchi ----------
@@ -400,9 +402,41 @@ async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
 @router.message(JarimaHolati.modda)
 async def jarima_modda(xabar: Message, state: FSMContext) -> None:
     modda = (xabar.text or "").strip()
-    malumot = await state.get_data()
     await state.update_data(modda="" if modda == "-" else modda[:40])
 
+    # Tezlik moddasi bo'lsa, 5 km/soat chegirmasini hisoblash uchun tezliklar
+    # kerak — bu eng ko'p asos beradigan tekshiruv.
+    if jarima_xizmati._mjk_id(modda) == jarima_xizmati.TEZLIK_MODDASI:
+        await state.set_state(JarimaHolati.tezlik)
+        await xabar.answer(
+            "<b>Tezlik.</b> Radar necha km/soat qayd etgan va o'sha joyda ruxsat "
+            "etilgan tezlik qancha edi?\n\n"
+            "Ikkalasini chiziq bilan yozing: <code>95/70</code>\n\n"
+            "<i>Qonun bo'yicha qayd etilgan tezlikdan 5 km/soat chegirib "
+            "tashlanishi shart — buni tekshirib beraman. Bilmasangiz «-».</i>"
+        )
+        return
+    await _jarima_natijasi(xabar, state)
+
+
+@router.message(JarimaHolati.tezlik)
+async def jarima_tezlik(xabar: Message, state: FSMContext) -> None:
+    matn = (xabar.text or "").strip()
+    if matn != "-":
+        raqamlar = re.findall(r"\d+", matn)
+        if len(raqamlar) < 2:
+            await xabar.answer(
+                "Ikkita raqam kerak: qayd etilgan tezlik va ruxsat etilgan tezlik, "
+                "masalan <code>95/70</code>. Bilmasangiz «-» yuboring."
+            )
+            return
+        await state.update_data(
+            qayd_etilgan_tezlik=int(raqamlar[0]), ruxsat_etilgan_tezlik=int(raqamlar[1])
+        )
+    await _jarima_natijasi(xabar, state)
+
+
+async def _jarima_natijasi(xabar: Message, state: FSMContext) -> None:
     sorov = _jarima_sorovi(await state.get_data())
     javob = jarima_xizmati.jarimani_tekshir(sorov)
     await _yubor(xabar, formatlash.jarima_xabari(javob))
@@ -425,6 +459,8 @@ def _jarima_sorovi(malumot: dict) -> JarimaSorov:
         qaror_sanasi=malumot.get("qaror_sanasi"),
         kamera=bool(malumot.get("kamera")),
         modda=malumot.get("modda", ""),
+        qayd_etilgan_tezlik=malumot.get("qayd_etilgan_tezlik"),
+        ruxsat_etilgan_tezlik=malumot.get("ruxsat_etilgan_tezlik"),
     )
 
 

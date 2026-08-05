@@ -32,7 +32,8 @@ MUDDAT_MODDASI = "mjk-36"
 ISTISNO_MODDASI = "mjk-271"
 SHIKOYAT_MODDASI = "mjk-316"
 IJRO_MODDASI = "mjk-330"
-KAMERA_MODDASI = "mjk-309-1"
+KAMERA_MODDASI = "mjk-17-1"        # kamera orqali qayd etiladigan moddalar ro'yxati
+QAROR_KAMERA_MODDASI = "mjk-309-1"  # kamera qarorining majburiy mazmuni
 BAYONNOMA_MODDASI = "mjk-281"
 QAROR_MODDASI = "mjk-311"
 ASOSLILIK_MODDASI = "mjk-321"   # qarorni bekor qilish asoslari
@@ -42,6 +43,28 @@ IJRO_TOXTASH_MODDASI = "mjk-318"   # shikoyat ijroni to'xtatadi
 QAYTARISH_MODDASI = "mjk-324"      # bekor qilinsa pul qaytariladi
 
 HOLATLAR = ("asos", "diqqat", "joyida", "noma'lum")
+
+TEZLIK_MODDASI = "mjk-128-3"
+
+# 128³-moddaning oxirgi qismi: "tezlikni oʻlchaydigan maxsus uskunalar va
+# transport vositalari spidometri koʻrsatkichlaridagi yoʻl qoʻyilishi mumkin
+# boʻlgan jami xatolar hisobga olinib, ularda qayd etilgan tezlikdan soatiga
+# 5 kilometr chegirib tashlangan holda, maʼmuriy jazo chorasi qoʻllaniladi."
+#
+# Ya'ni radar 5 km/soat xatolikka yo'l qo'yadi va u HAYDOVCHI foydasiga
+# hisoblanishi shart. Bu eng ko'p e'tibordan chetda qoladigan qoida.
+TEZLIK_CHEGIRMASI = 5
+
+# 128³-modda qismlari: (oshirish chegarasi km/soat, BHM baravari)
+TEZLIK_JARIMALARI = [(20, 1), (40, 5), (60, 9), (None, 15)]
+
+# 17¹-moddadagi YOPIQ ro'yxat: kamera orqali FAQAT shu moddalar qayd etiladi.
+# Ro'yxatda yo'q modda bo'yicha kamera jarimasi solingan bo'lsa — bu asos.
+KAMERA_MODDALARI = {
+    "mjk-125", "mjk-128", "mjk-128-1", "mjk-128-3", "mjk-128-4", "mjk-128-5",
+    "mjk-128-6", "mjk-128-7", "mjk-128-9", "mjk-128-10", "mjk-129", "mjk-130",
+    "mjk-135",
+}
 
 
 def _modda(modda_id: str) -> Optional[ModdaJavob]:
@@ -201,11 +224,16 @@ def _kamera_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
             "Kamera jarimasi transport vositasi egasiga yoziladi. Agar o'sha "
             "paytda mashinani boshqa shaxs boshqargan bo'lsa (ishonchnoma, "
             "ijara, sotilgan bo'lsa) yoki mashina o'g'irlangan bo'lsa, buni "
-            "dalillar bilan ko'rsatib shikoyat qilishingiz mumkin. Fotosurat "
-            "bilan tanishishni ham talab qiling: unda davlat raqami va "
-            "qoidabuzarlik aniq ko'rinishi kerak."
+            "dalillar bilan ko'rsatib shikoyat qilishingiz mumkin.\n\n"
+            "Qarorga huquqbuzarlik paytidagi <b>davlat raqami ko'rinadigan "
+            "tasvir</b> ilova qilinishi va qaror <b>uch kun ichida buyurtma "
+            "pochta jo'natmasi</b> bilan yuborilishi shart (309¹-modda). "
+            "Tasvir yo'q yoki raqam o'qilmaydigan bo'lsa — bu asos.\n\n"
+            "<i>Eslatma: ko'chma radarda inspektor ko'rsatkich va sertifikatni "
+            "ko'rsatishi shart edi, lekin bu talab 2024-yil iyulda bekor "
+            "qilingan — endi bu argument ish bermaydi.</i>"
         ),
-        modda=_modda(KAMERA_MODDASI),
+        modda=_modda(QAROR_KAMERA_MODDASI),
     )
 
 
@@ -372,6 +400,118 @@ def _shikoyat_yoli(sorov: JarimaSorov) -> List[str]:
     return qadamlar
 
 
+def kutilgan_bhm(oshirish: int) -> int:
+    """128³-modda qismlariga ko'ra jarima necha baravar BHM bo'lishi kerak."""
+    for chegara, baravar in TEZLIK_JARIMALARI:
+        if chegara is None or oshirish <= chegara:
+            return baravar
+    return TEZLIK_JARIMALARI[-1][1]
+
+
+def _tezlik_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
+    """128³-modda: qayd etilgan tezlikdan 5 km/soat CHEGIRIB tashlanadi.
+
+    Bu chegirma majburiy va haydovchi foydasiga ishlaydi. Ikki xil asos
+    beradi: chegirmadan keyin oshirish umuman qolmasa (jarima o'rinsiz) yoki
+    jarima qismi noto'g'ri tanlangan bo'lsa (summa ortiqcha).
+    """
+    qayd, ruxsat = sorov.qayd_etilgan_tezlik, sorov.ruxsat_etilgan_tezlik
+    if qayd is None or ruxsat is None:
+        return None
+
+    hisobga_olinadigan = qayd - TEZLIK_CHEGIRMASI
+    oshirish = hisobga_olinadigan - ruxsat
+    asos_matni = (
+        f"Radar {qayd} km/soat qayd etgan, ruxsat etilgan tezlik — {ruxsat} km/soat. "
+        f"128³-moddaga ko'ra o'lchash xatosi uchun {TEZLIK_CHEGIRMASI} km/soat "
+        f"chegirib tashlanishi SHART: {qayd} − {TEZLIK_CHEGIRMASI} = "
+        f"{hisobga_olinadigan} km/soat. "
+    )
+
+    if oshirish <= 0:
+        return JarimaTekshiruv(
+            nomi="Tezlik hisobi (5 km/soat chegirmasi)",
+            holat="asos",
+            izoh=(
+                asos_matni
+                + f"Bu ruxsat etilgan tezlikdan oshmaydi, ya'ni qonun bo'yicha "
+                f"hisobga olinadigan oshirish yo'q va jarima solish uchun asos yo'q."
+            ),
+            modda=_modda(TEZLIK_MODDASI),
+        )
+
+    kutilgan = kutilgan_bhm(oshirish)
+    izoh = (
+        asos_matni
+        + f"Hisobga olinadigan oshirish — {oshirish} km/soat, bunga 128³-modda "
+        f"bo'yicha bazaviy hisoblash miqdorining <b>{kutilgan} baravari</b> "
+        f"miqdorida jarima to'g'ri keladi."
+    )
+
+    if sorov.jarima_bhm is not None and sorov.jarima_bhm > kutilgan:
+        return JarimaTekshiruv(
+            nomi="Tezlik hisobi (5 km/soat chegirmasi)",
+            holat="asos",
+            izoh=(
+                izoh + f" Sizga esa {sorov.jarima_bhm:g} baravar solingan — "
+                f"jarima qismi noto'g'ri tanlangan, summa kamaytirilishi kerak."
+            ),
+            modda=_modda(TEZLIK_MODDASI),
+        )
+    return JarimaTekshiruv(
+        nomi="Tezlik hisobi (5 km/soat chegirmasi)",
+        holat="diqqat",
+        izoh=(
+            izoh + " Qarordagi summani shu bilan solishtiring: ko'p bo'lsa, "
+            "chegirma hisobga olinmagan bo'lishi mumkin."
+        ),
+        modda=_modda(TEZLIK_MODDASI),
+    )
+
+
+def _kamera_modda_royxati(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
+    """17¹-modda kamera orqali qayd etiladigan moddalarning YOPIQ ro'yxatini beradi."""
+    if not sorov.kamera or not sorov.modda:
+        return None
+    mid = _mjk_id(sorov.modda)
+    # "128-1" kabi qismli moddalar ham ro'yxatdagi asosiy modda bilan tekshiriladi
+    if mid in KAMERA_MODDALARI:
+        return JarimaTekshiruv(
+            nomi="Bu modda kamera orqali qayd etiladimi",
+            holat="joyida",
+            izoh=(
+                "Ha, bu modda 17¹-moddadagi ro'yxatda bor — kamera orqali qayd "
+                "etilishi mumkin."
+            ),
+            modda=_modda(KAMERA_MODDASI),
+        )
+    return JarimaTekshiruv(
+        nomi="Bu modda kamera orqali qayd etiladimi",
+        holat="asos",
+        izoh=(
+            f"17¹-modda kamera orqali qayd etiladigan huquqbuzarliklarning "
+            f"YOPIQ ro'yxatini belgilaydi va «{sorov.modda}» o'sha ro'yxatda "
+            f"ko'rinmayapti. Ro'yxatda bo'lmagan modda bo'yicha kamera jarimasi "
+            f"solinishi mumkin emas — buni shikoyatda birinchi o'ringa qo'ying."
+        ),
+        modda=_modda(KAMERA_MODDASI),
+    )
+
+
+def _takroriylik_eslatmasi() -> JarimaTekshiruv:
+    """17¹-modda: kamera jarimasida takroriylik hisobga OLINMAYDI."""
+    return JarimaTekshiruv(
+        nomi="Takroriylik hisobga olinganmi",
+        holat="diqqat",
+        izoh=(
+            "Kamera orqali qayd etilgan huquqbuzarlikda takroriylik hisobga "
+            "olinmaydi. Agar sizga «takroran sodir etgani uchun» og'irlashtirilgan "
+            "jarima solingan bo'lsa, bu shikoyat uchun asos."
+        ),
+        modda=_modda(KAMERA_MODDASI),
+    )
+
+
 def _mjk_id(modda: str) -> str:
     """"128³", "128-3", "128-3-modda" -> "mjk-128-3"."""
     USTKIDAN = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
@@ -412,9 +552,16 @@ def jarimani_tekshir(sorov: JarimaSorov, bugun: Optional[date] = None) -> Jarima
         _ijro_muhlati(sorov, bugun),
         shikoyat,
     ]
+    tezlik = _tezlik_tekshiruvi(sorov)
+    if tezlik:
+        tekshiruvlar.append(tezlik)
     kamera = _kamera_tekshiruvi(sorov)
     if kamera:
         tekshiruvlar.append(kamera)
+        tekshiruvlar.append(_takroriylik_eslatmasi())
+    kamera_royxati = _kamera_modda_royxati(sorov)
+    if kamera_royxati:
+        tekshiruvlar.append(kamera_royxati)
     tekshiruvlar.append(_modda_tekshiruvi(sorov))
     tekshiruvlar.append(_band_tekshiruvi(sorov))
     tekshiruvlar.append(_asoslilik_tekshiruvi())

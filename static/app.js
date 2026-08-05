@@ -79,6 +79,9 @@
       ["modda", "MJK moddasi (masalan 128-3)", "text"],
       ["band", "Qoidalar bandi (masalan 116)", "text"],
       ["summa", "Jarima summasi", "text"],
+      ["qayd_etilgan_tezlik", "Radar qayd etgan tezlik, km/soat", "number"],
+      ["ruxsat_etilgan_tezlik", "Ruxsat etilgan tezlik, km/soat", "number"],
+      ["jarima_bhm", "Jarima necha baravar BHM (bilsangiz)", "number"],
     ];
     const kiritishlar = {};
     maydonlar.forEach(([nomi, yorliq, turi]) => {
@@ -111,7 +114,8 @@
       tugma.disabled = true;
       const sorov = { kamera: kamera.checked };
       Object.entries(kiritishlar).forEach(([nomi, kiritish]) => {
-        if (kiritish.value) sorov[nomi] = kiritish.value;
+        if (!kiritish.value) return;
+        sorov[nomi] = kiritish.type === "number" ? Number(kiritish.value) : kiritish.value;
       });
       try {
         const javob = await fetch("/api/jarima", {
