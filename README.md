@@ -23,11 +23,15 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   foydalanuvchi faqat F.I.Sh kiritadi; hujjatda yoziladigan yagona joy — imzo)
 - **Uch yozuvda ishlaydi** — o'zbek lotin, o'zbek kirill va rus tilidagi
   savollarga o'sha til/yozuvda javob (kirill uchun transliteratsiyali qidiruv)
-- **Telegram bot** — matn va **ovozli xabar** orqali savol berish, hujjat tahlili
+- **Ovozli savol** — saytda ham, Telegram botda ham mikrofon orqali
+- **Telegram bot** — matn, **ovozli xabar** va hujjat orqali savol; javob
+  ovozli ham yuborilishi mumkin
 - **Admin sahifa** (`/admin`, parol bilan) — qonun moddalarini qo'shish/yangilash
-  va statistika: so'rovlar soni, javob topilish ulushi, **sayt/bot kesimi**,
-  ovozli so'rovlar, mavzular bo'yicha taqsimot, 30 kunlik grafik va
-  javob topilmagan savollar ro'yxati (bazani kengaytirish uchun)
+  va statistika: so'rovlar soni, javob topilish ulushi, **sayt va bot uchun
+  alohida kesim** (so'rovlar, topilish ulushi, foydalanuvchilar, oddiy/pro,
+  ovozli savol va javob), mavzular bo'yicha taqsimot, manba bo'yicha
+  ajratilgan 30 kunlik grafik va javob topilmagan savollar ro'yxati
+  (bazani kengaytirish uchun)
 
 ## Arxitektura: asl matn kafolati
 

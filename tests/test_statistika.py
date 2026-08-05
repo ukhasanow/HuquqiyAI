@@ -146,3 +146,51 @@ def test_eski_statistika_fayli_yangi_maydonlarsiz_ochiladi(vaqtinchalik_fayl):
     assert s["jami_sorovlar"] == 5
     assert s["manbalar"] == {"sayt": 0, "bot": 0}
     assert s["ovozli_sorovlar"] == 0
+
+
+# ---------- Manba kesimi (sayt va bot alohida) ----------
+
+def test_manba_kesimi_aralashmaydi(vaqtinchalik_fayl):
+    """Botning javob topilish ulushi saytnikidan farq qiladi — buni ko'rmasdan
+    bazani to'g'ri kengaytirib bo'lmaydi."""
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot", ovozli=True)
+    statistika.sorov_hisobla(rejim="pro", javob_topildi=False, manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="sayt")
+
+    kesim = statistika.statistika_oqi()["manba_kesimi"]
+    assert kesim["bot"] == {"jami": 2, "topildi": 1, "ovozli": 1, "oddiy": 1, "pro": 1}
+    assert kesim["sayt"] == {"jami": 1, "topildi": 1, "ovozli": 0, "oddiy": 1, "pro": 0}
+
+
+def test_kunlik_grafik_manbani_ajratadi(vaqtinchalik_fayl):
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="sayt")
+
+    bugun = statistika.statistika_oqi()["kunlik_30"][-1]
+    assert bugun["jami"] == 3
+    assert bugun["bot"] == 2
+    assert bugun["sayt"] == 1
+
+
+def test_ovozli_javoblar_alohida_hisoblanadi(vaqtinchalik_fayl):
+    statistika.ovozli_javob_hisobla()
+    statistika.ovozli_javob_hisobla()
+    assert statistika.statistika_oqi()["ovozli_javoblar"] == 2
+
+
+def test_eski_faylda_manba_kesimi_toldiriladi(vaqtinchalik_fayl):
+    """Ishlab turgan serverdagi faylda bu maydonlar yo'q — KeyError bermasin."""
+    vaqtinchalik_fayl.write_text(
+        '{"jami_sorovlar": 3, "kunlik": {"2020-01-01": {"jami": 3, "topildi": 2}}}',
+        encoding="utf-8",
+    )
+    s = statistika.statistika_oqi()
+    assert s["manba_kesimi"]["bot"]["jami"] == 0
+    assert s["ovozli_javoblar"] == 0
+    # Eski kunda manba ajratilmagan — grafik nolga tushib, yiqilmasligi kerak
+    assert all("bot" in k and "sayt" in k for k in s["kunlik_30"])
+
+    # Eski fayl ustiga yangi so'rov yozilsa ham buzilmasin
+    statistika.sorov_hisobla(rejim="oddiy", javob_topildi=True, manba="bot")
+    assert statistika.statistika_oqi()["manba_kesimi"]["bot"]["jami"] == 1

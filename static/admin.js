@@ -56,7 +56,7 @@
       ["Javob topildi / topilmadi", s.javob_topildi + " / " + s.javob_topilmadi],
       ["Javob topilish ulushi", foizTopildi],
       ["Sayt / Telegram bot", sayt + " / " + bot],
-      ["🎤 Ovozli so'rovlar", s.ovozli_sorovlar || 0],
+      ["🎤 Ovozli savol / 🔊 javob", (s.ovozli_sorovlar || 0) + " / " + (s.ovozli_javoblar || 0)],
       ["Oddiy / Pro", oddiy + " / " + pro],
       [
         "Foydalanuvchilar (sayt / bot)",
@@ -69,21 +69,34 @@
       kartalar.appendChild(k);
     });
 
-    // 30 kunlik grafik — oddiy CSS ustunlar, tashqi kutubxonasiz
+    // 30 kunlik grafik — oddiy CSS ustunlar, tashqi kutubxonasiz.
+    // Ustun ichida bot ulushi alohida rangda: sayt va bot o'sishi bir xil
+    // emas va buni bitta umumiy ustundan ko'rib bo'lmaydi.
     const grafik = document.getElementById("stat-grafik");
     grafik.innerHTML = "";
     const maks = Math.max(1, ...s.kunlik_30.map((k) => k.jami));
     s.kunlik_30.forEach((k) => {
+      const bot = k.bot || 0;
       const ustun = document.createElement("div");
       ustun.className = "stat-ustun";
-      ustun.title = k.sana + ": " + k.jami + " so'rov (" + k.topildi + " topildi)";
+      ustun.title =
+        k.sana + ": " + k.jami + " so'rov (" + k.topildi + " topildi)" +
+        (bot ? " · bot: " + bot : "");
       const bar = document.createElement("div");
       bar.className = "stat-bar";
       bar.style.height = Math.round((k.jami / maks) * 100) + "%";
       if (k.jami === 0) bar.classList.add("bosh");
+      if (bot && k.jami) {
+        const botUlush = document.createElement("div");
+        botUlush.className = "stat-bar-bot";
+        botUlush.style.height = Math.round((bot / k.jami) * 100) + "%";
+        bar.appendChild(botUlush);
+      }
       ustun.appendChild(bar);
       grafik.appendChild(ustun);
     });
+
+    renderManbalar(s);
 
     // Mavzular kesimi — gorizontal barlar
     const mavzular = document.getElementById("stat-mavzular");
@@ -118,6 +131,38 @@
       q.className = "topilmagan-qator";
       q.innerHTML = '<span class="topilmagan-sana">' + esc(t.sana) + "</span> " + esc(t.savol);
       topilmagan.appendChild(q);
+    });
+  }
+
+  // Sayt va bot yonma-yon: qaysi kanal ko'proq ishlatilayotgani va qaysi
+  // birida javob topilmayotgani darhol ko'rinsin.
+  function renderManbalar(s) {
+    const idish = document.getElementById("stat-manbalar");
+    idish.innerHTML = "";
+    const kesim = s.manba_kesimi || {};
+    [
+      ["🌐 Sayt", kesim.sayt || {}, s.sayt_foydalanuvchilar_soni || 0, null],
+      ["🤖 Telegram bot", kesim.bot || {}, s.bot_foydalanuvchilar_soni || 0, s.ovozli_javoblar || 0],
+    ].forEach(([nomi, k, foydalanuvchilar, ovozliJavoblar]) => {
+      const jami = k.jami || 0;
+      const qatorlar = [
+        ["So'rovlar", jami],
+        ["Javob topildi", (k.topildi || 0) + (jami ? " (" + Math.round(((k.topildi || 0) / jami) * 100) + "%)" : "")],
+        ["Foydalanuvchilar", foydalanuvchilar],
+        ["Oddiy / Pro", (k.oddiy || 0) + " / " + (k.pro || 0)],
+        ["🎤 Ovozli savol", k.ovozli || 0],
+      ];
+      if (ovozliJavoblar !== null) qatorlar.push(["🔊 Ovozli javob", ovozliJavoblar]);
+
+      const blok = document.createElement("div");
+      blok.className = "manba-blok";
+      blok.innerHTML =
+        '<div class="manba-nomi">' + esc(nomi) + "</div>" +
+        qatorlar
+          .map(([n, q]) =>
+            '<div class="manba-qator"><span>' + esc(n) + "</span><b>" + esc(String(q)) + "</b></div>")
+          .join("");
+      idish.appendChild(blok);
     });
   }
 

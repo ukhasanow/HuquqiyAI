@@ -487,6 +487,55 @@ body {
   transition: height .3s;
 }
 .stat-bar.bosh { background: var(--chiziq); }
+/* Ustunning yuqori qismi — bot ulushi */
+.stat-bar-bot {
+  width: 100%;
+  background: #7c9c6b;
+  border-radius: 3px 3px 0 0;
+}
+.grafik-izoh {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  font-size: .75rem;
+  color: var(--sokin);
+}
+.grafik-izoh i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+.grafik-izoh .rang-sayt { background: var(--urgu); }
+.grafik-izoh .rang-bot { background: #7c9c6b; }
+.stat-manbalar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.manba-blok {
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 10px;
+  padding: 12px;
+}
+.manba-nomi {
+  font-weight: 700;
+  font-size: .9rem;
+  margin-bottom: 8px;
+  color: var(--asosiy);
+}
+.manba-qator {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: .82rem;
+  color: var(--sokin);
+  padding: 3px 0;
+}
+.manba-qator b { color: var(--matn); }
 .mavzu-qator { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: .85rem; }
 .mavzu-nomi { flex: 0 0 110px; color: var(--matn); }
 .mavzu-bar {
