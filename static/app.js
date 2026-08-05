@@ -41,6 +41,117 @@
     faylNomi.textContent = faylInput.files.length ? faylInput.files[0].name : "";
   });
 
+  // ---- Ovozli savol ----
+  // Transkript to'g'ridan-to'g'ri YUBORILMAYDI, matn maydoniga qo'yiladi: nutq
+  // noto'g'ri tanilsa, odam buni javobdan oldin ko'rib tuzatadi (Telegram
+  // botdagi "Savolingiz: ..." shaffofligi bilan bir xil).
+  const mikrofon = document.getElementById("mikrofon");
+  const ovozHolati = document.getElementById("ovoz-holati");
+  const MAX_OVOZ_SONIYA = 60;
+
+  let yozuvchi = null;
+  let bolaklar = [];
+  let taymer = null;
+  let toxtatishTaymeri = null;
+
+  // MediaRecorder formatlari brauzerga qarab farq qiladi. Gemini ogg/mp4/wav
+  // ni ishonchli qabul qiladi, shuning uchun avval o'sha formatlar sinaladi.
+  function formatTanla() {
+    const nomzodlar = [
+      "audio/ogg;codecs=opus",
+      "audio/mp4",
+      "audio/webm;codecs=opus",
+      "audio/webm",
+    ];
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return "";
+    return nomzodlar.find((t) => MediaRecorder.isTypeSupported(t)) || "";
+  }
+
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    mikrofon.disabled = true;
+    mikrofon.title = "Brauzeringiz ovoz yozishni qo'llamaydi";
+  } else {
+    mikrofon.addEventListener("click", () => {
+      if (yozuvchi && yozuvchi.state === "recording") toxtat();
+      else boshla();
+    });
+  }
+
+  async function boshla() {
+    let oqim;
+    try {
+      oqim = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      ovozHolati.textContent = "Mikrofonga ruxsat berilmadi";
+      return;
+    }
+    const tur = formatTanla();
+    yozuvchi = new MediaRecorder(oqim, tur ? { mimeType: tur } : undefined);
+    bolaklar = [];
+    yozuvchi.addEventListener("dataavailable", (e) => {
+      if (e.data.size) bolaklar.push(e.data);
+    });
+    yozuvchi.addEventListener("stop", () => {
+      oqim.getTracks().forEach((t) => t.stop());
+      yubor(new Blob(bolaklar, { type: yozuvchi.mimeType || "audio/webm" }));
+    });
+    yozuvchi.start();
+
+    mikrofon.classList.add("yozilmoqda");
+    mikrofon.title = "To'xtatish";
+    ovozHolati.classList.add("yozilmoqda");
+    let soniya = 0;
+    ovozHolati.textContent = "● 0:00 — to'xtatish uchun bosing";
+    taymer = setInterval(() => {
+      soniya++;
+      const m = Math.floor(soniya / 60);
+      const s = String(soniya % 60).padStart(2, "0");
+      ovozHolati.textContent = `● ${m}:${s} — to'xtatish uchun bosing`;
+    }, 1000);
+    // Cheklovdan oshgan yozuvni serverga yubormaymiz — o'zi to'xtaydi
+    toxtatishTaymeri = setTimeout(toxtat, MAX_OVOZ_SONIYA * 1000);
+  }
+
+  function toxtat() {
+    clearInterval(taymer);
+    clearTimeout(toxtatishTaymeri);
+    mikrofon.classList.remove("yozilmoqda");
+    mikrofon.title = "Savolni ovoz bilan ayting";
+    ovozHolati.classList.remove("yozilmoqda");
+    if (yozuvchi && yozuvchi.state === "recording") yozuvchi.stop();
+  }
+
+  async function yubor(blob) {
+    if (!blob.size) {
+      ovozHolati.textContent = "";
+      return;
+    }
+    ovozHolati.textContent = "Tinglanmoqda...";
+    mikrofon.disabled = true;
+    try {
+      const fd = new FormData();
+      fd.append("fayl", blob, "ovoz." + (blob.type.includes("ogg") ? "ogg" : blob.type.includes("mp4") ? "m4a" : "webm"));
+      const javob = await fetch("/api/ovoz", { method: "POST", body: fd });
+      const d = await javob.json();
+      if (!javob.ok) {
+        ovozHolati.textContent = d.detail || "Ovozni o'girib bo'lmadi";
+        return;
+      }
+      if (!d.matn) {
+        ovozHolati.textContent = "Nutq eshitilmadi — qaytadan urinib ko'ring";
+        return;
+      }
+      ovozHolati.textContent = "";
+      savolInput.value = savolInput.value ? savolInput.value + " " + d.matn : d.matn;
+      savolInput.dispatchEvent(new Event("input"));
+      savolInput.focus();
+    } catch (err) {
+      ovozHolati.textContent = "Server bilan bog'lanib bo'lmadi";
+    } finally {
+      mikrofon.disabled = false;
+    }
+  }
+
   // Header chip: bazadagi moddalar soni + ochiq hisoblagich
   fetch("/health")
     .then((r) => r.json())

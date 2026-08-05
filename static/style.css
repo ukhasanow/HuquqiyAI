@@ -355,6 +355,24 @@ body {
   transition: background .15s;
 }
 .fayl-tugma:hover { background: var(--krem); }
+.mikrofon-tugma { background: none; font-family: inherit; }
+.mikrofon-tugma:disabled { opacity: .4; cursor: default; }
+/* Yozib olish ketayotgani aniq ko'rinsin — mikrofon jimgina yoqilib qolmasin */
+.mikrofon-tugma.yozilmoqda {
+  background: #fdecec;
+  border-color: #e0605f;
+  animation: mikrofon-purtak 1.2s ease-in-out infinite;
+}
+@keyframes mikrofon-purtak {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 96, 95, .45); }
+  50% { box-shadow: 0 0 0 5px rgba(224, 96, 95, 0); }
+}
+.ovoz-holati {
+  font-size: .78rem;
+  color: var(--sokin);
+  white-space: nowrap;
+}
+.ovoz-holati.yozilmoqda { color: #c8403f; }
 .fayl-nomi {
   font-size: .78rem;
   color: var(--urgu);

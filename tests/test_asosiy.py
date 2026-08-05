@@ -204,6 +204,46 @@ def test_ariza_endpoint_notogri_modda():
     assert r.status_code == 422
 
 
+def test_ovoz_endpointi_transkript_qaytaradi(monkeypatch):
+    """Saytdagi mikrofon botdagi AYNAN shu xizmatni ishlatadi."""
+    from app.services import ovoz
+
+    monkeypatch.setattr(ovoz, "mavjud", lambda: True)
+    monkeypatch.setattr(ovoz, "matnga_ogir", lambda *a, **k: "  Ish haqim berilmayapti  ")
+    r = client.post("/api/ovoz", files={"fayl": ("ovoz.ogg", b"opus", "audio/ogg")})
+    assert r.status_code == 200
+    assert r.json() == {"matn": "Ish haqim berilmayapti"}
+
+
+def test_ovoz_endpointi_sozlanmagan_bolsa_503(monkeypatch):
+    from app.services import ovoz
+
+    monkeypatch.setattr(ovoz, "mavjud", lambda: False)
+    r = client.post("/api/ovoz", files={"fayl": ("ovoz.ogg", b"opus", "audio/ogg")})
+    assert r.status_code == 503
+
+
+def test_ovoz_endpointi_katta_fayl_rad_etadi(monkeypatch):
+    from app.config import MAX_OVOZ_HAJMI
+    from app.services import ovoz
+
+    monkeypatch.setattr(ovoz, "mavjud", lambda: True)
+    r = client.post("/api/ovoz",
+                    files={"fayl": ("ovoz.ogg", b"x" * (MAX_OVOZ_HAJMI + 1), "audio/ogg")})
+    assert r.status_code == 413
+
+
+def test_ovoz_endpointi_xatoni_tushunarli_qaytaradi(monkeypatch):
+    from app.services import ovoz
+
+    monkeypatch.setattr(ovoz, "mavjud", lambda: True)
+    monkeypatch.setattr(ovoz, "matnga_ogir",
+                        lambda *a, **k: (_ for _ in ()).throw(ovoz.OvozXato("Matn bilan yozing.")))
+    r = client.post("/api/ovoz", files={"fayl": ("ovoz.ogg", b"opus", "audio/ogg")})
+    assert r.status_code == 422
+    assert "Matn bilan yozing." in r.json()["detail"]
+
+
 def test_admin_parolsiz_yopiq():
     assert client.get("/api/admin/moddalar").status_code == 401
     assert client.get("/api/admin/moddalar", headers={"X-Admin-Parol": "xato"}).status_code == 401

@@ -112,6 +112,14 @@ berilsa Whisper zaxira bo'ladi. Transkript foydalanuvchiga javobdan oldin
 ko'rsatiladi: nutq noto'g'ri tanilsa, u buni darhol ko'radi. Cheklov —
 60 soniya.
 
+**Saytda ovozli savol.** Sayt ham botdagi aynan shu xizmatni ishlatadi
+(`POST /api/ovoz` → `services/ovoz.py`). Brauzer `MediaRecorder` bilan yozadi;
+format brauzerga qarab farq qiladi, shuning uchun `audio/ogg;codecs=opus` →
+`audio/mp4` → `audio/webm` tartibida qo'llab-quvvatlanadigani tanlanadi.
+Gemini mime yorlig'ini qat'iy tekshirmaydi (mazmunni o'zi aniqlaydi), WAV va
+m4a to'liq sinovdan o'tgan. Transkript **yuborilmaydi**, matn maydoniga
+qo'yiladi — odam nutq noto'g'ri tanilganini ko'rib tuzata olsin.
+
 **Ovozli javob (TTS).** `TTS_PROVAYDER=gemini` qo'yilsa yoqiladi; standart
 holat — `yoq`. Uch nozik joyi bor:
 

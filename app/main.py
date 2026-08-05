@@ -14,12 +14,13 @@ from . import storage
 from .config import (
     ADMIN_PASSWORD,
     MAX_HUJJAT_HAJMI,
+    MAX_OVOZ_HAJMI,
     STATIC_DIR,
     TELEGRAM_WEBHOOK_SECRET,
     TELEGRAM_WEBHOOK_URL,
 )
-from .models import ArizaJavob, ArizaSorov, ChatJavob, ChatSorov, ModdaKiritish
-from .services import ariza, documents, statistika
+from .models import ArizaJavob, ArizaSorov, ChatJavob, ChatSorov, ModdaKiritish, OvozJavob
+from .services import ariza, documents, ovoz, statistika
 from .services.javob import AiSozlanmagan, AiXato, javob_ol, statistikani_yoz, uch_qismli_javob
 
 log = logging.getLogger(__name__)
@@ -119,6 +120,31 @@ async def hujjat_tahlili(
         raise _http_xato(e)
     fon.add_task(statistikani_yoz, javob, rejim, x_foydalanuvchi_id, savol, "sayt")
     return javob
+
+
+@app.post("/api/ovoz", response_model=OvozJavob)
+async def ovozni_matnga(fayl: UploadFile = File(...)):
+    """Brauzerdan kelgan ovozni matnga o'giradi (Telegram bot bilan bir xil xizmat).
+
+    Faqat transkript qaytariladi, javob emas: matn foydalanuvchiga ko'rsatiladi,
+    u tuzatib yoki tasdiqlab o'zi /api/chat ga yuboradi. Bu shaffoflik nutq
+    noto'g'ri tanilgan holatni ko'rinadigan qiladi.
+    """
+    if not ovoz.mavjud():
+        raise HTTPException(status_code=503, detail="Ovozni matnga o'girish sozlanmagan")
+    bayt = await fayl.read()
+    if not bayt:
+        raise HTTPException(status_code=422, detail="Ovozli xabar bo'sh")
+    if len(bayt) > MAX_OVOZ_HAJMI:
+        raise HTTPException(status_code=413, detail="Ovozli xabar hajmi juda katta")
+    try:
+        # Provayder so'rovi sinxron va sekin — event loop'ni qotirib qo'ymasin.
+        matn = await asyncio.to_thread(
+            ovoz.matnga_ogir, bayt, fayl.content_type or "audio/ogg"
+        )
+    except ovoz.OvozXato as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return OvozJavob(matn=matn.strip())
 
 
 @app.post("/api/ariza", response_model=ArizaJavob)

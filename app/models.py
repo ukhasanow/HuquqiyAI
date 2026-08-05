@@ -64,6 +64,15 @@ class ArizaJavob(BaseModel):
     fayl_nomi: str = "ariza.txt"
 
 
+class OvozJavob(BaseModel):
+    """Ovozli xabar transkripti.
+
+    Javob emas, savol: transkript foydalanuvchiga ko'rsatiladi va u tasdiqlab
+    (yoki tuzatib) o'zi yuboradi — nutq noto'g'ri tanilsa bilinib qolsin.
+    """
+    matn: str
+
+
 class ModdaKiritish(BaseModel):
     id: str = Field(min_length=1)
     qonun_nomi: str
