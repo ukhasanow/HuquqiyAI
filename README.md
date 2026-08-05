@@ -219,7 +219,7 @@ cp .env.example .env
 |---|---|
 | `ANTHROPIC_API_KEY` | Asosiy AI provayder kaliti |
 | `MODEL` | Asosiy model (standart: `claude-sonnet-4-5`) |
-| `GEMINI_API_KEY` | Zaxira provayder kaliti (ixtiyoriy, [aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi) |
+| `GEMINI_API_KEY` | Zaxira provayder va ovoz xizmatlari kaliti ([aistudio.google.com](https://aistudio.google.com/apikey)dan bepul olinadi). **Diqqat:** `AQ.` bilan boshlanadigan kalitning muddati o'tadi va u tugaganda ovozli xabar jimgina ishlamay qoladi — belgisi 401. Doimiy kalit `AIza` bilan boshlanadi |
 | `GEMINI_MODEL` | Zaxira model (standart: `gemini-flash-latest`). Aniq versiya nomlarini Google yangi kalitlar uchun yopib qo'yadi — `-latest` xavfsizroq |
 | `ADMIN_PASSWORD` | Admin sahifa paroli |
 | `TELEGRAM_BOT_TOKEN` | Bot tokeni (@BotFather). Bo'sh bo'lsa bot o'chiq, sayt oldingidek ishlaydi |
