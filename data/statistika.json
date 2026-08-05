@@ -1,9 +1,9 @@
 {
-  "jami_sorovlar": 16,
-  "javob_topildi": 15,
+  "jami_sorovlar": 17,
+  "javob_topildi": 16,
   "javob_topilmadi": 1,
   "rejimlar": {
-    "oddiy": 13,
+    "oddiy": 14,
     "pro": 3
   },
   "mavzular": {
@@ -11,7 +11,7 @@
     "oila-sud": 2,
     "mehnat": 6,
     "umumiy": 1,
-    "yol-harakati": 1
+    "yol-harakati": 2
   },
   "kunlik": {
     "2026-07-31": {
@@ -19,10 +19,10 @@
       "topildi": 8
     },
     "2026-08-05": {
-      "jami": 7,
-      "topildi": 7,
+      "jami": 8,
+      "topildi": 8,
       "sayt": 3,
-      "bot": 4
+      "bot": 5
     }
   },
   "foydalanuvchilar": [
@@ -41,10 +41,10 @@
   ],
   "manbalar": {
     "sayt": 3,
-    "bot": 4
+    "bot": 5
   },
-  "ovozli_sorovlar": 2,
-  "ovozli_javoblar": 2,
+  "ovozli_sorovlar": 3,
+  "ovozli_javoblar": 3,
   "manba_kesimi": {
     "sayt": {
       "jami": 3,
@@ -54,18 +54,18 @@
       "pro": 1
     },
     "bot": {
-      "jami": 4,
-      "topildi": 4,
-      "ovozli": 2,
-      "oddiy": 4,
+      "jami": 5,
+      "topildi": 5,
+      "ovozli": 3,
+      "oddiy": 5,
       "pro": 0
     }
   },
-  "shartnoma_tahlillari": 19,
+  "shartnoma_tahlillari": 26,
   "shartnoma_turlari": {
-    "mehnat": 18,
+    "mehnat": 25,
     "ijara": 1
   },
-  "jarima_tekshiruvlari": 13,
-  "jarima_asos_topildi": 7
+  "jarima_tekshiruvlari": 30,
+  "jarima_asos_topildi": 15
 }

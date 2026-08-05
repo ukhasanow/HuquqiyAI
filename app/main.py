@@ -29,6 +29,7 @@ from .models import (
     ModdaKiritish,
     OvozJavob,
     ShartnomaJavob,
+    ShikoyatSorov,
 )
 from .services import ariza, documents, ovoz, statistika
 from .services import jarima as jarima_xizmati
@@ -146,6 +147,36 @@ def jarima_tekshiruvi(sorov: JarimaSorov, fon: BackgroundTasks,
     javob = jarima_xizmati.jarimani_tekshir(sorov)
     fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
     return javob
+
+
+@app.post("/api/jarima/shikoyat", response_model=ArizaJavob)
+def jarima_shikoyati(sorov: ShikoyatSorov):
+    """Jarima qarori ustidan shikoyat qoralamasi.
+
+    Asoslar tekshiruv natijasidan olinadi — odam ularni qaytadan yozmaydi.
+    LLM ishlatilmaydi: matn qat'iy shablon va bazadagi modda raqamlari.
+    """
+    javob = jarima_xizmati.jarimani_tekshir(sorov.jarima)
+    asoslar = [t.izoh for t in javob.tekshiruvlar if t.holat == "asos"]
+    moddalar = [t.modda.model_dump() for t in javob.tekshiruvlar
+                if t.holat == "asos" and t.modda]
+    try:
+        matn = ariza.shikoyat_tuz(
+            fish=sorov.fish,
+            qaror_raqami=sorov.jarima.qaror_raqami,
+            qaror_sanasi=(sorov.jarima.qaror_sanasi.isoformat()
+                          if sorov.jarima.qaror_sanasi else ""),
+            qaror_organi=sorov.qaror_organi,
+            asoslar=asoslar,
+            moddalar=moddalar,
+            summa=sorov.jarima.summa,
+            tolangan=sorov.jarima.tolangan,
+            manzil=sorov.manzil,
+            telefon=sorov.telefon,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return ArizaJavob(matn=matn, fayl_nomi="shikoyat.txt")
 
 
 @app.post("/api/shartnoma", response_model=ShartnomaJavob)

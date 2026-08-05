@@ -127,7 +127,7 @@
           botXatoQosh(d.detail || "Tekshirib bo'lmadi.");
           return;
         }
-        jarimaJavobQosh(d);
+        jarimaJavobQosh(d, sorov);
       } catch (err) {
         botXatoQosh("Server bilan bog'lanib bo'lmadi: " + err.message);
       } finally {
@@ -136,7 +136,7 @@
     });
   }
 
-  function jarimaJavobQosh(d) {
+  function jarimaJavobQosh(d, sorov) {
     const x = el("div", "xabar bot");
     x.appendChild(avatarYarat());
     const ich = el("div", "xabar-ich");
@@ -174,12 +174,121 @@
       ich.appendChild(karta);
     });
 
+    // Shikoyat qayerga beriladi (315, 318, 324-moddalar)
+    if (d.shikoyat_yoli && d.shikoyat_yoli.length) {
+      ich.appendChild(el("div", "qism-sarlavha", "📮 Shikoyat qayerga va qanday beriladi"));
+      const royxat = el("ul", "shikoyat-yoli");
+      d.shikoyat_yoli.forEach((q) => {
+        const qator = document.createElement("li");
+        // Matnda faqat <b> ishlatiladi — u serverdagi qat'iy shablondan keladi
+        qator.innerHTML = q;
+        royxat.appendChild(qator);
+      });
+      ich.appendChild(royxat);
+    }
+
     ich.appendChild(el("div", "qism-sarlavha", "✅ Xulosa"));
     ich.appendChild(el("div", "tavsiya", d.xulosa));
+    ich.appendChild(shikoyatBlokYarat(sorov));
     ich.appendChild(el("div", "disclaimer", d.disclaimer || ""));
     x.appendChild(ich);
     chat.appendChild(x);
     pastgaSur();
+  }
+
+  // Shikoyat qoralamasi: asoslar tekshiruvdan avtomatik olinadi, odam faqat
+  // F.I.Sh va qaror ma'lumotlarini kiritadi (ariza blokidagi kabi).
+  function shikoyatBlokYarat(jarimaSorov) {
+    const blok = el("div", "ariza-blok");
+    const ochTugma = el("button", "ariza-och", "📄 Shikoyat qoralamasini tuzish");
+    ochTugma.type = "button";
+    blok.appendChild(ochTugma);
+
+    const forma = el("form", "ariza-forma yashirin");
+    const fish = el("input");
+    fish.placeholder = "F.I.Sh (majburiy)";
+    fish.required = true;
+    fish.maxLength = 200;
+    const organ = el("input");
+    organ.placeholder = "Qarorni chiqargan organ (ixtiyoriy)";
+    organ.maxLength = 200;
+    const raqam = el("input");
+    raqam.placeholder = "Qaror raqami (ixtiyoriy)";
+    raqam.maxLength = 60;
+    const manzil = el("input");
+    manzil.placeholder = "Manzilingiz (ixtiyoriy)";
+    manzil.maxLength = 300;
+    const telefon = el("input");
+    telefon.placeholder = "Telefon (ixtiyoriy)";
+    telefon.maxLength = 50;
+    const tolangan = el("label", "jarima-maydon jarima-belgi");
+    const tolanganBelgi = el("input");
+    tolanganBelgi.type = "checkbox";
+    tolangan.append(tolanganBelgi, el("span", "", "Jarimani allaqachon to'laganman"));
+    const tuz = el("button", "ariza-tuz", "Tuzish");
+    tuz.type = "submit";
+    forma.append(fish, organ, raqam, manzil, telefon, tolangan, tuz);
+    blok.appendChild(forma);
+
+    const natija = el("div", "ariza-natija yashirin");
+    blok.appendChild(natija);
+
+    ochTugma.addEventListener("click", () => {
+      forma.classList.toggle("yashirin");
+      if (!forma.classList.contains("yashirin")) fish.focus();
+    });
+
+    forma.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      tuz.disabled = true;
+      try {
+        const jarima = Object.assign({}, jarimaSorov, {
+          qaror_raqami: raqam.value.trim(),
+          tolangan: tolanganBelgi.checked,
+        });
+        const javob = await fetch("/api/jarima/shikoyat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fish: fish.value.trim(),
+            jarima,
+            qaror_organi: organ.value.trim(),
+            manzil: manzil.value.trim(),
+            telefon: telefon.value.trim(),
+          }),
+        });
+        const j = await javob.json();
+        natija.textContent = "";
+        if (!javob.ok) {
+          natija.appendChild(el("p", "xato-xabar", j.detail || "Shikoyat tuzishda xatolik"));
+        } else {
+          const maydon = el("textarea", "ariza-matn");
+          maydon.value = j.matn;
+          maydon.rows = 18;
+          maydon.readOnly = true;
+          const yuklab = el("button", "ariza-yuklab", "⬇ Yuklab olish (.txt)");
+          yuklab.type = "button";
+          yuklab.addEventListener("click", () => {
+            const blob = new Blob([maydon.value], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = j.fayl_nomi || "shikoyat.txt";
+            a.click();
+            URL.revokeObjectURL(a.href);
+          });
+          natija.append(maydon, yuklab);
+        }
+        natija.classList.remove("yashirin");
+        pastgaSur();
+      } catch (err) {
+        natija.textContent = "";
+        natija.appendChild(el("p", "xato-xabar", "Server bilan bog'lanib bo'lmadi: " + err.message));
+        natija.classList.remove("yashirin");
+      } finally {
+        tuz.disabled = false;
+      }
+    });
+    return blok;
   }
 
   // ---- Ovozli savol ----

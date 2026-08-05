@@ -35,6 +35,11 @@ IJRO_MODDASI = "mjk-330"
 KAMERA_MODDASI = "mjk-309-1"
 BAYONNOMA_MODDASI = "mjk-281"
 QAROR_MODDASI = "mjk-311"
+ASOSLILIK_MODDASI = "mjk-321"   # qarorni bekor qilish asoslari
+AYB_MODDASI = "mjk-307"         # ko'rib chiqishda aniqlanishi lozim bo'lgan holatlar
+SHIKOYAT_YOLI_MODDASI = "mjk-315"  # kimga shikoyat beriladi
+IJRO_TOXTASH_MODDASI = "mjk-318"   # shikoyat ijroni to'xtatadi
+QAYTARISH_MODDASI = "mjk-324"      # bekor qilinsa pul qaytariladi
 
 HOLATLAR = ("asos", "diqqat", "joyida", "noma'lum")
 
@@ -305,6 +310,68 @@ def _band_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
     )
 
 
+def _asoslilik_tekshiruvi() -> JarimaTekshiruv:
+    """321-modda qarorni bekor qilishning TO'RT asosini sanab beradi.
+
+    Bu ro'yxat muddatlardan farqli — uni hisoblab bo'lmaydi, odam qaror va
+    bayonnomaga qarab o'zi solishtiradi. Lekin aynan shu ro'yxat "jarima
+    qaysi holatlarda asossiz" degan savolning qonundagi javobi.
+    """
+    return JarimaTekshiruv(
+        nomi="Qaror asosli chiqarilganmi",
+        holat="diqqat",
+        izoh=(
+            "Qonun qarorni bekor qilish yoki o'zgartirish uchun to'rt asosni "
+            "belgilaydi. Qarorni shular bo'yicha solishtiring:\n"
+            "1) ish to'liq bo'lmagan holda yoki bir tomonlama ko'rib chiqilgan "
+            "(tushuntirishingiz olinmagan, dalillaringiz tekshirilmagan);\n"
+            "2) qo'llanilgan modda ishning haqiqiy holatiga mos kelmaydi "
+            "(qarordagi modda yoki Qoidalar bandi sizning holatingizni "
+            "tasvirlamaydi);\n"
+            "3) ish yuritish qoidalari jiddiy buzilgan (bayonnoma noto'g'ri "
+            "tuzilgan, sizni xabardor qilishmagan);\n"
+            "4) qo'llanilgan jazo adolatsiz."
+        ),
+        modda=_modda(ASOSLILIK_MODDASI),
+    )
+
+
+def _aybdorlik_tekshiruvi() -> JarimaTekshiruv:
+    """307-modda: aybdorlik ANIQLANISHI SHART."""
+    return JarimaTekshiruv(
+        nomi="Aybdorligingiz aniqlanganmi",
+        holat="diqqat",
+        izoh=(
+            "Ishni ko'rib chiqishda huquqbuzarlik sodir etilgan-etilmagani, "
+            "uning vaqti va joyi hamda sizning AYBDORLIGINGIZ aniqlanishi shart. "
+            "Aybdorlik dalil bilan tasdiqlanmagan bo'lsa yoki qoidabuzarlik "
+            "hodisasining o'zi bo'lmasa, ish yuritish tugatilishi kerak."
+        ),
+        modda=_modda(AYB_MODDASI),
+    )
+
+
+def _shikoyat_yoli(sorov: JarimaSorov) -> List[str]:
+    """Shikoyat qayerga va qanday beriladi (315, 318, 324-moddalar)."""
+    qadamlar = [
+        "Shikoyatni <b>yuqori turuvchi organga (mansabdor shaxsga)</b> yoki "
+        "<b>jinoyat ishlari bo'yicha tuman (shahar) sudiga</b> berish mumkin.",
+        "Shikoyat qarorni chiqargan organ orqali yoki bevosita sudga yuboriladi. "
+        "Organ uni uch sutka ichida ish bilan birga tegishli joyga jo'natadi.",
+        "<b>Davlat boji to'lanmaydi</b> — shikoyat bergan shaxs undan ozod etilgan.",
+        "Muddatida berilgan shikoyat qaror <b>ijrosini to'xtatib turadi</b>: "
+        "shikoyat ko'rib chiqilgunga qadar jarimani to'lash talab qilinmaydi "
+        "(joyning o'zida undiriladigan jarima bundan mustasno).",
+        "Shikoyat tushgan kundan <b>o'n kun ichida</b> ko'rib chiqiladi.",
+    ]
+    if sorov.tolangan:
+        qadamlar.append(
+            "Jarimani to'lagan bo'lsangiz ham shikoyat bering: qaror bekor "
+            "qilinib ish tugatilsa, <b>undirib olingan pul qaytariladi</b>."
+        )
+    return qadamlar
+
+
 def _mjk_id(modda: str) -> str:
     """"128³", "128-3", "128-3-modda" -> "mjk-128-3"."""
     USTKIDAN = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
@@ -350,6 +417,8 @@ def jarimani_tekshir(sorov: JarimaSorov, bugun: Optional[date] = None) -> Jarima
         tekshiruvlar.append(kamera)
     tekshiruvlar.append(_modda_tekshiruvi(sorov))
     tekshiruvlar.append(_band_tekshiruvi(sorov))
+    tekshiruvlar.append(_asoslilik_tekshiruvi())
+    tekshiruvlar.append(_aybdorlik_tekshiruvi())
     tekshiruvlar.extend(_hujjat_tekshiruvlari(sorov))
 
     # Asos topilganlari birinchi: odam ro'yxatni tepadan o'qiydi
@@ -361,4 +430,5 @@ def jarimani_tekshir(sorov: JarimaSorov, bugun: Optional[date] = None) -> Jarima
         asoslar_soni=sum(1 for t in tekshiruvlar if t.holat == "asos"),
         shikoyat_kunlari=qolgan,
         xulosa=_xulosa(tekshiruvlar, qolgan),
+        shikoyat_yoli=_shikoyat_yoli(sorov),
     )

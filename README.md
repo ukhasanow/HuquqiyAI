@@ -59,6 +59,24 @@ Tekshiruvlar (muddatlar MJK matnidan olingan):
 | **309¹** | kamera jarimasi mashina egasiga yoziladi — boshqa shaxs boshqargan bo'lsa asos bor |
 | **281**, **311** | bayonnoma mazmuni va qaror nusxasi topshirilishi |
 
+**Qaror qaysi holatda bekor qilinadi** — 321-modda to'rt asosni belgilaydi va
+ular tekshiruv ro'yxatiga kiritilgan: ishning bir tomonlama ko'rib chiqilishi;
+qo'llanilgan norma ishning faktik holatlariga mos kelmasligi; ish yuritish
+qoidalarining jiddiy buzilishi; jazoning adolatsizligi. 307-modda bo'yicha
+aybdorlik aniqlanishi shart.
+
+**Shikoyat qayerga beriladi** (315-modda): yuqori turuvchi organga yoki
+**jinoyat ishlari bo'yicha tuman (shahar) sudiga**, qarorni chiqargan organ
+orqali yoki bevosita sudga. **Davlat boji to'lanmaydi.** Muddatida berilgan
+shikoyat qaror ijrosini to'xtatib turadi (318-modda), qaror bekor qilinsa
+undirib olingan pul qaytariladi (324-modda).
+
+**Shikoyat qoralamasi** (`POST /api/jarima/shikoyat`) — topilgan asoslar
+avtomatik kiritiladi, odam faqat F.I.Sh yozadi. `ariza.py` dagi `ariza_tuz()`
+bunga mos kelmaydi: u "vaziyatimni ko'rib chiqishingizni so'rayman" deb
+tugaydi, shikoyatda esa aniq talab bo'lishi kerak — qarorni bekor qilish va
+ish yuritishni tugatish. Shu sababli alohida `shikoyat_tuz()` yozilgan.
+
 **Tizim hech qachon "jarima noqonuniy, to'lamang" demaydi** — faqat "shu asos
 tekshirishga arziydi" deydi va shikoyat muddatini eslatadi. Yakuniy bahoni sud
 yoki vakolatli organ beradi. Bu qoida testda qayd etilgan.

@@ -262,3 +262,122 @@ def test_jarima_endpointi_bosh_sorov_bilan_ishlaydi():
     d = r.json()
     assert d["asoslar_soni"] == 0
     assert len(d["tekshiruvlar"]) >= 5
+
+
+# ---------- 321-modda: bekor qilish asoslari ----------
+
+def test_asoslilik_tekshiruvi_tort_asosni_sanaydi():
+    """321-modda "jarima qaysi holatda asossiz" savolining qonundagi javobi."""
+    javob = jarima.jarimani_tekshir(_sorov(), bugun=BUGUN)
+    t = _tekshiruv(javob, "Qaror asosli")
+    assert t.modda.id == "mjk-321"
+    for asos in ("bir tomonlama", "mos kelmaydi", "jiddiy buzilgan", "adolatsiz"):
+        assert asos in t.izoh
+
+
+def test_aybdorlik_tekshiruvi_bor():
+    javob = jarima.jarimani_tekshir(_sorov(), bugun=BUGUN)
+    t = _tekshiruv(javob, "Aybdorligingiz")
+    assert t.modda.id == "mjk-307"
+    assert "AYBDORLIGINGIZ" in t.izoh
+
+
+# ---------- 315, 318, 324: shikoyat yo'li ----------
+
+def test_shikoyat_yoli_sudni_va_yuqori_organni_korsatadi():
+    """Foydalanuvchi "qayerga murojaat qilaman" degan savolga javob olishi kerak."""
+    javob = jarima.jarimani_tekshir(_sorov(), bugun=BUGUN)
+    matn = " ".join(javob.shikoyat_yoli)
+    assert "yuqori turuvchi organga" in matn
+    assert "tuman (shahar) sudiga" in matn
+
+
+def test_shikoyat_yolida_davlat_boji_va_ijro_toxtashi_bor():
+    """Ikkalasi ham amaliy jihatdan juda muhim va qonunda aniq yozilgan."""
+    matn = " ".join(jarima.jarimani_tekshir(_sorov(), bugun=BUGUN).shikoyat_yoli)
+    assert "Davlat boji to'lanmaydi" in matn
+    assert "ijrosini to'xtatib turadi" in matn
+
+
+def test_tolangan_jarimada_pul_qaytarish_eslatiladi():
+    """324-modda: qaror bekor qilinsa undirib olingan summa qaytariladi."""
+    tolangan = jarima.jarimani_tekshir(_sorov(tolangan=True), bugun=BUGUN)
+    tolanmagan = jarima.jarimani_tekshir(_sorov(tolangan=False), bugun=BUGUN)
+    assert any("qaytariladi" in q for q in tolangan.shikoyat_yoli)
+    assert not any("qaytariladi" in q for q in tolanmagan.shikoyat_yoli)
+
+
+# ---------- Shikoyat qoralamasi ----------
+
+def _shikoyat(**kw):
+    from app.services.ariza import shikoyat_tuz
+
+    asosiy = dict(fish="Karimov Bobur", qaror_raqami="KM-447",
+                  qaror_sanasi="2026-08-01", qaror_organi="YHXX boshqarmasi",
+                  asoslar=["Muddat 60 kunga o'tkazib yuborilgan."],
+                  moddalar=[{"qonun_nomi": "MJK", "modda_raqami": "36-modda"}])
+    asosiy.update(kw)
+    return shikoyat_tuz(**asosiy)
+
+
+def test_shikoyatda_aniq_talab_bor():
+    """Ariza "ko'rib chiqishingizni so'rayman" deydi, shikoyat esa aniq
+    talab qo'yishi kerak: qarorni bekor qilish va ishni tugatish."""
+    matn = _shikoyat()
+    assert "SHIKOYAT" in matn
+    assert "321-moddasiga muvofiq SO'RAYMAN" in matn
+    assert "qarorni bekor qilishni" in matn
+    assert "ish yuritishni tugatishni" in matn
+
+
+def test_shikoyatda_qaror_malumotlari_bor():
+    matn = _shikoyat(summa="1 062 500 so'm")
+    assert "KM-447-sonli" in matn
+    assert "2026-08-01 kuni" in matn
+    assert "YHXX boshqarmasi tomonidan" in matn
+    assert "1 062 500 so'm" in matn
+
+
+def test_tolangan_bolsa_pulni_qaytarish_talabi_qoshiladi():
+    assert "324-moddasiga" in _shikoyat(tolangan=True)
+    assert "324-moddasiga" not in _shikoyat(tolangan=False)
+
+
+def test_bitta_modda_birlik_shaklda():
+    assert "36-moddasi bilan" in _shikoyat()
+    assert "36-moddalari" not in _shikoyat()
+
+
+def test_asossiz_shikoyatda_bosh_joy_qoldiriladi():
+    """Asos topilmasa ham shikoyat tuzish mumkin — odam o'zi yozadi."""
+    matn = _shikoyat(asoslar=[], moddalar=[])
+    assert "o'z so'zingiz bilan yozing" in matn
+
+
+def test_fishsiz_shikoyat_rad_etiladi():
+    import pytest as _pytest
+
+    with _pytest.raises(ValueError):
+        _shikoyat(fish="   ")
+
+
+def test_shikoyat_endpointi():
+    r = client.post("/api/jarima/shikoyat", json={
+        "fish": "Karimov Bobur Anvarovich",
+        "qaror_organi": "Toshkent shahar YHXX",
+        "jarima": {
+            "hodisa_sanasi": "2026-05-02", "qaror_sanasi": "2026-08-01",
+            "kamera": True, "modda": "128-3", "qaror_raqami": "KM-447",
+        },
+    })
+    assert r.status_code == 200
+    d = r.json()
+    assert d["fayl_nomi"] == "shikoyat.txt"
+    # Tekshiruvda topilgan asos shikoyatga o'zi tushishi kerak
+    assert "60 kunga o'tkazib yuborilgan" in d["matn"]
+    assert "321-moddasiga muvofiq SO'RAYMAN" in d["matn"]
+
+
+def test_shikoyat_endpointi_fishsiz_422():
+    r = client.post("/api/jarima/shikoyat", json={"fish": "", "jarima": {}})
+    assert r.status_code == 422

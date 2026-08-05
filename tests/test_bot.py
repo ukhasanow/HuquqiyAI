@@ -819,7 +819,44 @@ def test_jarima_dialogi_asosni_topadi(monkeypatch):
     matn = "\n".join(xabar.yuborilgan)
     assert "asos topildi" in matn
     assert "36-modda" in matn
-    assert hol.holat is None  # dialog yakunlandi
+    # Tekshiruvdan keyin shikoyat qoralamasi taklif qilinadi
+    assert hol.holat == handlers.JarimaHolati.fish
+    assert "Shikoyat qoralamasini" in matn
+
+
+def test_jarima_shikoyati_fayl_bolib_yuboriladi():
+    """Topilgan asoslar shikoyatga o'zi tushishi kerak — odam qayta yozmasin."""
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.malumot = {
+        "hodisa_sanasi": "2026-04-01",
+        "qaror_sanasi": "2026-07-01",
+        "kamera": True,
+        "modda": "128-3",
+    }
+    xabar = SoxtaHujjatliXabar("Karimov Bobur Anvarovich", chat_id=142)
+    _ishga_tushir(handlers.jarima_shikoyati(xabar, hol))
+
+    assert len(xabar.hujjatlar) == 1
+    fayl = xabar.hujjatlar[0][0]
+    assert fayl.filename == "shikoyat.txt"
+    matn = bytes(fayl.data).decode("utf-8") if hasattr(fayl, "data") else ""
+    if matn:
+        assert "321-moddasiga muvofiq SO'RAYMAN" in matn
+        assert "o'tkazib yuborilgan" in matn  # asos avtomatik tushdi
+    assert hol.holat is None
+
+
+def test_qisqa_fish_qayta_soraladi():
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    hol.holat = handlers.JarimaHolati.fish
+    xabar = SoxtaHujjatliXabar("A", chat_id=143)
+    _ishga_tushir(handlers.jarima_shikoyati(xabar, hol))
+    assert xabar.hujjatlar == []
+    assert hol.holat == handlers.JarimaHolati.fish
 
 
 def test_jarima_xabarida_belgilar_va_disclaimer_bor():

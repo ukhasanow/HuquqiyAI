@@ -111,6 +111,8 @@ class JarimaSorov(BaseModel):
     modda: str = Field(default="", max_length=40)   # MJK moddasi, masalan "128-3"
     band: str = Field(default="", max_length=40)    # Qoidalar bandi, masalan "106"
     summa: str = Field(default="", max_length=60)
+    qaror_raqami: str = Field(default="", max_length=60)
+    tolangan: bool = False       # jarima allaqachon to'langanmi (324-modda)
     tavsif: str = Field(default="", max_length=2000)  # nima bo'lgani, o'z so'zlari bilan
 
 
@@ -133,12 +135,22 @@ class JarimaJavob(BaseModel):
     asoslar_soni: int = 0            # nechta "asos" topildi
     shikoyat_kunlari: Optional[int] = None  # shikoyat berishga qolgan kun
     xulosa: str = ""
+    shikoyat_yoli: List[str] = []    # qayerga va qanday shikoyat berish (315, 318, 324)
     disclaimer: str = (
         "Diqqat: bu tekshiruv tanishtiruv xarakteriga ega. Bu yerda jarima "
         "\"noqonuniy\" deb e'lon qilinmaydi — faqat qonun bo'yicha tekshirishga "
         "arziydigan asoslar ko'rsatiladi. Yakuniy qarorni sud yoki vakolatli "
         "organ qabul qiladi."
     )
+
+
+class ShikoyatSorov(BaseModel):
+    """Jarima ustidan shikoyat qoralamasi uchun so'rov."""
+    fish: str = Field(min_length=1, max_length=200)
+    jarima: JarimaSorov
+    qaror_organi: str = Field(default="", max_length=200)
+    manzil: str = Field(default="", max_length=300)
+    telefon: str = Field(default="", max_length=50)
 
 
 class OvozJavob(BaseModel):

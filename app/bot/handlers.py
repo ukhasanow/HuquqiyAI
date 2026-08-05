@@ -95,6 +95,7 @@ class JarimaHolati(StatesGroup):
     qaror_sanasi = State()
     kamera = State()
     modda = State()
+    fish = State()   # shikoyat qoralamasi uchun
 
 
 # ---------- Yordamchi ----------
@@ -400,17 +401,58 @@ async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
 async def jarima_modda(xabar: Message, state: FSMContext) -> None:
     modda = (xabar.text or "").strip()
     malumot = await state.get_data()
-    await state.clear()
+    await state.update_data(modda="" if modda == "-" else modda[:40])
 
-    sorov = JarimaSorov(
-        hodisa_sanasi=malumot.get("hodisa_sanasi"),
-        qaror_sanasi=malumot.get("qaror_sanasi"),
-        kamera=bool(malumot.get("kamera")),
-        modda="" if modda == "-" else modda[:40],
-    )
+    sorov = _jarima_sorovi(await state.get_data())
     javob = jarima_xizmati.jarimani_tekshir(sorov)
     await _yubor(xabar, formatlash.jarima_xabari(javob))
     await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{xabar.chat.id}")
+
+    # Shikoyat qoralamasi shu yerda taklif qilinadi: asoslar allaqachon
+    # hisoblangan, odam ularni qaytadan yozib o'tirmaydi.
+    await state.set_state(JarimaHolati.fish)
+    await xabar.answer(
+        "📄 <b>Shikoyat qoralamasini tayyorlab beraymi?</b>\n\n"
+        "To'liq familiya, ism va otangizning ismini yozing — topilgan asoslar "
+        "shikoyatga o'zi kiritiladi.\n\n"
+        "<i>Kerak bo'lmasa: /start</i>"
+    )
+
+
+def _jarima_sorovi(malumot: dict) -> JarimaSorov:
+    return JarimaSorov(
+        hodisa_sanasi=malumot.get("hodisa_sanasi"),
+        qaror_sanasi=malumot.get("qaror_sanasi"),
+        kamera=bool(malumot.get("kamera")),
+        modda=malumot.get("modda", ""),
+    )
+
+
+@router.message(JarimaHolati.fish)
+async def jarima_shikoyati(xabar: Message, state: FSMContext) -> None:
+    fish = (xabar.text or "").strip()
+    if len(fish) < 3:
+        await xabar.answer("To'liq familiya, ism va otangizning ismini yozing.")
+        return
+    malumot = await state.get_data()
+    await state.clear()
+
+    javob = jarima_xizmati.jarimani_tekshir(_jarima_sorovi(malumot))
+    matn = ariza_xizmati.shikoyat_tuz(
+        fish=fish,
+        qaror_sanasi=malumot.get("qaror_sanasi") or "",
+        asoslar=[t.izoh for t in javob.tekshiruvlar if t.holat == "asos"],
+        moddalar=[t.modda.model_dump() for t in javob.tekshiruvlar
+                  if t.holat == "asos" and t.modda],
+    )
+    await xabar.answer_document(
+        BufferedInputFile(matn.encode("utf-8"), filename="shikoyat.txt"),
+        caption=(
+            "📄 Shikoyat qoralamasi tayyor.\n\n"
+            "<b>Yuborishdan oldin:</b> yuqoriga organ yoki sud nomini yozing, "
+            "qaror raqamini to'ldiring, qaror nusxasini ilova qiling va imzo qo'ying."
+        ),
+    )
 
 
 # ---------- Qonun moddalarini ochish ----------

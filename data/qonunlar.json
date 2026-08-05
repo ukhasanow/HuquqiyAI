@@ -8850,5 +8850,53 @@
       "harakati"
     ],
     "holat": "verified"
+  },
+  {
+    "id": "mjk-317",
+    "qonun_nomi": "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi",
+    "modda_raqami": "317-modda",
+    "sarlavha": "317-modda. Maʼmuriy huquqbuzarlik toʻgʻrisidagi ish yuzasidan chiqarilgan qaror xususida protest bildirish",
+    "matn": "Prokuror maʼmuriy huquqbuzarlik toʻgʻrisidagi ish yuzasidan:\n1) jinoyat ishlari boʻyicha sud tergov sudyasining qarori ustidan — ushbu Kodeksning XXIV¹ bobida belgilangan tartibda apellyatsiya, kassatsiya va taftish instansiyalari sudiga;\n2) boshqa organ (mansabdor shaxs) qarori ustidan — qaror chiqargan organga (mansabdor shaxsga) yoki yuqori turuvchi organga (mansabdor shaxsga) protest bildirishi mumkin.\nIqtisodiy sudning maʼmuriy huquqbuzarlik toʻgʻrisidagi ish boʻyicha qarori ustidan Oʻzbekiston Respublikasi Iqtisodiy protsessual kodeksida belgilangan tartibda protest keltiriladi.\nFuqarolik ishlari boʻyicha sudning maʼmuriy huquqbuzarlik toʻgʻrisidagi ish boʻyicha qarori ustidan Oʻzbekiston Respublikasi Fuqarolik protsessual kodeksida belgilangan tartibda protest keltiriladi.",
+    "lex_url": "https://lex.uz/acts/-97664#-201608",
+    "teglar": [
+      "maʼmuriy",
+      "huquqbuzarlik",
+      "yuzasidan",
+      "chiqarilgan",
+      "qaror"
+    ],
+    "holat": "verified"
+  },
+  {
+    "id": "mjk-322",
+    "qonun_nomi": "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi",
+    "modda_raqami": "322-modda",
+    "sarlavha": "322-modda. Maʼmuriy huquqbuzarlik toʻgʻrisidagi ish yuzasidan chiqarilgan qarorni qayta koʻrib chiquvchi organning (mansabdor shaxsning) vakolatlari",
+    "matn": "Maʼmuriy huquqbuzarlik toʻgʻrisidagi ish yuzasidan organ (mansabdor shaxs) chiqargan qaror yuqori turuvchi organ rahbari, prokurorning protesti boʻyicha esa uni chiqargan organ tomonidan ham ushbu Kodeksning 321-moddasi ikkinchi va uchinchi qismlarida belgilangan asoslar boʻyicha bekor qilinishi yoki oʻzgartirilishi mumkin.",
+    "lex_url": "https://lex.uz/acts/-97664#-201668",
+    "teglar": [
+      "maʼmuriy",
+      "huquqbuzarlik",
+      "yuzasidan",
+      "chiqarilgan",
+      "qarorni"
+    ],
+    "holat": "verified"
+  },
+  {
+    "id": "mjk-324",
+    "qonun_nomi": "O'zbekiston Respublikasining Ma'muriy javobgarlik to'g'risidagi kodeksi",
+    "modda_raqami": "324-modda",
+    "sarlavha": "324-modda. Maʼmuriy huquqbuzarlik toʻgʻrisidagi ishni koʻrishni tugatish bilan qarorni bekor qilish oqibatlari",
+    "matn": "Maʼmuriy huquqbuzarlik toʻgʻrisidagi ishni koʻrishni tugatish bilan qarorni bekor qilish undirib olingan pul summalarini, haqi toʻlab olib qoʻyilgan va musodara qilingan narsalarni qaytarib berishga, shuningdek ilgari qabul qilingan qaror bilan bogʻliq boshqa cheklashlarni bekor qilishga sabab boʻladi. Narsani qaytarib berish mumkin boʻlmagan hollarda uning qiymati, basharti bu narsalar tadbirkorlik uchun moʻljallangan boʻlsa, boy berilgan foydasi ham qoplanadi.\nFuqaroni maʼmuriy qamoqqa olish gʻayriqonuniy ravishda qoʻllanilganligi natijasida yetkazilgan zarar qonunchilikda belgilangan tartibda qoplanadi.",
+    "lex_url": "https://lex.uz/acts/-97664#-201677",
+    "teglar": [
+      "maʼmuriy",
+      "huquqbuzarlik",
+      "ishni",
+      "koʻrishni",
+      "tugatish"
+    ],
+    "holat": "verified"
   }
 ]

@@ -666,3 +666,10 @@ body {
   .baza-chip { display: none; }
   .avatar { flex-basis: 26px; width: 26px; height: 26px; font-size: .8rem; }
 }
+.shikoyat-yoli {
+  margin: 4px 0 10px 18px;
+  padding: 0;
+  font-size: .87rem;
+  line-height: 1.55;
+}
+.shikoyat-yoli li { margin: 5px 0; }
