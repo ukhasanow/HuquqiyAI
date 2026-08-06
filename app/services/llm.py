@@ -124,6 +124,20 @@ def _javob_tool(batafsil: bool = False) -> dict:
     }
 
 
+def _xatolar_matni(xatolar: List[Exception]) -> str:
+    """Barcha provayder xatolarini bitta satrga yig'adi.
+
+    Tartib muhim: hisob/kalit muammosi birinchi bo'lishi kerak. Anthropic
+    krediti tugab, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
+    foydalanuvchi "bir daqiqadan so'ng urinib ko'ring" deb kutaveradi —
+    aslida hisob to'ldirilmaguncha hech narsa o'zgarmaydi.
+    """
+    matnlar = [str(e) for e in xatolar]
+    ogir = [m for m in matnlar if "credit balance" in m.lower() or "billing" in m.lower()
+            or "authentication" in m.lower() or "api key" in m.lower()]
+    return " | ".join(ogir + [m for m in matnlar if m not in ogir])
+
+
 def _gemini_sxema(batafsil: bool = False) -> dict:
     """Gemini structured output uchun xuddi shu sxemaning OpenAPI ko'rinishi."""
     xossalar = {
@@ -353,19 +367,23 @@ def shartnoma_tahlil_yarat(hujjat_matni: str, nomzod_moddalar: List[dict]) -> di
         "content": "Shartnoma matni:\n<shartnoma>\n" + hujjat_matni + "\n</shartnoma>",
     }]
 
-    oxirgi_xato: Optional[Exception] = None
+    # Xatolar YIG'ILADI, oxirgisi emas: Anthropic kredit tugashi bilan
+    # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
+    # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
+    # oladi va kutadi — aslida hisob to'ldirilishi kerak.
+    xatolar: List[Exception] = []
     if _client is not None:
         try:
             return _anthropic_shartnoma(tizim, xabarlar)
         except Exception as e:
-            oxirgi_xato = e
+            xatolar.append(e)
     if GEMINI_API_KEY:
         try:
             return _gemini_shartnoma(tizim, xabarlar)
         except Exception as e:
-            oxirgi_xato = e
-    if oxirgi_xato:
-        raise oxirgi_xato
+            xatolar.append(e)
+    if xatolar:
+        raise RuntimeError(_xatolar_matni(xatolar))
     raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
 
 
@@ -543,17 +561,21 @@ def javob_yarat(
 
     # Provayderlar navbati: Anthropic -> Gemini. Birinchisi ishlamasa
     # (kredit tugashi, limit, tarmoq xatosi) ikkinchisiga o'tiladi.
-    oxirgi_xato: Optional[Exception] = None
+    # Xatolar YIG'ILADI, oxirgisi emas: Anthropic kredit tugashi bilan
+    # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
+    # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
+    # oladi va kutadi — aslida hisob to'ldirilishi kerak.
+    xatolar: List[Exception] = []
     if _client is not None:
         try:
             return _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil))
         except Exception as e:
-            oxirgi_xato = e
+            xatolar.append(e)
     if GEMINI_API_KEY:
         try:
             return _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil))
         except Exception as e:
-            oxirgi_xato = e
-    if oxirgi_xato:
-        raise oxirgi_xato
+            xatolar.append(e)
+    if xatolar:
+        raise RuntimeError(_xatolar_matni(xatolar))
     raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")

@@ -162,3 +162,37 @@ def test_statistika_xatosi_javobni_buzmaydi(monkeypatch):
         lambda **k: (_ for _ in ()).throw(OSError("disk to'la")),
     )
     javob_xizmati.statistikani_yoz(_soxta_javob(), "oddiy", None, "savol")
+
+
+# ---------- Provayder xatolari ----------
+
+from app.services.javob import _ai_xato_matni  # noqa: E402
+
+def test_hisob_xatosi_limit_xatosidan_ustun(monkeypatch):
+    """Anthropic krediti tugab, keyin Gemini limitga urilsa: foydalanuvchi
+    "bir daqiqadan so'ng urinib ko'ring" deb kutmasligi kerak — hisob
+    to'ldirilmaguncha hech narsa o'zgarmaydi."""
+    from app.services import llm
+
+    matn = llm._xatolar_matni([
+        RuntimeError("Your credit balance is too low to access the Anthropic API"),
+        RuntimeError("429 RESOURCE_EXHAUSTED quota exceeded"),
+    ])
+    # Hisob xatosi birinchi bo'lsa, _ai_xato_matni to'g'ri xabarni tanlaydi
+    assert matn.index("credit balance") < matn.index("429")
+    assert "hisob to'ldirilishi kerak" in _ai_xato_matni(RuntimeError(matn))
+
+
+def test_ikkala_provayder_xatosi_ham_saqlanadi():
+    from app.services import llm
+
+    matn = llm._xatolar_matni([RuntimeError("anthropic yiqildi"),
+                               RuntimeError("gemini yiqildi")])
+    assert "anthropic yiqildi" in matn and "gemini yiqildi" in matn
+
+
+def test_faqat_limit_bolsa_limit_xabari():
+    from app.services import llm
+
+    matn = llm._xatolar_matni([RuntimeError("429 rate limit")])
+    assert "So'rovlar ko'payib ketdi" in _ai_xato_matni(RuntimeError(matn))
