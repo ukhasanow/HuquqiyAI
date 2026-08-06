@@ -293,3 +293,25 @@ def test_ombordagi_eski_yozuv_toldiriladi(kv):
 def test_ombor_bosh_bolsa_noldan_boshlanadi(kv):
     kv["qiymat"] = None
     assert statistika.statistika_oqi()["jami_sorovlar"] == 0
+
+
+def test_upstash_nomlari_ham_qabul_qilinadi(monkeypatch):
+    """Upstash panelida o'zgaruvchilar UPSTASH_REDIS_REST_* deb ataladi va
+    odam ularni aynan shu nom bilan ko'chiradi. Ikkala nom ishlashi kerak —
+    aks holda sozlama jimgina ishlamay, statistika yo'qolib ketadi."""
+    import importlib
+
+    from app import config
+
+    monkeypatch.delenv("STATISTIKA_KV_URL", raising=False)
+    monkeypatch.delenv("STATISTIKA_KV_TOKEN", raising=False)
+    monkeypatch.setenv("UPSTASH_REDIS_REST_URL", "https://kv.upstash.io/")
+    monkeypatch.setenv("UPSTASH_REDIS_REST_TOKEN", "token")
+
+    importlib.reload(config)
+    try:
+        assert config.STATISTIKA_KV_URL == "https://kv.upstash.io"  # oxirgi / olinadi
+        assert config.STATISTIKA_KV_TOKEN == "token"
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config)

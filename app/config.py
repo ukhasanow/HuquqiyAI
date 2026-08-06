@@ -68,8 +68,15 @@ TELEGRAM_ADMIN_IDLAR = _admin_idlar(os.getenv("TELEGRAM_ADMIN_IDLAR", ""))
 # Ikkalasi berilsa, statistika fayl o'rniga tashqi kalit-qiymat omborida
 # saqlanadi (Upstash Redis REST API — oddiy HTTP, yangi paket kerak emas).
 # Berilmasa, hammasi oldingidek faylga yoziladi — lokal ishlab chiqish uchun.
-STATISTIKA_KV_URL = os.getenv("STATISTIKA_KV_URL", "").rstrip("/")
-STATISTIKA_KV_TOKEN = os.getenv("STATISTIKA_KV_TOKEN", "")
+# Upstash o'z panelida o'zgaruvchilarni UPSTASH_REDIS_REST_* deb beradi va
+# odam ularni aynan shu nom bilan ko'chirib qo'yadi. Ikkala nom ham qabul
+# qilinadi — aks holda sozlama jimgina ishlamay, statistika yo'qolib ketardi.
+STATISTIKA_KV_URL = (
+    os.getenv("STATISTIKA_KV_URL") or os.getenv("UPSTASH_REDIS_REST_URL") or ""
+).rstrip("/")
+STATISTIKA_KV_TOKEN = (
+    os.getenv("STATISTIKA_KV_TOKEN") or os.getenv("UPSTASH_REDIS_REST_TOKEN") or ""
+)
 
 # Ovozli xabar cheklovlari (5-bosqich)
 MAX_OVOZ_DAVOMIYLIGI = 60  # soniya
