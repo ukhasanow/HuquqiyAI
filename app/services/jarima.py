@@ -53,9 +53,23 @@ TEZLIK_MODDASI = "mjk-128-3"
 # talablarga rioya qilinmay chiqarilgan qarorlar YURIDIK KUCHGA EGA
 # BO'LMASLIGINI belgilaydi — bu oddiy bekor qilish asosidan kuchliroq.
 SERTIFIKAT_MODDASI = "ypx-28"           # sertifikat va hisobda turish
+XOLISLAR_MODDASI = "ypx-29"             # ko'rsatkichga e'tiroz — xolislar ishtiroki
 RADAR_MODDASI = "ypx-32"                # patrul avtomobilidan yechib olish taqiqi
 DISLOKATSIYA_MODDASI = "ypx-33"         # statsionar kameralar dislokatsiyasi
 DISLOKATSIYA_KOCHMA_MODDASI = "ypx-34"  # ko'chma radar dislokatsiyasi
+MASULIYAT_MODDASI = "ypx-35"            # xodim moslamani qabul qiladi va mas'ul
+XOTIRA_MODDASI = "ypx-36"               # xotiraga o'rnatilgan joy va yo'nalish
+
+# DIQQAT — ko'p uchraydigan yanglish tushuncha. Nizomda "trenoga", "uch oyoqli"
+# degan so'z YO'Q, va uch oyoqli tagliksa qo'yilgan radar o'z-o'zidan
+# taqiqlanmagan: 30, 31 va 34-bandlar ko'chma fotoradarni ochiq nazarda tutadi.
+# Qarorni kuchsiz qiladigan narsa moslamaning TURI emas, quyidagilar:
+#   32-band — patrul avtomobili uchun belgilangan moslamani yechib olish,
+#             uni begona transport vositasiga o'rnatish, begona shaxsni jalb qilish
+#   28-band — sertifikat yo'q / muddati o'tgan / IIB hisobida yo'q
+#   34-band — dislokatsiyada ko'rsatilmagan joy yoki vaqt
+# Shuning uchun "trenoga" ning o'zi hech qachon "asos" deb belgilanmaydi:
+# asossiz shikoyat foydalanuvchini ham, tizimga ishonchni ham yo'qotadi.
 
 # 128³-moddaning oxirgi qismi: "tezlikni oʻlchaydigan maxsus uskunalar va
 # transport vositalari spidometri koʻrsatkichlaridagi yoʻl qoʻyilishi mumkin
@@ -236,9 +250,9 @@ def _kamera_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
             "paytda mashinani boshqa shaxs boshqargan bo'lsa (ishonchnoma, "
             "ijara, sotilgan bo'lsa) yoki mashina o'g'irlangan bo'lsa, buni "
             "dalillar bilan ko'rsatib shikoyat qilishingiz mumkin.\n\n"
-            "Qarorga huquqbuzarlik paytidagi <b>davlat raqami ko'rinadigan "
-            "tasvir</b> ilova qilinishi va qaror <b>uch kun ichida buyurtma "
-            "pochta jo'natmasi</b> bilan yuborilishi shart (309¹-modda). "
+            "Qarorga huquqbuzarlik paytidagi **davlat raqami ko'rinadigan "
+            "tasvir** ilova qilinishi va qaror **uch kun ichida buyurtma "
+            "pochta jo'natmasi** bilan yuborilishi shart (309¹-modda). "
             "Tasvir yo'q yoki raqam o'qilmaydigan bo'lsa — bu asos.\n\n"
             "<i>Eslatma: ko'chma radarda inspektor ko'rsatkich va sertifikatni "
             "ko'rsatishi shart edi, lekin bu talab 2024-yil iyulda bekor "
@@ -393,20 +407,20 @@ def _aybdorlik_tekshiruvi() -> JarimaTekshiruv:
 def _shikoyat_yoli(sorov: JarimaSorov) -> List[str]:
     """Shikoyat qayerga va qanday beriladi (315, 318, 324-moddalar)."""
     qadamlar = [
-        "Shikoyatni <b>yuqori turuvchi organga (mansabdor shaxsga)</b> yoki "
-        "<b>jinoyat ishlari bo'yicha tuman (shahar) sudiga</b> berish mumkin.",
+        "Shikoyatni **yuqori turuvchi organga (mansabdor shaxsga)** yoki "
+        "**jinoyat ishlari bo'yicha tuman (shahar) sudiga** berish mumkin.",
         "Shikoyat qarorni chiqargan organ orqali yoki bevosita sudga yuboriladi. "
         "Organ uni uch sutka ichida ish bilan birga tegishli joyga jo'natadi.",
-        "<b>Davlat boji to'lanmaydi</b> — shikoyat bergan shaxs undan ozod etilgan.",
-        "Muddatida berilgan shikoyat qaror <b>ijrosini to'xtatib turadi</b>: "
+        "**Davlat boji to'lanmaydi** — shikoyat bergan shaxs undan ozod etilgan.",
+        "Muddatida berilgan shikoyat qaror **ijrosini to'xtatib turadi**: "
         "shikoyat ko'rib chiqilgunga qadar jarimani to'lash talab qilinmaydi "
         "(joyning o'zida undiriladigan jarima bundan mustasno).",
-        "Shikoyat tushgan kundan <b>o'n kun ichida</b> ko'rib chiqiladi.",
+        "Shikoyat tushgan kundan **o'n kun ichida** ko'rib chiqiladi.",
     ]
     if sorov.tolangan:
         qadamlar.append(
             "Jarimani to'lagan bo'lsangiz ham shikoyat bering: qaror bekor "
-            "qilinib ish tugatilsa, <b>undirib olingan pul qaytariladi</b>."
+            "qilinib ish tugatilsa, **undirib olingan pul qaytariladi**."
         )
     return qadamlar
 
@@ -455,7 +469,7 @@ def _tezlik_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
     izoh = (
         asos_matni
         + f"Hisobga olinadigan oshirish — {oshirish} km/soat, bunga 128³-modda "
-        f"bo'yicha bazaviy hisoblash miqdorining <b>{kutilgan} baravari</b> "
+        f"bo'yicha bazaviy hisoblash miqdorining **{kutilgan} baravari** "
         f"miqdorida jarima to'g'ri keladi."
     )
 
@@ -481,12 +495,15 @@ def _tezlik_tekshiruvi(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
 
 
 def _radar_tekshiruvi(sorov: JarimaSorov) -> List[JarimaTekshiruv]:
-    """Radar qonuniy ishlatilganmi (YPX nizomi, 28 va 32-bandlar).
+    """Radar qonuniy ishlatilganmi (YPX nizomi, 28-36-bandlar).
 
-    Ikkala band ham bir xil, juda kuchli oqibatni belgilaydi: talablarga rioya
+    28 va 32-bandlar juda kuchli oqibatni belgilaydi: talablarga rioya
     qilinmay chiqarilgan jarima qarorlari "yuridik kuchga ega bo'lmaydi va
     huquqiy oqibatlar keltirib chiqarmaydi". Ya'ni bu shunchaki bekor qilish
     asosi emas — qaror boshidan kuchga ega emas.
+
+    Lekin bu kuchli oqibat DALIL talab qiladi. Yuqoridagi izohga qarang:
+    moslamaning uch oyoqli tagliksa turishi o'zi hech narsani isbotlamaydi.
     """
     if sorov.radar_turi == "statsionar":
         return [JarimaTekshiruv(
@@ -502,35 +519,22 @@ def _radar_tekshiruvi(sorov: JarimaSorov) -> List[JarimaTekshiruv]:
         )]
 
     tekshiruvlar = []
-    if sorov.radar_turi == "trenoga":
+    tekshiruvlar.append(_band32_tekshiruvi(sorov))
+
+    if sorov.moslama_qarovsiz:
         tekshiruvlar.append(JarimaTekshiruv(
-            nomi="Radar patrul avtomobilidan yechib olinganmi",
+            nomi="Moslama qarovsiz qoldirilganmi",
             holat="asos",
             izoh=(
-                "Radar uch oyoqli tagliksa (trenoga) o'rnatilgan bo'lsa, u "
-                "patrul avtomobilidan yechib olingan bo'lishi mumkin. Nizomning "
-                "32-bandi tezlik o'lchash moslamalarini o'zboshimchalik bilan "
-                "yechib olishni va begona transport vositalariga o'rnatishni "
-                "QAT'IYAN taqiqlaydi. Bunday holda chiqarilgan jarima qarorlari "
-                "<b>yuridik kuchga ega bo'lmaydi va huquqiy oqibatlar keltirib "
-                "chiqarmaydi</b>.\n\n"
-                "Shikoyatda radar qanday o'rnatilganini bayon qiling va "
-                "moslamaning patrul avtomobiliga biriktirilganligi hamda o'sha "
-                "kungi dislokatsiya to'g'risidagi ma'lumotni so'rang."
+                "35-bandga ko'ra tezlik o'lchash vositasini xizmatga jalb "
+                "etilgan YPX xodimi qabul qilib oladi va uning butligi, sozligi "
+                "hamda **belgilangan tartibda ishlatilishiga mas'ul** "
+                "hisoblanadi. Moslama odamsiz, qarovsiz qoldirilgan bo'lsa, bu "
+                "talab bajarilmagan.\n\n"
+                "Shikoyatda o'sha kuni moslamani qaysi xodim qabul qilganini va "
+                "u qayerda bo'lganini so'rang."
             ),
-            modda=_modda(RADAR_MODDASI),
-        ))
-    if sorov.begona_shaxs:
-        tekshiruvlar.append(JarimaTekshiruv(
-            nomi="Radarni kim ishlatgan",
-            holat="asos",
-            izoh=(
-                "Xizmatni o'tashga aloqador bo'lmagan fuqarolarni jalb qilish "
-                "qat'iyan taqiqlanadi (32-band). Radarni YPX xodimi emas, "
-                "boshqa shaxs boshqargan bo'lsa, chiqarilgan qaror yuridik "
-                "kuchga ega bo'lmaydi."
-            ),
-            modda=_modda(RADAR_MODDASI),
+            modda=_modda(MASULIYAT_MODDASI),
         ))
 
     tekshiruvlar.append(JarimaTekshiruv(
@@ -539,7 +543,7 @@ def _radar_tekshiruvi(sorov: JarimaSorov) -> List[JarimaTekshiruv]:
         izoh=(
             "Sertifikatga ega bo'lmagan, sertifikat muddati tugagan yoki ichki "
             "ishlar organlari hisobida bo'lmagan tezlik o'lchash vositasi "
-            "asosida chiqarilgan qarorlar <b>yuridik kuchga ega bo'lmaydi</b> "
+            "asosida chiqarilgan qarorlar **yuridik kuchga ega bo'lmaydi** "
             "(28-band). Shikoyatda moslamaning sertifikati, uning amal qilish "
             "muddati va hisobda turishi to'g'risidagi ma'lumotni so'rang — "
             "javob berilmasa yoki muddat o'tgan bo'lsa, bu mustaqil asos."
@@ -559,7 +563,99 @@ def _radar_tekshiruvi(sorov: JarimaSorov) -> List[JarimaTekshiruv]:
             ),
             modda=_modda(DISLOKATSIYA_KOCHMA_MODDASI),
         ))
+        tekshiruvlar.append(JarimaTekshiruv(
+            nomi="Moslama xotirasiga joy va yo'nalish kiritilganmi",
+            holat="diqqat",
+            izoh=(
+                "36-bandga ko'ra xodim xizmatni boshlashdan oldin moslama "
+                "xotirasiga uning **o'rnatilgan joyi va harakat yo'nalishi** "
+                "to'g'risidagi ma'lumotni kiritishi shart. Shikoyatda shu "
+                "yozuvni so'rang: u yo'q bo'lsa yoki qarordagi joy bilan mos "
+                "kelmasa, o'lchov belgilangan tartibda o'tkazilmagan bo'ladi."
+            ),
+            modda=_modda(XOTIRA_MODDASI),
+        ))
+    if sorov.norozilik_bildirilgan:
+        tekshiruvlar.append(JarimaTekshiruv(
+            nomi="E'tirozingiz xolislar ishtirokida rasmiylashtirilganmi",
+            holat="asos",
+            izoh=(
+                "29-band: haydovchi maxsus moslama qayd etgan ko'rsatkichdan "
+                "norozi bo'lsa, holat **xolislar ishtirokida** "
+                "rasmiylashtirilishi shart. Siz e'tiroz bildirgan bo'lsangiz-u, "
+                "xolislar jalb qilinmagan bo'lsa, bu tartib buzilgan.\n\n"
+                "Shikoyatda xolislar to'g'risidagi ma'lumotni (F.I.Sh., "
+                "imzolari) so'rang — ular ish materiallarida bo'lishi kerak."
+            ),
+            modda=_modda(XOLISLAR_MODDASI),
+        ))
     return tekshiruvlar
+
+
+def _band32_tekshiruvi(sorov: JarimaSorov) -> JarimaTekshiruv:
+    """32-band: moslamani yechib olish, begona shaxs, begona transport vositasi.
+
+    Bu yerda "asos" faqat DALIL bo'lganda beriladi. Radarning uch oyoqli
+    tagliksa turishi dalil emas — ko'chma fotoradar nizomda ruxsat etilgan
+    (30, 31, 34-bandlar). Dalil deb quyidagilar hisoblanadi: moslamani xizmatga
+    aloqasi bo'lmagan shaxs boshqargani yoki yonida patrul avtomobili
+    bo'lmagani (ya'ni moslama patrul avtomobilidan yechib olingani).
+    """
+    dalillar = []
+    if sorov.begona_shaxs or sorov.xodim_formada is False:
+        dalillar.append(
+            "moslamani xizmatga aloqasi bo'lmagan shaxs boshqargan"
+        )
+    if sorov.patrul_avtomobili is False:
+        dalillar.append(
+            "moslama yonida YPX patrul avtomobili bo'lmagan, ya'ni u patrul "
+            "avtomobilidan yechib olingan bo'lishi mumkin"
+        )
+
+    if dalillar:
+        return JarimaTekshiruv(
+            nomi="Radar belgilangan tartibda ishlatilganmi",
+            holat="asos",
+            izoh=(
+                "32-band tezlik o'lchash moslamalarini patrul avtomobilidan "
+                "o'zboshimchalik bilan yechib olishni, ularni begona transport "
+                "vositalariga o'rnatishni va xizmatga aloqador bo'lmagan "
+                "fuqarolarni jalb qilishni QAT'IYAN taqiqlaydi. Bunday holda "
+                "chiqarilgan qarorlar **yuridik kuchga ega bo'lmaydi va "
+                "huquqiy oqibatlar keltirib chiqarmaydi**.\n\n"
+                "Sizning holatingizda: " + "; ".join(dalillar) + ".\n\n"
+                "Shikoyatda shu holatni bayon qiling (surat yoki video bo'lsa "
+                "ilova qiling) va moslamaning qaysi patrul avtomobiliga "
+                "biriktirilgani hamda uni qaysi xodim qabul qilgani "
+                "to'g'risidagi ma'lumotni so'rang."
+            ),
+            modda=_modda(RADAR_MODDASI),
+        )
+
+    izoh = (
+        "Uch oyoqli tagliksa (trenoga) qo'yilgan radarning o'zi taqiqlanmagan: "
+        "ko'chma fotoradar nizomning 30, 31 va 34-bandlarida ochiq nazarda "
+        "tutilgan. Qarorni kuchsiz qiladigan narsa moslamaning turi emas, "
+        "quyidagilardan biri:\n"
+        "• moslama patrul avtomobilidan yechib olingan yoki begona transport "
+        "vositasiga o'rnatilgan;\n"
+        "• uni YPX xodimi emas, boshqa shaxs boshqargan;\n"
+        "• u dislokatsiyada ko'rsatilmagan joyda turgan.\n\n"
+        "Radar yonida patrul avtomobili bormidi, uni formadagi xodim "
+        "boshqarganmi — shuni eslang. Suratingiz bo'lsa yuboring, tekshirib "
+        "beraman."
+    ) if sorov.radar_turi == "trenoga" else (
+        "32-band moslamani patrul avtomobilidan yechib olishni, begona "
+        "transport vositasiga o'rnatishni va begona shaxsni jalb qilishni "
+        "taqiqlaydi. Radar yonida patrul avtomobili bormidi va uni formadagi "
+        "xodim boshqarganmi — shuni aniqlashtiring."
+    )
+    return JarimaTekshiruv(
+        nomi="Radar belgilangan tartibda ishlatilganmi",
+        holat="diqqat",
+        izoh=izoh,
+        modda=_modda(RADAR_MODDASI),
+    )
 
 
 def _kamera_modda_royxati(sorov: JarimaSorov) -> Optional[JarimaTekshiruv]:
@@ -648,7 +744,9 @@ def jarimani_tekshir(sorov: JarimaSorov, bugun: Optional[date] = None) -> Jarima
     tezlik = _tezlik_tekshiruvi(sorov)
     if tezlik:
         tekshiruvlar.append(tezlik)
-    if sorov.radar_turi or sorov.begona_shaxs:
+    if (sorov.radar_turi or sorov.begona_shaxs or sorov.moslama_qarovsiz
+            or sorov.norozilik_bildirilgan or sorov.patrul_avtomobili is not None
+            or sorov.xodim_formada is not None):
         tekshiruvlar.extend(_radar_tekshiruvi(sorov))
     kamera = _kamera_tekshiruvi(sorov)
     if kamera:
@@ -705,6 +803,17 @@ Maydonlar:
   Qarorda "BHMning 5 baravari" kabi yozilgan bo'lsa — 5. Yozilmagan bo'lsa null.
 
 Sanalar rasmda kun.oy.yil ko'rinishida bo'lishi mumkin — YYYY-MM-DD ga o'gir."""
+
+# Matnli qaror (PDF/DOCX) uchun — maydonlar aynan bir xil, faqat manba boshqa.
+_MATN_KORSATMASI = _RASM_KORSATMASI.replace(
+    "qarorining tasviri", "qarorining matni"
+).replace("rasmda ko'rinmagan", "matnda yo'q").replace(
+    "Sanalar rasmda", "Sanalar matnda"
+)
+
+# Qaror odatda bir betlik. Undan uzun matn kelsa, kerakli maydonlar boshida
+# bo'ladi — qolganini yuborish tokenni behuda sarflaydi.
+MAX_QAROR_BELGILAR = 12_000
 
 _RASM_SXEMASI = {
     "type": "OBJECT",
@@ -775,16 +884,45 @@ def rasmdan_oqi(bayt: bytes, mime: str = "image/jpeg") -> JarimaSorov:
     if not rasm_oqish_mavjud():
         raise RasmXato("Rasmdan o'qish sozlanmagan. Ma'lumotlarni qo'lda kiriting.")
 
+    natija = _gemini_maydonlari(
+        [{"text": _RASM_KORSATMASI},
+         {"inline_data": {"mime_type": mime, "data": base64.b64encode(bayt).decode()}}],
+        "Rasmdan ma'lumotlarni o'qib bo'lmadi. Suratni yorugʻroq oling yoki "
+        "ma'lumotlarni qo'lda kiriting.",
+    )
+    return _sorovga_ogir(natija)
+
+
+def matndan_oqi(matn: str) -> JarimaSorov:
+    """Jarima qarori MATNIDAN (PDF/DOCX dan ajratilgan) JarimaSorov to'ldiradi.
+
+    PDF va DOCX da matn allaqachon mavjud — uni rasmga aylantirib OCR qilish
+    ortiqcha. Ko'rsatma va sxema rasm bilan bir xil: ikkalasi ham bir xil
+    maydonlarni beradi va bir xil arifmetik tekshiruvga tushadi.
+    """
+    matn = (matn or "").strip()
+    if not matn:
+        raise RasmXato("Hujjat bo'sh.")
+    if not rasm_oqish_mavjud():
+        raise RasmXato(
+            "Hujjatdan avtomatik o'qish sozlanmagan. Ma'lumotlarni qo'lda kiriting."
+        )
+
+    natija = _gemini_maydonlari(
+        [{"text": _MATN_KORSATMASI + "\n\n---\n" + matn[:MAX_QAROR_BELGILAR]}],
+        "Hujjatdan ma'lumotlarni o'qib bo'lmadi. Ma'lumotlarni qo'lda kiriting.",
+    )
+    return _sorovga_ogir(natija)
+
+
+def _gemini_maydonlari(qismlar: list, xato_matni: str) -> dict:
+    """Gemini'dan qat'iy sxema bo'yicha JSON oladi (rasm ham, matn ham)."""
     try:
         javob = httpx.post(
             f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
-                "contents": [{"parts": [
-                    {"text": _RASM_KORSATMASI},
-                    {"inline_data": {"mime_type": mime,
-                                     "data": base64.b64encode(bayt).decode()}},
-                ]}],
+                "contents": [{"parts": qismlar}],
                 "generationConfig": {
                     "temperature": 0,  # o'qish — ijodkorlik emas
                     "response_mime_type": "application/json",
@@ -795,15 +933,14 @@ def rasmdan_oqi(bayt: bytes, mime: str = "image/jpeg") -> JarimaSorov:
             timeout=RASM_SOROV_MUDDATI,
         )
         javob.raise_for_status()
-        matn = javob.json()["candidates"][0]["content"]["parts"][0]["text"]
-        natija = json.loads(matn)
+        return json.loads(javob.json()["candidates"][0]["content"]["parts"][0]["text"])
     except Exception as e:
-        log.warning("Qaror rasmini o'qib bo'lmadi: %s", e)
-        raise RasmXato(
-            "Rasmdan ma'lumotlarni o'qib bo'lmadi. Suratni yorugʻroq oling yoki "
-            "ma'lumotlarni qo'lda kiriting."
-        ) from e
+        log.warning("Qaror maydonlarini o'qib bo'lmadi: %s", e)
+        raise RasmXato(xato_matni) from e
 
+
+def _sorovga_ogir(natija: dict) -> JarimaSorov:
+    """Modeldan kelgan xom JSON ni JarimaSorov'ga o'giradi va chegaralaydi."""
     modda = str(natija.get("modda") or "").strip()
     return JarimaSorov(
         hodisa_sanasi=_sana(natija.get("hodisa_sanasi")),

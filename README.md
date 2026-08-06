@@ -17,7 +17,11 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
      olib boruvchi lex.uz havolasi bilan, iqtibos-karta ko'rinishida
   2. **Umumiy tavsiya** — vaziyatga mos tushuntirish va keyingi qadamlar
   3. **Qayerga murojaat qilish** — davlat organi nomi, manzil, telefon, sayt
-- **Hujjat tahlili** — PDF/DOCX/TXT yuklab, hujjatni huquqiy tahlil qildirish
+- **Hujjat tahlili** — PDF/DOCX/TXT yuklab, hujjatni huquqiy tahlil qildirish.
+  Tahlildan tashqari **hujjatda nimani tekshirish kerakligi** va **uni qanday
+  bekor qildirish mumkinligi** ko'rsatiladi: muddat, qayerga murojaat qilish
+  va tartib — turiga qarab (sud qarori, jarima, ishdan bo'shatish buyrug'i,
+  shartnoma, davlat organi javobi)
 - **Ariza qoralamasi generatori** — asosli javobdan keyin bir tugma bilan
   tayyor ariza/da'vo arizasi tuziladi (LLM'siz: modda va organ bazadan olinadi,
   foydalanuvchi faqat F.I.Sh kiritadi; hujjatda yoziladigan yagona joy — imzo)
@@ -25,6 +29,10 @@ President AI Award 2026 tanlovi uchun tayyorlangan prototip.
   savollarga o'sha til/yozuvda javob (kirill uchun transliteratsiyali qidiruv)
 - **Jarima qonuniyligini tekshirish** — yo'l jarimasi qarorini muddatlar va
   rasmiylashtirish bo'yicha tekshiradi (AI'siz, aniq arifmetika bilan)
+- **Radar o'rnatilishini surat bo'yicha tekshirish** — moslama suratini
+  yuklang: yonida patrul avtomobili bormi, uni formadagi xodim boshqarganmi,
+  qarovsiz qoldirilganmi — YPX nizomining 28–36-bandlari bo'yicha baholanadi
+  (AI faqat suratni tasvirlaydi, huquqiy xulosani qat'iy mantiq chiqaradi)
 - **Shartnoma tahlili** — mehnat, ijara, kredit yoki oldi-sotdi shartnomasini
   yuklang: har band xavf darajasi (🔴 qonunga zid · 🟡 noqulay · 🟢 e'tibor bering)
   va tegishli qonun moddasi bilan ko'rsatiladi
@@ -94,11 +102,53 @@ Nizomning ikki bandi jarima qarorini shunchaki "bekor qilinadigan" emas, balki
   bo'lmagan fuqarolarni jalb qilish **qat'iyan taqiqlanadi**; bunday holda
   chiqarilgan qarorlar ham yuridik kuchga ega bo'lmaydi.
 
-Aynan shu — "uch oyoqli radar" (trenoga) holati. Tekshiruvda radar turi
-so'raladi va `trenoga` tanlansa 32-band bo'yicha asos ko'rsatiladi. Qo'shimcha:
-**33 va 34-bandlar** kameralar va ko'chma radarlar joyi tasdiqlangan
-dislokatsiya bilan belgilanishini talab qiladi — shikoyatda o'sha kungi
-dislokatsiya nusxasini so'rash mumkin.
+**Trenoganing o'zi qonunbuzarlik EMAS.** Bu eng ko'p uchraydigan yanglish
+tushuncha va tizim unga ataylab qo'shilmaydi. Nizomda "trenoga", "uch oyoqli"
+degan so'z umuman yo'q, **30, 31 va 34-bandlar** esa ko'chma fotoradarni ochiq
+nazarda tutadi. Ya'ni qarorni kuchsiz qiladigan narsa moslamaning **turi** emas:
+
+| Nima buzilgan | Band | Oqibat |
+| --- | --- | --- |
+| Moslamani patrul avtomobilidan yechib olish, begona TV ga o'rnatish, begona shaxsni jalb qilish | 32 | Yuridik kuchga ega emas |
+| Sertifikat yo'q / muddati o'tgan / IIB hisobida yo'q | 28 | Yuridik kuchga ega emas |
+| Moslama qarovsiz — xodim uni qabul qilib, ishlatilishiga mas'ul bo'lmagan | 35 | Bekor qilish asosi |
+| Dislokatsiyada ko'rsatilmagan joy yoki vaqt | 33 (statsionar), 34 (ko'chma) | Bekor qilish asosi |
+| Xotiraga o'rnatilgan joy va harakat yo'nalishi kiritilmagan | 36 | Bekor qilish asosi |
+| Ko'rsatkichga e'tiroz bildirilgan, lekin xolislar jalb qilinmagan | 29 | Bekor qilish asosi |
+
+Shuning uchun `trenoga` tanlangani **hech qachon** «asos» bermaydi — u faqat
+«diqqat» beradi va hal qiluvchi savolni so'raydi: *radar yonida patrul
+avtomobili bormidi, uni formadagi xodim boshqarganmi?* «Asos» aynan shu
+javobdan chiqadi. Asossiz shikoyat foydalanuvchini ham, tizimga ishonchni ham
+yo'qotadi — buni testlar qo'riqlaydi (`test_trenoga_ozi_asos_bermaydi`).
+
+### Radar suratini yuklash
+
+`POST /api/jarima/radar` (saytda tugma, botda `/radar`) — moslama o'rnatilishi
+suratini YPX nizomi bo'yicha tekshiradi. Yuqoridagi jadval nega muhimligi shu
+yerda ko'rinadi: **32-band bo'yicha dalilni aynan surat beradi** — odam
+"patrul avtomobili bormidi" degan savolga bir yil o'tib javob bera olmaydi,
+surat esa uni ko'rsatib turadi.
+
+Ish taqsimoti `jarima.py` dagidek: **AI faqat KUZATADI, xulosani Python
+chiqaradi.** Modeldan "bu qonuniymi?" deb so'ralmaydi — bunday so'roqda model
+rozi bo'lishga moyil bo'lib, har suratda buzilish "topadi". Undan faqat
+tavsif olinadi (yonida patrul avtomobili bormi, odam formadami, moslama
+qarovsizmi, rusumi nima), keyin `services/radar.py` uni `JarimaSorov`
+maydonlariga o'giradi va odatdagi tekshiruv ishlaydi.
+
+Ikkita nozik joy:
+
+- **`null` va `false` farq qiladi.** "Kadr tor, aniqlab bo'lmadi" — bu "patrul
+  avtomobili yo'q edi" degani emas. Faqat `false` asos beradi, `null` bermaydi.
+- **EXIF dan sana va koordinata** olinadi (JPEG uchun; Pillow qo'shilmadi, kichik
+  o'quvchi `radar.py` ichida). Bu tekshiruv natijasiga ta'sir qilmaydi — EXIF ni
+  o'zgartirish mumkin — faqat **34-band bo'yicha dislokatsiya so'rovini**
+  aniqlashtiradi: dislokatsiya aynan joy va vaqt bo'yicha tekshiriladi.
+
+Kuzatuv javobda qaytariladi va foydalanuvchiga ko'rsatiladi: model oq
+"Malibu"ni patrul avtomobili deb bilishi mumkin va odam buni ko'rib tuzata
+olishi kerak.
 
 ### Qaror rasmini yuklash
 
@@ -159,6 +209,75 @@ yoki vakolatli organ beradi. Bu qoida testda qayd etilgan.
 Muddat konstantalari qonun matniga test orqali bog'langan: qonun o'zgarib,
 `--tekshir` bilan baza yangilanganda test yiqiladi va konstantalarni eslatadi.
 Kalendar oy arifmetikasi 30 kun emas — 31-yanvar + 1 oy = 28-fevral.
+
+## Hujjat: nimani tekshirish va qanday bekor qildirish
+
+PDF, DOCX, TXT yoki hujjat surati yuklanganda tahlildan tashqari yana ikki
+narsa qaytadi: **hujjatning o'zidan tekshirib ko'riladigan ro'yxat** va **uni
+qanday bekor qildirish mumkinligi** — muddat, murojaat qilinadigan joy,
+rasmiylashtirish tartibi. `services/hujjat.py`.
+
+Sabab oddiy: odam hujjatni "tushunish" uchun emas, u bilan **nima qilishni**
+bilish uchun yuklaydi. Tahlil "bu ishdan bo'shatish buyrug'i" deb aytadi, lekin
+"sizni ikki oy oldin ogohlantirishlari shart edi" degan gapni aytmaydi — aynan
+shu gap odamga kerak.
+
+### Nega bu yerda ham AI yo'q
+
+Hujjat turi uning **muddatini** belgilaydi, muddat esa qaytarib bo'lmaydigan
+narsa. Model turni xato aniqlasa, odam noto'g'ri muddatga ishonib haqiqiysini
+o'tkazib yuboradi. Shuning uchun tur kalit so'zlar bo'yicha (ball tizimi bilan)
+aniqlanadi, muddatlar bazadagi asl modda matniga havola qiladi va testlar
+ularni modda matni bilan solishtiradi — qonun o'zgarsa test yiqiladi.
+
+| Hujjat turi | Muddat | Qayerga | Asosiy modda |
+| --- | --- | --- | --- |
+| Sud hal qiluv qarori (fuqarolik) | **1 oy** qaror qabul qilingan kundan (soddalashtirilgan tartibda 10 kun) | Apellyatsiya instansiyasi sudi | FPK 383, 385¹, 386 |
+| Sudning MJK qarori | **10 sutka** qaror o'qib eshittirilgan yoki nusxasi olingan kundan | Apellyatsiya tartibida | MJK 324¹, 324³ |
+| Ma'muriy jarima qarori (organ) | **10 kun** nusxa olingan kundan | Yuqori organ yoki jinoyat ishlari bo'yicha tuman sudi | MJK 315, 316, 319, 324 |
+| Ishdan bo'shatish buyrug'i | nizo turiga qarab — taxmin qilinmaydi | Ish beruvchi yoki sud | MK 165, 174, 254, 408, 564 |
+| Shartnoma | shartnomaning o'zida | Kelishuv yoki sud | FK 382 |
+| Davlat organi javobi | **1 yil** qaror ma'lum bo'lgan paytdan | Bo'ysunuv tartibida yuqori organ | Murojaatlar qonuni 16, 17, 21, 26 |
+
+Ishdan bo'shatish qatoriga e'tibor bering: mehnat nizosi muddati bazada yo'q va
+u **o'ylab topilmaydi** — javobda "muddat nizo turiga qarab farq qiladi,
+buyruq nusxasini olgan sanani belgilab qo'ying" deyiladi. Bo'sh joyni to'ldirish
+uchun taxminiy raqam yozish bu yerda eng yomon xato bo'lardi.
+
+### Chalkashadigan juftlik
+
+Sud chiqargan jarima qarori bilan YHXX chiqargan jarima qarorini ajratish
+qiyin: ikkalasida ham "jarima", "ma'muriy", "sud" so'zlari bor. Farqni
+**"sudya"** so'zi qiladi — organ qarorida u bo'lmaydi.
+
+Lekin bu yetarli emas, chunki xato narxi yuqori: ikkalasida muddat 10 kun
+bo'lsa ham, biriga **apellyatsiya**, ikkinchisiga **shikoyat** beriladi.
+Noto'g'ri yo'l bilan berilgan hujjat qaytariladi va odam shu orada muddatni
+boy beradi. Shuning uchun bu ikkisi «chalkash juftlik» deb belgilangan: ball
+farqi qanchalik katta bo'lsa ham, ikkalasi ham ball to'plagan bo'lsa natija
+**"taxmin"** deb ko'rsatiladi va foydalanuvchidan hujjatni o'zi tekshirish
+so'raladi.
+
+### Jarima qarori PDF ko'rinishida
+
+Ilgari qaror faqat **rasmdan** o'qilardi va PDF yuborilsa umumiy savol-javobga
+tushib ketardi. Endi `jarima.matndan_oqi()` bor: PDF va DOCX da matn allaqachon
+mavjud, uni rasmga aylantirib OCR qilish ortiqcha. Ko'rsatma va sxema rasm
+bilan bir xil, ya'ni ikkala yo'l ham aynan bir xil arifmetik tekshiruvga
+tushadi. Maydonlarning hech biri o'qilmasa, hujjat qaror emas deb hisoblanadi
+va odam hech bo'lmasa umumiy javob oladi.
+
+### Qalin matn `**` bilan yoziladi
+
+Xizmat modullaridagi izohlar HTML emas, `**qalin**` bilan yoziladi. Ilgari
+ularda `<b>` ishlatilgan edi va u **ikkala joyda ham buzilgan**: saytda `el()`
+`textContent` orqali yozadi, botda esa `html.escape()` qo'llanadi — natijada
+foydalanuvchi qalin matn o'rniga `<b>` teglarini o'qirdi. Endi bitta manbadan
+ikki xil chiqish: saytda `qalinFormat()`, botda `_urgu()`.
+
+Botdagi tartib muhim — **avval escape, keyin qalin**: izohga foydalanuvchi
+kiritgan qiymat qo'shiladi (masalan qarordagi modda raqami) va undagi `<`
+xabarni Telegram uchun butunlay yuborilmaydigan qilib qo'yardi.
 
 ## Shartnoma tahlili
 

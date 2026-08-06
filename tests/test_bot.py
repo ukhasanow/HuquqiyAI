@@ -1000,3 +1000,239 @@ def test_id_buyrugi_chat_idni_qaytaradi():
     xabar = SoxtaXabar("/id", chat_id=12345)
     _ishga_tushir(handlers.id_buyrugi(xabar))
     assert any("12345" in x for x in xabar.yuborilgan)
+
+
+# ---------- Radar surati (/radar) ----------
+
+class SoxtaSuratliXabar(SoxtaXabar):
+    """Rasm yuborilgan xabar. Telegram bir necha o'lchamda beradi."""
+
+    def __init__(self, chat_id=99):
+        super().__init__("", chat_id)
+        self.photo = ["kichik", "katta"]
+        self.bot = SoxtaYuklovchiBot()
+
+
+class SoxtaYuklovchiBot(SoxtaBot):
+    async def download(self, fayl):
+        import io
+        return io.BytesIO(b"soxta-rasm-baytlari")
+
+
+def _radar_javobi(monkeypatch, **kuzatuv):
+    """radar.suratdan_kuzat ni tarmoqsiz almashtiradi."""
+    from app.models import RadarKuzatuv
+    from app.bot import handlers
+
+    asos = {"radar_bormi": True, "ornatilish": "trenoga"}
+    asos.update(kuzatuv)
+    monkeypatch.setattr(
+        handlers.radar_xizmati, "suratdan_kuzat",
+        lambda *a, **k: RadarKuzatuv(**asos),
+    )
+
+
+def test_radar_buyrugi_suratni_soraydi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar("/radar")
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.radar_buyrugi(xabar, hol))
+    assert hol.holat == handlers.JarimaHolati.radar_surati
+    matn = "\n".join(xabar.yuborilgan)
+    assert "patrul" in matn.lower()   # eng muhim ko'rsatma
+
+
+def test_radar_surati_dalil_bolganda_asos_beradi(monkeypatch):
+    """Patrul avtomobili yo'q + fuqarolik kiyimidagi odam = 32-band."""
+    from app.bot import handlers
+
+    _radar_javobi(monkeypatch, patrul_avtomobili=False, odam_bormi=True,
+                  xodim_formada=False, moslama_rusumi="Vizir")
+    xabar = SoxtaSuratliXabar()
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.radar_surati(xabar, hol))
+
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Suratda ko'rganim" in matn
+    assert "Vizir" in matn
+    assert "ypx-32" in matn or "32-band" in matn
+    assert hol.holat is None       # holat tozalangan
+
+
+def test_radar_surati_dalilsiz_asos_bermaydi(monkeypatch):
+    """Patrul avtomobili bor — trenoga bo'lsa ham asos yo'q."""
+    from app.bot import handlers
+
+    _radar_javobi(monkeypatch, patrul_avtomobili=True, odam_bormi=True,
+                  xodim_formada=True)
+    xabar = SoxtaSuratliXabar()
+    _ishga_tushir(handlers.radar_surati(xabar, SoxtaHolat()))
+
+    matn = "\n".join(xabar.yuborilgan)
+    assert "jiddiy asos topildi" not in matn
+
+
+def test_radar_xatosi_foydalanuvchiga_aytiladi(monkeypatch):
+    from app.bot import handlers
+    from app.services import radar
+
+    def _xato(*a, **k):
+        raise radar.RadarXato("Suratda tezlik o'lchash moslamasi ko'rinmadi.")
+
+    monkeypatch.setattr(handlers.radar_xizmati, "suratdan_kuzat", _xato)
+    xabar = SoxtaSuratliXabar()
+    _ishga_tushir(handlers.radar_surati(xabar, SoxtaHolat()))
+    assert any("ko'rinmadi" in x for x in xabar.yuborilgan)
+
+
+def test_radar_holatida_matn_yuborilsa_surat_soraladi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar("radar oq mashinada edi")
+    _ishga_tushir(handlers.radar_surati_kutilmoqda(xabar))
+    assert any("suratini kutyapman" in x for x in xabar.yuborilgan)
+
+
+def test_jarima_dialogida_trenoga_atrofni_soraydi():
+    """Trenoga tanlansa, hal qiluvchi savol beriladi — atrofida nima bor edi."""
+    from app.bot import handlers
+
+    xabar = SoxtaXabar("1")
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.jarima_radar(xabar, hol))
+    assert hol.holat == handlers.JarimaHolati.radar_atrofi
+    assert hol.malumot["radar_turi"] == "trenoga"
+    assert any("patrul avtomobili" in x for x in xabar.yuborilgan)
+
+
+def test_jarima_dialogida_patrul_atrof_sorasiz_otadi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar("2")
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.jarima_radar(xabar, hol))
+    assert hol.holat == handlers.JarimaHolati.modda
+
+
+def test_jarima_dialogi_atrof_javobini_sorovga_ogiradi():
+    from app.bot import handlers
+
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.jarima_radar_atrofi(SoxtaXabar("2"), hol))
+    sorov = handlers._jarima_sorovi(hol.malumot)
+    assert sorov.patrul_avtomobili is False
+    assert sorov.xodim_formada is False
+
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.jarima_radar_atrofi(SoxtaXabar("3"), hol))
+    assert handlers._jarima_sorovi(hol.malumot).moslama_qarovsiz is True
+
+    hol = SoxtaHolat()
+    _ishga_tushir(handlers.jarima_radar_atrofi(SoxtaXabar("-"), hol))
+    assert handlers._jarima_sorovi(hol.malumot).patrul_avtomobili is None
+
+
+# ---------- Qalin matn (**...**) ----------
+
+def test_qalin_belgisi_html_tegiga_ogiriladi():
+    """Xizmat modullari `**qalin**` yozadi — botda u <b> bo'lishi kerak."""
+    assert formatlash._urgu("bu **muhim** gap") == "bu <b>muhim</b> gap"
+
+
+def test_foydalanuvchi_kiritgan_teg_matn_bolib_qoladi():
+    """Izohga qarordagi modda raqami qo'shiladi; undagi "<" xabarni buzmasin."""
+    natija = formatlash._urgu("modda «<b>hack</b>» topilmadi")
+    assert "&lt;b&gt;hack&lt;/b&gt;" in natija
+    assert "<b>hack</b>" not in natija
+
+
+def test_yopilmagan_qalin_butun_matnni_qalin_qilmaydi():
+    natija = formatlash._urgu("**yopilmagan qalin va davomi")
+    assert "<b>" not in natija
+
+
+def test_jarima_izohidagi_qalin_korinadi():
+    """Ilgari izohdagi <b> escape qilinib, matn bo'lib chiqardi."""
+    from datetime import date
+
+    from app.services import jarima
+
+    javob = jarima.jarimani_tekshir(
+        jarima.JarimaSorov(radar_turi="trenoga", patrul_avtomobili=False),
+        bugun=date(2026, 8, 6))
+    matn = "\n".join(formatlash.jarima_xabari(javob))
+    assert "<b>yuridik kuchga ega bo'lmaydi" in matn
+    assert "&lt;b&gt;" not in matn
+    assert "**" not in matn
+
+
+# ---------- Hujjat oqimi (PDF/DOCX) ----------
+
+def _hujjat_matni(turi: str) -> str:
+    from tests.test_hujjat import NAMUNALAR
+    return NAMUNALAR[turi]
+
+
+def test_hujjat_yoli_tekshiruv_va_bekor_yolini_yuboradi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar()
+    _ishga_tushir(handlers._hujjat_yolini_yubor(xabar, _hujjat_matni("sud_fuqarolik")))
+    matn = "\n".join(xabar.yuborilgan)
+    assert "hal qiluv qarori" in matn.lower()
+    assert "Shikoyat muddati: 1 oy" in matn
+    assert "Hujjatda nimani tekshirish kerak" in matn
+    assert "Qanday bekor qildiriladi" in matn
+    assert "&lt;b&gt;" not in matn and "**" not in matn
+
+
+def test_jarima_pdf_tekshiruvga_yonaltiriladi(monkeypatch):
+    """PDF dagi qaror ilgari umumiy savol-javobga ketardi."""
+    from datetime import date
+
+    from app.bot import handlers
+    from app.models import JarimaSorov as _S
+
+    monkeypatch.setattr(handlers.jarima_xizmati, "matndan_oqi", lambda m: _S(
+        hodisa_sanasi=date(2026, 4, 1), qaror_sanasi=date(2026, 7, 1),
+        kamera=True, modda="128-3"))
+    xabar = SoxtaXabar()
+    natija = _ishga_tushir(handlers._jarima_matnini_tekshir(xabar, _hujjat_matni("jarima")))
+
+    assert natija is True
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Qarordan o'qidim" in matn
+    assert "asos topildi" in matn      # 1 oylik kamera muddati o'tgan
+
+
+def test_qaror_boyicha_maydon_oqilmasa_umumiy_javobga_otadi(monkeypatch):
+    from app.bot import handlers
+    from app.models import JarimaSorov as _S
+
+    monkeypatch.setattr(handlers.jarima_xizmati, "matndan_oqi", lambda m: _S())
+    xabar = SoxtaXabar()
+    assert _ishga_tushir(handlers._jarima_matnini_tekshir(xabar, "matn")) is False
+    assert not xabar.yuborilgan
+
+
+def test_qaror_oqishda_xato_umumiy_javobni_toxtatmaydi(monkeypatch):
+    from app.bot import handlers
+    from app.services import jarima
+
+    def portla(m):
+        raise jarima.RasmXato("O'qib bo'lmadi")
+
+    monkeypatch.setattr(handlers.jarima_xizmati, "matndan_oqi", portla)
+    xabar = SoxtaXabar()
+    assert _ishga_tushir(handlers._jarima_matnini_tekshir(xabar, "matn")) is False
+
+
+def test_notanish_hujjat_umumiy_royxat_oladi():
+    from app.bot import handlers
+
+    xabar = SoxtaXabar()
+    _ishga_tushir(handlers._hujjat_yolini_yubor(xabar, "Oddiy xat, huquqiy mazmunsiz."))
+    matn = "\n".join(xabar.yuborilgan)
+    assert "Turi aniqlanmagan" in matn
+    assert "Hujjatda nimani tekshirish kerak" in matn

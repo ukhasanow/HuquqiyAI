@@ -497,19 +497,71 @@ def test_ypx_bandlari_bazada_va_oqibat_yozilgan():
         assert "yuridik kuchga ega boʻlmaydi" in m["matn"]
 
 
-def test_trenoga_radar_asos_beradi():
-    """Uch oyoqli tagliksa o'rnatilgan radar — 32-band taqiqi."""
+def test_trenoga_ozi_asos_bermaydi():
+    """Uch oyoqli tagliksa qo'yilgan radarning O'ZI taqiqlanmagan.
+
+    Nizomda "trenoga" degan so'z yo'q, 30/31/34-bandlar esa ko'chma
+    fotoradarni ochiq nazarda tutadi. Bu yerda "asos" berish foydalanuvchini
+    yutqaziladigan shikoyatga yo'llagan bo'lardi.
+    """
     javob = jarima.jarimani_tekshir(_sorov(radar_turi="trenoga"), bugun=BUGUN)
-    t = _tekshiruv(javob, "Radar patrul avtomobilidan")
+    t = _tekshiruv(javob, "Radar belgilangan tartibda")
+    assert t.holat == "diqqat"
+    assert t.modda.id == "ypx-32"
+
+
+def test_patrul_avtomobili_yoqligi_asos_beradi():
+    """Trenoga + yonida patrul avtomobili yo'q = 32-band bo'yicha dalil."""
+    javob = jarima.jarimani_tekshir(
+        _sorov(radar_turi="trenoga", patrul_avtomobili=False), bugun=BUGUN)
+    t = _tekshiruv(javob, "Radar belgilangan tartibda")
     assert t.holat == "asos"
     assert t.modda.id == "ypx-32"
     assert "yuridik kuchga ega bo'lmaydi" in t.izoh
 
 
+def test_patrul_avtomobili_bor_bolsa_asos_yoq():
+    javob = jarima.jarimani_tekshir(
+        _sorov(radar_turi="trenoga", patrul_avtomobili=True), bugun=BUGUN)
+    assert _tekshiruv(javob, "Radar belgilangan tartibda").holat == "diqqat"
+
+
 def test_begona_shaxs_asos_beradi():
     javob = jarima.jarimani_tekshir(_sorov(begona_shaxs=True), bugun=BUGUN)
-    t = _tekshiruv(javob, "Radarni kim ishlatgan")
+    t = _tekshiruv(javob, "Radar belgilangan tartibda")
     assert t.holat == "asos"
+    assert t.modda.id == "ypx-32"
+
+
+def test_fuqarolik_kiyimidagi_shaxs_asos_beradi():
+    javob = jarima.jarimani_tekshir(
+        _sorov(radar_turi="trenoga", xodim_formada=False), bugun=BUGUN)
+    assert _tekshiruv(javob, "Radar belgilangan tartibda").holat == "asos"
+
+
+def test_qarovsiz_moslama_asos_beradi():
+    """35-band: xodim moslamaning belgilangan tartibda ishlatilishiga mas'ul."""
+    javob = jarima.jarimani_tekshir(
+        _sorov(radar_turi="trenoga", moslama_qarovsiz=True), bugun=BUGUN)
+    t = _tekshiruv(javob, "Moslama qarovsiz")
+    assert t.holat == "asos"
+    assert t.modda.id == "ypx-35"
+
+
+def test_norozilikda_xolislar_soraladi():
+    """29-band: ko'rsatkichga e'tiroz xolislar ishtirokida rasmiylashtiriladi."""
+    javob = jarima.jarimani_tekshir(
+        _sorov(radar_turi="trenoga", norozilik_bildirilgan=True), bugun=BUGUN)
+    t = _tekshiruv(javob, "E'tirozingiz xolislar")
+    assert t.holat == "asos"
+    assert t.modda.id == "ypx-29"
+
+
+def test_kochma_radarda_xotira_yozuvi_soraladi():
+    """36-band: xotiraga o'rnatilgan joy va harakat yo'nalishi kiritiladi."""
+    javob = jarima.jarimani_tekshir(_sorov(radar_turi="trenoga"), bugun=BUGUN)
+    t = _tekshiruv(javob, "Moslama xotirasiga")
+    assert t.modda.id == "ypx-36"
 
 
 def test_sertifikat_tekshiruvi_har_radarda_boladi():

@@ -32,6 +32,17 @@ _STOP = {
 }
 
 
+def normallashtir(matn: str) -> str:
+    """Matnni solishtirish uchun yagona shaklga keltiradi.
+
+    Kirill lotinga o'giriladi, apostrofning barcha ko'rinishi olib tashlanadi.
+    Hujjat turini aniqlash ham shu shakldan foydalanadi: hujjatda "qaror",
+    "қарор" yoki "qaroʻr" yozilgan bo'lishi mumkin, ular bir xil bo'lishi kerak.
+    """
+    matn = matn.lower().translate(_APOSTROFLAR)
+    return _kirilldan_lotinga(matn).replace("'", "")
+
+
 def _normalizatsiya(matn: str) -> List[str]:
     """Matnni qidiruv tokenlariga ajratadi.
 
@@ -39,10 +50,7 @@ def _normalizatsiya(matn: str) -> List[str]:
     "istemolchi" deb yozadi, bazadagi teglar esa "o'g'irlash", "iste'molchi".
     Ikkalasi bir shaklga keltirilmasa, bunday savollar hech narsa topmaydi.
     """
-    matn = matn.lower().translate(_APOSTROFLAR)
-    matn = _kirilldan_lotinga(matn)
-    matn = matn.replace("'", "")
-    tokenlar = re.findall(r"[a-z]+|\d+", matn)
+    tokenlar = re.findall(r"[a-z]+|\d+", normallashtir(matn))
     return [t for t in tokenlar if t not in _STOP and len(t) > 2]
 
 

@@ -4,6 +4,7 @@
 # `(` belgisi escape talab qiladi — qonun matni bunday belgilarga to'la va
 # bitta e'tibordan qolgani butun xabarni yuborilmaydigan qiladi.
 import html
+import re
 from typing import List
 
 # Telegram matn xabari uchun chegara 4096 belgi. Bir oz zaxira qoldiramiz:
@@ -13,6 +14,26 @@ XABAR_CHEGARASI = 3900
 
 def _tozala(matn: str) -> str:
     return html.escape(matn or "", quote=False)
+
+
+def _urgu(matn: str) -> str:
+    """Izoh matnini Telegram HTML uchun tayyorlaydi: `**qalin**` -> `<b>`.
+
+    Xizmat modullaridagi izohlar HTML emas, `**qalin**` bilan yoziladi —
+    saytda ular `qalinFormat()` orqali textContent bo'lib chiqadi, bu yerda
+    esa `<b>` ga aylanadi. Bitta manbadan ikki xil chiqish.
+
+    Tartib muhim: AVVAL hammasi escape qilinadi, keyin qalin belgilanadi.
+    Izohga foydalanuvchi kiritgan qiymat qo'shilishi mumkin (masalan qarordagi
+    modda raqami), va undagi "<" xabarni Telegram uchun buzib qo'yardi.
+    """
+    xavfsiz = html.escape(matn or "", quote=False)
+    return _QALIN.sub(r"<b>\1</b>", xavfsiz)
+
+
+# Qalin belgisi bir xatboshi ichida yopilishi kerak: yopilmagan "**" butun
+# qolgan matnni qalin qilib yubormasin.
+_QALIN = re.compile(r"\*\*(.+?)\*\*", re.S)
 
 
 def bolaklarga_bol(matn: str, chegara: int = XABAR_CHEGARASI) -> List[str]:
@@ -161,7 +182,7 @@ def shartnoma_xabari(javob) -> List[str]:
         qismlar.append("Diqqat talab qiladigan band topilmadi.")
 
     if javob.xulosa:
-        qismlar.append("✅ <b>Xulosa</b>\n\n" + _tozala(javob.xulosa))
+        qismlar.append("✅ <b>Xulosa</b>\n\n" + _urgu(javob.xulosa))
     qismlar.append(f"⚠️ <i>{_tozala(javob.disclaimer)}</i>")
     return bolaklarga_bol("\n\n".join(qismlar))
 
@@ -273,6 +294,101 @@ def oqilgan_jarima_xabari(sorov) -> List[str]:
     return bolaklarga_bol("\n".join(qatorlar))
 
 
+def hujjat_xabari(javob) -> List[str]:
+    """Hujjat turi, tekshirish ro'yxati va bekor qilish yo'li.
+
+    Muddat eng tepada turadi: odam avval "menda qancha vaqt bor?" degan
+    savolga javob oladi, tafsilotni keyin o'qiydi. Tur taxminiy bo'lsa, bu
+    ochiq aytiladi — noto'g'ri tur noto'g'ri muddat degani.
+    """
+    qatorlar = [f"📑 <b>{_tozala(javob.turi_nomi)}</b>"]
+    if javob.ishonch == "taxmin" and javob.turi != "boshqa":
+        qatorlar.append(
+            "<i>Turi taxminan aniqlandi — quyidagi muddat sizga tegishli "
+            "ekanini hujjatning o'zidan tekshiring.</i>"
+        )
+
+    if javob.muddat:
+        qatorlar.append(
+            f"\n⏳ <b>Shikoyat muddati: {_tozala(javob.muddat)}</b>"
+            f"\n<i>{_tozala(javob.muddat_izohi)}</i>"
+        )
+    elif javob.muddat_izohi:
+        qatorlar.append(f"\n⏳ <i>{_tozala(javob.muddat_izohi)}</i>")
+
+    if javob.tekshiruvlar:
+        qatorlar.append("\n<b>🔍 Hujjatda nimani tekshirish kerak</b>")
+        for i, t in enumerate(javob.tekshiruvlar, 1):
+            qatorlar.append(f"\n<b>{i}. {_tozala(t.nomi)}</b>")
+            qatorlar.append(_urgu(t.izoh))
+            if t.modda:
+                qatorlar.append(
+                    f"<i>📖 {_tozala(t.modda.modda_raqami)} — "
+                    f"{_tozala(t.modda.qonun_nomi)}</i>"
+                )
+
+    if javob.bekor_yoli:
+        qatorlar.append("\n<b>⚖️ Qanday bekor qildiriladi</b>")
+        for i, q in enumerate(javob.bekor_yoli, 1):
+            qatorlar.append(f"\n<b>{i}.</b> {_urgu(q.matn)}")
+            if q.modda:
+                qatorlar.append(
+                    f"<i>📖 {_tozala(q.modda.modda_raqami)} — "
+                    f"{_tozala(q.modda.qonun_nomi)}</i>"
+                )
+
+    qatorlar.append(f"\n⚠️ <i>{_tozala(javob.ogohlantirish)}</i>")
+    return bolaklarga_bol("\n".join(qatorlar))
+
+
+def radar_kuzatuvi_xabari(kuzatuv, dislokatsiya: str = "") -> List[str]:
+    """Suratdan nima ko'rilgani — huquqiy xulosadan ALOHIDA ko'rsatiladi.
+
+    Model suratni xato o'qishi mumkin (masalan oq "Malibu"ni patrul avtomobili
+    deb bilishi), shuning uchun odam ko'rgani bilan solishtira olishi kerak.
+    """
+    ORNATILISH = {
+        "trenoga": "uch oyoqli tagliksa (trenoga)",
+        "avtomobilda": "avtomobilda",
+        "ustunda": "doimiy ustunda",
+        "qolda": "xodim qo'lida",
+        "noanik": "aniqlab bo'lmadi",
+    }
+    UCHLIK = {True: "ha", False: "yo'q", None: "aniqlab bo'lmadi"}
+
+    qatorlar = ["📡 <b>Suratda ko'rganim:</b>\n"]
+    maydonlar = [
+        ("O'rnatilishi", ORNATILISH.get(kuzatuv.ornatilish, kuzatuv.ornatilish)),
+        ("Yonida patrul avtomobili", UCHLIK[kuzatuv.patrul_avtomobili]),
+        ("Avtomobil", kuzatuv.avtomobil_tavsifi),
+        ("Odam bor", "ha" if kuzatuv.odam_bormi else "yo'q"),
+        ("Formadagi xodim", UCHLIK[kuzatuv.xodim_formada]),
+        ("Moslama qarovsiz", "ha" if kuzatuv.moslama_qarovsiz else ""),
+        ("Yashiringan", kuzatuv.yashirish_tavsifi if kuzatuv.yashiringan else ""),
+        ("Moslama rusumi", kuzatuv.moslama_rusumi),
+        ("Tezlik belgisi", f"{kuzatuv.tezlik_belgisi} km/soat"
+                           if kuzatuv.tezlik_belgisi else ""),
+        ("Suratga olingan", kuzatuv.sana),
+    ]
+    for nomi, qiymat in maydonlar:
+        if qiymat:
+            qatorlar.append(f"<b>{nomi}:</b> {_tozala(str(qiymat))}")
+    if kuzatuv.joy_belgilari:
+        qatorlar.append("<b>Mo'ljal:</b> " + _tozala(", ".join(kuzatuv.joy_belgilari)))
+
+    if dislokatsiya:
+        qatorlar.append(
+            "\n📍 <b>Dislokatsiya so'rovi uchun</b> (34-band bo'yicha "
+            "murojaatingizga shu ma'lumotni kiriting):\n"
+            f"<code>{_tozala(dislokatsiya)}</code>"
+        )
+    qatorlar.append(
+        "\n⚠️ <i>Bu — suratdan ko'rilgan holat, huquqiy xulosa emas. Noto'g'ri "
+        "ko'rilgan bo'lsa, /jarima orqali qo'lda kiriting.</i>"
+    )
+    return bolaklarga_bol("\n".join(qatorlar))
+
+
 def jarima_xabari(javob) -> List[str]:
     """Jarima tekshiruvi natijasi."""
     if javob.asoslar_soni:
@@ -286,7 +402,7 @@ def jarima_xabari(javob) -> List[str]:
     for t in javob.tekshiruvlar:
         matn = (
             f"{JARIMA_BELGI.get(t.holat, '⚪️')} <b>{_tozala(t.nomi)}</b> — "
-            f"<i>{JARIMA_DARAJA.get(t.holat, '')}</i>\n{_tozala(t.izoh)}"
+            f"<i>{JARIMA_DARAJA.get(t.holat, '')}</i>\n{_urgu(t.izoh)}"
         )
         if t.modda:
             matn += (
@@ -295,7 +411,7 @@ def jarima_xabari(javob) -> List[str]:
             )
         qismlar.append(matn)
 
-    qismlar.append("✅ <b>Xulosa</b>\n\n" + _tozala(javob.xulosa))
+    qismlar.append("✅ <b>Xulosa</b>\n\n" + _urgu(javob.xulosa))
     qismlar.append(f"⚠️ <i>{_tozala(javob.disclaimer)}</i>")
     return bolaklarga_bol("\n\n".join(qismlar))
 

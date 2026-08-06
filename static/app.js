@@ -83,6 +83,24 @@
     rasmBlok.append(rasmYorliq, rasmHolati);
     ich.appendChild(rasmBlok);
 
+    // Radar surati — qarordan butunlay boshqa narsa. Qarorda MATN o'qiladi,
+    // bu yerda esa HOLAT ko'riladi: yonida patrul avtomobili bormi, moslamani
+    // formadagi xodim boshqaryaptimi. Aynan shu ikkisi 32-band bo'yicha asos
+    // beradi — trenoganing o'zi hali qonunbuzarlik emas.
+    const radarBlok = el("div", "jarima-rasm");
+    const radarYorliq = el("label", "vosita-tugma", "📡 Radar suratini yuklash");
+    const radarKirish = el("input");
+    radarKirish.type = "file";
+    radarKirish.accept = "image/*";
+    radarKirish.hidden = true;
+    radarYorliq.appendChild(radarKirish);
+    const radarHolati = el("span", "ovoz-holati");
+    radarBlok.append(radarYorliq, radarHolati);
+    ich.appendChild(radarBlok);
+    ich.appendChild(el("p", "jarima-eslatma",
+      "Radar suratida uning atrofi ko'rinsin — yonidagi avtomobil va odam. " +
+      "Faqat moslamaning o'zi tushgan yaqin surat kam narsa beradi."));
+
     const forma = el("form", "jarima-forma");
     const maydonlar = [
       ["hodisa_sanasi", "Qoidabuzarlik sodir bo'lgan sana", "date"],
@@ -107,11 +125,48 @@
       forma.appendChild(qator);
     });
 
+    const tanlovlar = {};
+    [
+      ["radar_turi", "Radar qanday edi", [
+        ["", "bilmayman"],
+        ["trenoga", "uch oyoqli tagliksa (trenoga)"],
+        ["patrul", "patrul avtomobilida"],
+        ["statsionar", "doimiy o'rnatilgan kamera"],
+      ]],
+      // Trenogada hal qiluvchi savol — atrofi. Javob "patrul avtomobili
+      // yo'q edi" bo'lsa, 32-band bo'yicha asos chiqadi.
+      ["radar_atrofi", "Radar yonida nima bor edi", [
+        ["", "eslay olmayman"],
+        ["patrul", "YPX patrul avtomobili va formadagi xodim"],
+        ["begona", "oddiy avtomobil yoki fuqarolik kiyimidagi odam"],
+        ["qarovsiz", "hech kim yo'q edi, radar qarovsiz turardi"],
+      ]],
+    ].forEach(([nomi, yorliq, variantlar]) => {
+      const qator = el("label", "jarima-maydon");
+      qator.appendChild(el("span", "", yorliq));
+      const tanlov = el("select");
+      variantlar.forEach(([qiymat, matn]) => {
+        const variant = el("option", "", matn);
+        variant.value = qiymat;
+        tanlov.appendChild(variant);
+      });
+      tanlovlar[nomi] = tanlov;
+      qator.appendChild(tanlov);
+      forma.appendChild(qator);
+    });
+
     const kameraQator = el("label", "jarima-maydon jarima-belgi");
     const kamera = el("input");
     kamera.type = "checkbox";
     kameraQator.append(kamera, el("span", "", "Kamera (foto-video) orqali qayd etilgan"));
     forma.appendChild(kameraQator);
+
+    const norozilikQator = el("label", "jarima-maydon jarima-belgi");
+    const norozilik = el("input");
+    norozilik.type = "checkbox";
+    norozilikQator.append(norozilik, el("span", "",
+      "Radar ko'rsatkichiga o'sha joyda e'tiroz bildirganman"));
+    forma.appendChild(norozilikQator);
 
     const tugma = el("button", "jarima-tekshir", "Tekshirish");
     tugma.type = "submit";
@@ -152,10 +207,63 @@
       }
     });
 
+    // Radar surati: kuzatuvlar ko'rsatiladi va formadagi tanlovlar to'ldiriladi.
+    // Model xato ko'rishi mumkin — shuning uchun natija tugmaga emas, odam
+    // ko'rib tuzata oladigan maydonlarga tushadi.
+    radarKirish.addEventListener("change", async () => {
+      const fayl = radarKirish.files[0];
+      if (!fayl) return;
+      radarHolati.textContent = "Surat ko'rilmoqda...";
+      try {
+        const fd = new FormData();
+        fd.append("fayl", fayl);
+        const javob = await fetch("/api/jarima/radar", { method: "POST", body: fd });
+        const d = await javob.json();
+        if (!javob.ok) {
+          radarHolati.textContent = d.detail || "Suratni ko'rib bo'lmadi";
+          return;
+        }
+        const k = d.kuzatuv;
+        const turlar = { trenoga: "trenoga", avtomobilda: "patrul", ustunda: "statsionar" };
+        if (turlar[k.ornatilish]) tanlovlar.radar_turi.value = turlar[k.ornatilish];
+        if (k.patrul_avtomobili === true) tanlovlar.radar_atrofi.value = "patrul";
+        else if (k.xodim_formada === false || k.patrul_avtomobili === false) {
+          tanlovlar.radar_atrofi.value = k.odam_bormi ? "begona" : "qarovsiz";
+        }
+        if (k.tezlik_belgisi && !kiritishlar.ruxsat_etilgan_tezlik.value) {
+          kiritishlar.ruxsat_etilgan_tezlik.value = k.tezlik_belgisi;
+        }
+        radarHolati.textContent = "✓ Ko'rildi — tekshirib, kerak bo'lsa tuzating";
+        radarKuzatuviQosh(k, d.dislokatsiya_sorovi);
+        jarimaJavobQosh(d.tekshiruv, {});
+      } catch (err) {
+        radarHolati.textContent = "Server bilan bog'lanib bo'lmadi";
+      } finally {
+        radarKirish.value = "";
+      }
+    });
+
     forma.addEventListener("submit", async (e) => {
       e.preventDefault();
       tugma.disabled = true;
-      const sorov = { kamera: kamera.checked };
+      const sorov = {
+        kamera: kamera.checked,
+        norozilik_bildirilgan: norozilik.checked,
+        radar_turi: tanlovlar.radar_turi.value,
+      };
+      // "Eslay olmayman" — bu "yo'q edi" degani EMAS. Bo'sh qoldirilsa
+      // maydon null bo'lib qoladi va 32-band bo'yicha asos berilmaydi.
+      const atrof = tanlovlar.radar_atrofi.value;
+      if (atrof === "patrul") {
+        sorov.patrul_avtomobili = true;
+        sorov.xodim_formada = true;
+      } else if (atrof === "begona") {
+        sorov.patrul_avtomobili = false;
+        sorov.xodim_formada = false;
+      } else if (atrof === "qarovsiz") {
+        sorov.patrul_avtomobili = false;
+        sorov.moslama_qarovsiz = true;
+      }
       Object.entries(kiritishlar).forEach(([nomi, kiritish]) => {
         if (!kiritish.value) return;
         sorov[nomi] = kiritish.type === "number" ? Number(kiritish.value) : kiritish.value;
@@ -181,6 +289,58 @@
         tugma.disabled = false;
       }
     });
+  }
+
+  // Suratdan nima ko'rilgani — huquqiy xulosadan ALOHIDA ko'rsatiladi.
+  // Model oq "Malibu"ni patrul avtomobili deb bilishi mumkin va odam buni
+  // ko'rib turishi kerak: butun xulosa shu kuzatuvga tayanadi.
+  function radarKuzatuviQosh(k, dislokatsiya) {
+    const UCHLIK = { true: "ha", false: "yo'q", null: "aniqlab bo'lmadi" };
+    const ORNATILISH = {
+      trenoga: "uch oyoqli tagliksa (trenoga)",
+      avtomobilda: "avtomobilda",
+      ustunda: "doimiy ustunda",
+      qolda: "xodim qo'lida",
+      noanik: "aniqlab bo'lmadi",
+    };
+
+    const x = el("div", "xabar bot");
+    x.appendChild(avatarYarat());
+    const ich = el("div", "xabar-ich");
+    ich.appendChild(el("div", "qism-sarlavha", "📡 Suratda ko'rganim"));
+
+    const royxat = el("dl", "radar-kuzatuv");
+    [
+      ["O'rnatilishi", ORNATILISH[k.ornatilish] || k.ornatilish],
+      ["Yonida patrul avtomobili", UCHLIK[k.patrul_avtomobili]],
+      ["Avtomobil", k.avtomobil_tavsifi],
+      ["Odam bor", k.odam_bormi ? "ha" : "yo'q"],
+      ["Formadagi xodim", UCHLIK[k.xodim_formada]],
+      ["Moslama qarovsiz", k.moslama_qarovsiz ? "ha" : ""],
+      ["Yashiringan", k.yashiringan ? (k.yashirish_tavsifi || "ha") : ""],
+      ["Moslama rusumi", k.moslama_rusumi],
+      ["Tezlik belgisi", k.tezlik_belgisi ? k.tezlik_belgisi + " km/soat" : ""],
+      ["Mo'ljal", (k.joy_belgilari || []).join(", ")],
+      ["Suratga olingan", k.sana],
+    ].forEach(([nomi, qiymat]) => {
+      if (!qiymat) return;
+      royxat.appendChild(el("dt", "", nomi));
+      royxat.appendChild(el("dd", "", String(qiymat)));
+    });
+    ich.appendChild(royxat);
+
+    if (dislokatsiya) {
+      ich.appendChild(el("p", "", "📍 Dislokatsiya so'rovi uchun (34-band " +
+        "bo'yicha murojaatingizga shu ma'lumotni kiriting):"));
+      ich.appendChild(el("pre", "radar-dislokatsiya", dislokatsiya));
+    }
+    ich.appendChild(el("p", "jarima-eslatma",
+      "Bu — suratdan ko'rilgan holat, huquqiy xulosa emas. Noto'g'ri ko'rilgan " +
+      "bo'lsa, formadagi tanlovlarni qo'lda tuzating."));
+
+    x.appendChild(ich);
+    chat.appendChild(x);
+    pastgaSur();
   }
 
   function jarimaJavobQosh(d, sorov) {
@@ -694,6 +854,9 @@
       ich.appendChild(karta);
     }
 
+    // HUJJAT YO'LI — fayl yuklanganda: nimani tekshirish va qanday bekor qildirish
+    if (data.hujjat_yoli) hujjatYoliQosh(ich, data.hujjat_yoli);
+
     // ARIZA QORALAMASI (faqat asosli javoblar uchun)
     if (data.javob_topildi && data.moddalar && data.moddalar.length) {
       ich.appendChild(arizaBlokYarat(data, savol || ""));
@@ -703,6 +866,57 @@
     x.appendChild(ich);
     chat.appendChild(x);
     pastgaSur();
+  }
+
+  // Hujjat bilan NIMA QILISH kerakligi: turi, muddat, tekshirish ro'yxati va
+  // bekor qildirish yo'li. AI'siz — hammasi qonun matnidan.
+  //
+  // Muddat eng tepada: odam avval "menda qancha vaqt bor?" degan savolga
+  // javob oladi. Tur taxminiy bo'lsa buni yashirmaymiz — noto'g'ri tur
+  // noto'g'ri muddat degani va bu qaytarib bo'lmaydigan zarar.
+  function hujjatYoliQosh(ich, y) {
+    ich.appendChild(el("div", "qism-sarlavha", "📑 " + y.turi_nomi));
+    if (y.ishonch === "taxmin" && y.turi !== "boshqa") {
+      ich.appendChild(el("div", "hujjat-taxmin",
+        "Turi taxminan aniqlandi — quyidagi muddat sizga tegishli ekanini " +
+        "hujjatning o'zidan tekshiring."));
+    }
+
+    if (y.muddat) {
+      const m = el("div", "hujjat-muddat");
+      m.appendChild(el("strong", "", "⏳ Shikoyat muddati: " + y.muddat));
+      if (y.muddat_izohi) m.appendChild(el("div", "hujjat-muddat-izoh", y.muddat_izohi));
+      ich.appendChild(m);
+    } else if (y.muddat_izohi) {
+      ich.appendChild(el("div", "hujjat-muddat-izoh", "⏳ " + y.muddat_izohi));
+    }
+
+    // Ikkala ro'yxat bir xil tuzilishda — faqat sarlavhasi va raqamlash uslubi farqli
+    [
+      ["🔍 Hujjatda nimani tekshirish kerak", y.tekshiruvlar, true],
+      ["⚖️ Qanday bekor qildiriladi", y.bekor_yoli, false],
+    ].forEach(([sarlavha, qatorlar, nomlimi]) => {
+      if (!qatorlar || !qatorlar.length) return;
+      ich.appendChild(el("div", "qism-sarlavha kichik", sarlavha));
+      const royxat = el("ol", "hujjat-royxat");
+      qatorlar.forEach((q) => {
+        const li = el("li");
+        if (nomlimi) li.appendChild(el("div", "hujjat-nom", q.nomi));
+        li.appendChild(qalinFormat(nomlimi ? q.izoh : q.matn));
+        if (q.modda) {
+          const havola = el("a", "hujjat-modda",
+            "📖 " + q.modda.modda_raqami + " — " + q.modda.qonun_nomi);
+          havola.href = q.modda.lex_url;
+          havola.target = "_blank";
+          havola.rel = "noopener";
+          li.appendChild(havola);
+        }
+        royxat.appendChild(li);
+      });
+      ich.appendChild(royxat);
+    });
+
+    if (y.ogohlantirish) ich.appendChild(el("div", "disclaimer", "⚠️ " + y.ogohlantirish));
   }
 
   // Shartnoma tahlili: umumiy mazmun -> bandlar (xavf bo'yicha) -> xulosa.

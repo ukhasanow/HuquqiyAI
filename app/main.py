@@ -29,11 +29,14 @@ from .models import (
     JarimaSorov,
     ModdaKiritish,
     OvozJavob,
+    RadarJavob,
     ShartnomaJavob,
     ShikoyatSorov,
 )
 from .services import ariza, documents, ovoz, statistika
+from .services import hujjat as hujjat_xizmati
 from .services import jarima as jarima_xizmati
+from .services import radar as radar_xizmati
 from .services import shartnoma as shartnoma_xizmati
 from .services.javob import AiSozlanmagan, AiXato, javob_ol, statistikani_yoz, uch_qismli_javob
 
@@ -139,6 +142,9 @@ async def hujjat_tahlili(
         javob = uch_qismli_javob(savol, rejim, tarix=None, hujjat_matni=matn)
     except (AiSozlanmagan, AiXato) as e:
         raise _http_xato(e)
+    # Tekshirish ro'yxati va bekor qilish yo'li AI'siz qo'shiladi: odam
+    # hujjatni tushunish uchun emas, u bilan nima qilishni bilish uchun yuklaydi.
+    javob.hujjat_yoli = hujjat_xizmati.tahlil(matn)
     fon.add_task(statistikani_yoz, javob, rejim, x_foydalanuvchi_id, savol, "sayt")
     return javob
 
@@ -176,6 +182,32 @@ async def jarima_rasmi(fon: BackgroundTasks, fayl: UploadFile = File(...),
     javob = jarima_xizmati.jarimani_tekshir(sorov)
     fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
     return JarimaRasmJavob(oqilgan=sorov, tekshiruv=javob)
+
+
+@app.post("/api/jarima/radar", response_model=RadarJavob)
+async def jarima_radari(fon: BackgroundTasks, fayl: UploadFile = File(...),
+                        x_foydalanuvchi_id: Optional[str] = Header(None)):
+    """Radar o'rnatilishi suratini YPX nizomi bo'yicha tekshiradi.
+
+    AI faqat suratdagi holatni TASVIRLAYDI (patrul avtomobili bormi, odam
+    formadami), huquqiy xulosani jarima moduli chiqaradi. Kuzatuv javobda
+    qaytariladi — model xato ko'rsa, odam buni ko'rib tuzatishi mumkin.
+    """
+    bayt = await fayl.read()
+    try:
+        kuzatuv = await asyncio.to_thread(
+            radar_xizmati.suratdan_kuzat, bayt, fayl.content_type or "image/jpeg"
+        )
+    except radar_xizmati.RadarXato as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    sorov = radar_xizmati.kuzatuvni_sorovga(kuzatuv)
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    fon.add_task(statistika.jarima_hisobla, javob.asoslar_soni, x_foydalanuvchi_id)
+    return RadarJavob(
+        kuzatuv=kuzatuv,
+        tekshiruv=javob,
+        dislokatsiya_sorovi=radar_xizmati.dislokatsiya_sorovi(kuzatuv),
+    )
 
 
 @app.post("/api/jarima/shikoyat", response_model=ArizaJavob)

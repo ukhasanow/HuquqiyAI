@@ -31,7 +31,9 @@ from ..config import (
 from ..services import ariza as ariza_xizmati
 from ..models import JarimaSorov
 from ..services import documents, ovoz
+from ..services import hujjat as hujjat_xizmati
 from ..services import jarima as jarima_xizmati
+from ..services import radar as radar_xizmati
 from ..services import statistika as statistika_xizmati
 from ..services import shartnoma as shartnoma_xizmati
 from ..services.javob import (
@@ -66,6 +68,9 @@ SALOM = (
     "🚗 <b>Jarima keldimi?</b> Qaror suratini yuboring yoki /jarima buyrug'ini "
     "bosing — muddat, tezlik hisobi va radar qonuniyligini tekshirib, kerak "
     "bo'lsa <b>shikoyat qoralamasini</b> tayyorlab beraman\n\n"
+    "📡 <b>Radar suratini yuboring</b> (/radar) — uch oyoqli radar patrul "
+    "avtomobilisiz turganmi, uni formadagi xodim boshqarganmi — YPX nizomi "
+    "bo'yicha tekshiraman\n\n"
     "📄 <b>PDF, DOCX yoki hujjat surati</b> — huquqiy tahlil qilaman\n\n"
     "<i>Masalan: «Ish haqimni 2 oydan beri bermayapti, nima qilay?»</i>\n\n"
     "⚠️ <i>Bergan ma'lumotim tanishtiruv xarakteriga ega va professional "
@@ -78,10 +83,12 @@ YORDAM = (
     "🎤 <b>Ovozli xabar</b> — tinglab, matnga o'girib javob beraman\n"
     "📋 <b>Shartnoma</b> (fayl yoki surat) — band-band tahlil, xavf darajasi bilan\n"
     "🚗 <b>Jarima qarori</b> (surat yoki /jarima) — qonuniyligini tekshiraman\n"
+    "📡 <b>Radar surati</b> (/radar) — o'rnatilishi nizomga mos kelganmi\n"
     "📄 <b>PDF / DOCX / surat</b> — huquqiy tahlil\n"
     "📝 Javobdan keyin <b>ariza</b>, jarimadan keyin <b>shikoyat</b> qoralamasi\n\n"
     "<b>Buyruqlar</b>\n"
     "/jarima — jarima qonuniyligini tekshirish\n"
+    "/radar — radar o'rnatilishini surat bo'yicha tekshirish\n"
     "/rejim — javob uslubi: <b>oddiy</b> (sodda til) yoki <b>pro</b> (protsessual tafsilotlar)\n"
     "/ovoz — javobni ovozli ham yuborish sozlamasi\n"
     "/yordam — shu xabar\n\n"
@@ -118,9 +125,13 @@ class JarimaHolati(StatesGroup):
     qaror_sanasi = State()
     kamera = State()
     radar = State()
+    radar_atrofi = State()  # trenoga tanlanganda: yonida patrul avtomobili bormidi
     modda = State()
     tezlik = State()  # faqat tezlik moddasi ko'rsatilganda so'raladi
     fish = State()    # shikoyat qoralamasi uchun
+    # Radar surati kutilmoqda. Alohida holat kerak: oddiy surat handleri
+    # rasmni hujjat deb o'qiydi, radar suratida esa o'qiladigan matn yo'q.
+    radar_surati = State()
 
 
 # ---------- Yordamchi ----------
@@ -454,8 +465,8 @@ async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
         "<code>2</code> — patrul avtomobilida\n"
         "<code>3</code> — doimiy o'rnatilgan kamera\n"
         "<code>-</code> — bilmayman\n\n"
-        "<i>Bu muhim: radar patrul avtomobilidan yechib olingan bo'lsa, "
-        "qaror yuridik kuchga ega bo'lmaydi.</i>"
+        "<i>Bu muhim: moslama patrul avtomobilidan yechib olingan yoki uni "
+        "begona shaxs boshqargan bo'lsa, qaror yuridik kuchga ega bo'lmaydi.</i>"
     )
 
 
@@ -463,10 +474,46 @@ async def jarima_kamera(xabar: Message, state: FSMContext) -> None:
 async def jarima_radar(xabar: Message, state: FSMContext) -> None:
     tanlov = (xabar.text or "").strip().lower()
     turlar = {"1": "trenoga", "2": "patrul", "3": "statsionar"}
-    await state.update_data(radar_turi=turlar.get(tanlov, ""))
+    turi = turlar.get(tanlov, "")
+    await state.update_data(radar_turi=turi)
+
+    # Ko'chma radarda ASOSIY savol turi emas, atrofi: uch oyoqli tagliksa
+    # qo'yilgan radarning o'zi taqiqlanmagan (30, 31, 34-bandlar), qarorni
+    # kuchsiz qiladigan narsa esa yonida patrul avtomobili bo'lmagani yoki
+    # moslamani formadagi xodim boshqarmagani (32-band).
+    if turi == "trenoga":
+        await state.set_state(JarimaHolati.radar_atrofi)
+        await xabar.answer(
+            "<b>5/6.</b> Radar yonida nima bor edi?\n\n"
+            "<code>1</code> — YPX patrul avtomobili va formadagi xodim\n"
+            "<code>2</code> — oddiy (yozuvsiz) avtomobil yoki fuqarolik "
+            "kiyimidagi odam\n"
+            "<code>3</code> — hech kim yo'q edi, radar qarovsiz turardi\n"
+            "<code>-</code> — eslay olmayman\n\n"
+            "<i>Asos aynan shu javobdan chiqadi — trenoganing o'zi hali "
+            "qonunbuzarlik emas.</i>"
+        )
+        return
+
     await state.set_state(JarimaHolati.modda)
     await xabar.answer(
         "<b>5/5.</b> Qarorda qaysi modda ko'rsatilgan?\n"
+        "Masalan <code>128-3</code>. Bilmasangiz «-» yuboring."
+    )
+
+
+@router.message(JarimaHolati.radar_atrofi)
+async def jarima_radar_atrofi(xabar: Message, state: FSMContext) -> None:
+    tanlov = (xabar.text or "").strip()
+    if tanlov == "1":
+        await state.update_data(patrul_avtomobili=True, xodim_formada=True)
+    elif tanlov == "2":
+        await state.update_data(patrul_avtomobili=False, xodim_formada=False)
+    elif tanlov == "3":
+        await state.update_data(patrul_avtomobili=False, moslama_qarovsiz=True)
+    await state.set_state(JarimaHolati.modda)
+    await xabar.answer(
+        "<b>6/6.</b> Qarorda qaysi modda ko'rsatilgan?\n"
         "Masalan <code>128-3</code>. Bilmasangiz «-» yuboring."
     )
 
@@ -532,6 +579,11 @@ def _jarima_sorovi(malumot: dict) -> JarimaSorov:
         kamera=bool(malumot.get("kamera")),
         modda=malumot.get("modda", ""),
         radar_turi=malumot.get("radar_turi", ""),
+        # None (so'ralmagan/eslamaydi) va False (aniq yo'q edi) farq qiladi:
+        # 32-band bo'yicha asos faqat ikkinchisidan chiqadi
+        patrul_avtomobili=malumot.get("patrul_avtomobili"),
+        xodim_formada=malumot.get("xodim_formada"),
+        moslama_qarovsiz=bool(malumot.get("moslama_qarovsiz")),
         qayd_etilgan_tezlik=malumot.get("qayd_etilgan_tezlik"),
         ruxsat_etilgan_tezlik=malumot.get("ruxsat_etilgan_tezlik"),
     )
@@ -662,6 +714,76 @@ async def ariza_telefon(xabar: Message, state: FSMContext) -> None:
     )
 
 
+# ---------- Radar surati ----------
+
+@router.message(Command("radar"))
+async def radar_buyrugi(xabar: Message, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(JarimaHolati.radar_surati)
+    await xabar.answer(
+        "📡 <b>Radar o'rnatilishini tekshirish</b>\n\n"
+        "Tezlik o'lchash moslamasining suratini yuboring.\n\n"
+        "<b>Suratda albatta ko'rinsin:</b>\n"
+        "• radarning o'zi va u nimaga o'rnatilgani;\n"
+        "• <b>yonidagi avtomobil</b> — patrulmi yoki oddiy mashinami;\n"
+        "• yaqinidagi odam — formadami yoki fuqarolik kiyimida.\n\n"
+        "<i>Eng muhimi — atrofi. Faqat radar tushgan yaqin surat kam narsa "
+        "beradi: qonun buzilishini aynan atrofdagi holat ko'rsatadi.</i>\n\n"
+        "<i>Bekor qilish uchun: /start</i>"
+    )
+
+
+@router.message(JarimaHolati.radar_surati, F.photo)
+async def radar_surati(xabar: Message, state: FSMContext) -> None:
+    """Radar surati — kuzatuvlar o'qilib, YPX nizomi bo'yicha tekshiriladi."""
+    await state.clear()
+    id_ = xabar.chat.id
+
+    ruxsat, kutish = holat.cheklovdan_otdi(id_)
+    if not ruxsat:
+        await xabar.answer(
+            f"⏳ Juda ko'p so'rov yubordingiz. {kutish // 60 + 1} daqiqadan so'ng urinib ko'ring."
+        )
+        return
+
+    holati = await xabar.answer("📡 Suratni ko'ryapman...")
+    try:
+        await xabar.bot.send_chat_action(chat_id=id_, action="typing")
+        buffer = await xabar.bot.download(xabar.photo[-1])
+        kuzatuv = await asyncio.to_thread(
+            radar_xizmati.suratdan_kuzat, buffer.read(), "image/jpeg")
+    except radar_xizmati.RadarXato as e:
+        await xabar.answer(f"⚠️ {e}")
+        return
+    except Exception:
+        log.exception("Radar suratini ko'rib bo'lmadi (chat_id=%s)", id_)
+        await xabar.answer(
+            "⚠️ Suratni ko'rib bo'lmadi. Radar va uning atrofi ko'ringan "
+            "aniqroq surat yuboring."
+        )
+        return
+    finally:
+        try:
+            await holati.delete()
+        except Exception:
+            pass
+
+    sorov = radar_xizmati.kuzatuvni_sorovga(kuzatuv)
+    await _yubor(xabar, formatlash.radar_kuzatuvi_xabari(
+        kuzatuv, radar_xizmati.dislokatsiya_sorovi(kuzatuv)))
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    await _yubor(xabar, formatlash.jarima_xabari(javob))
+    await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{id_}")
+
+
+@router.message(JarimaHolati.radar_surati)
+async def radar_surati_kutilmoqda(xabar: Message) -> None:
+    await xabar.answer(
+        "📡 Radar suratini kutyapman — rasm sifatida yuboring.\n\n"
+        "<i>Bekor qilish uchun: /start</i>"
+    )
+
+
 # ---------- Jarima qarori rasmi ----------
 
 @router.message(F.photo)
@@ -709,8 +831,10 @@ async def hujjat_rasmi(xabar: Message) -> None:
 
     if _shartnomaga_oxshaydi(matn):
         await _shartnomani_tahlil_qil(xabar, matn)
+        await _hujjat_yolini_yubor(xabar, matn, turi="shartnoma")
         return
     await _jarima_rasmini_tekshir(xabar, rasm)
+    await _hujjat_yolini_yubor(xabar, matn, turi="jarima")
 
 
 async def _jarima_rasmini_tekshir(xabar: Message, rasm: bytes) -> None:
@@ -758,13 +882,66 @@ async def hujjat(xabar: Message) -> None:
         await xabar.answer("⚠️ Faylni yuklab bo'lmadi. Qaytadan urinib ko'ring.")
         return
 
-    savol = (xabar.caption or "").strip()
+    await _hujjatni_yonaltir(xabar, matn, (xabar.caption or "").strip())
+
+
+async def _hujjatni_yonaltir(xabar: Message, matn: str, savol: str = "") -> None:
+    """Hujjat matnini turiga qarab tegishli tahlilga yuboradi.
+
+    Har uch yo'lda ham oxirida bitta narsa qo'shiladi: hujjatda nimani
+    tekshirish kerakligi va uni qanday bekor qildirish mumkinligi. Odam
+    hujjatni "tushunish" uchun emas, u bilan NIMA QILISHNI bilish uchun
+    yuboradi — tahlilning o'zi bu savolga javob bermaydi.
+    """
+    turi, _ = hujjat_xizmati.turni_aniqla(matn)
+
     # Shartnoma bo'lsa band-band tahlil qilinadi: uch qismli javob shartnomaga
     # to'g'ri kelmaydi — odam "qaysi bandi menga zarar keltiradi?" deb so'raydi.
     if _shartnomaga_oxshaydi(matn):
         await _shartnomani_tahlil_qil(xabar, matn)
+        await _hujjat_yolini_yubor(xabar, matn, turi="shartnoma")
         return
+
+    if turi == "jarima":
+        if await _jarima_matnini_tekshir(xabar, matn):
+            await _hujjat_yolini_yubor(xabar, matn, turi="jarima")
+            return
+
+    await _hujjat_yolini_yubor(xabar, matn, turi=turi)
     await _savolga_javob_ber(xabar, savol, hujjat_matni=matn)
+
+
+async def _hujjat_yolini_yubor(xabar: Message, matn: str, turi: str = "") -> None:
+    """Tekshirish ro'yxati va bekor qilish yo'li. AI ishlatilmaydi."""
+    javob = hujjat_xizmati.tahlil(matn, turi=turi)
+    await _yubor(xabar, formatlash.hujjat_xabari(javob))
+
+
+async def _jarima_matnini_tekshir(xabar: Message, matn: str) -> bool:
+    """PDF/DOCX dagi jarima qarorini o'qib tekshiradi.
+
+    False qaytsa, chaqiruvchi odatdagi savol-javobga o'tadi: qaror deb
+    aniqlangan hujjatdan maydonlar o'qilmasa, odam hech bo'lmasa umumiy
+    javob olishi kerak.
+    """
+    id_ = xabar.chat.id
+    try:
+        sorov = await asyncio.to_thread(jarima_xizmati.matndan_oqi, matn)
+    except jarima_xizmati.RasmXato as e:
+        log.info("Jarima qarorini matndan o'qib bo'lmadi (chat_id=%s): %s", id_, e)
+        return False
+    except Exception:
+        log.exception("Jarima matnini o'qishda xato (chat_id=%s)", id_)
+        return False
+
+    if not (sorov.qaror_sanasi or sorov.modda or sorov.summa):
+        return False   # qaror emas ekan — maydonlarning hech biri topilmadi
+
+    await _yubor(xabar, formatlash.oqilgan_jarima_xabari(sorov))
+    javob = jarima_xizmati.jarimani_tekshir(sorov)
+    await _yubor(xabar, formatlash.jarima_xabari(javob))
+    await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{id_}")
+    return True
 
 
 def _shartnomaga_oxshaydi(matn: str) -> bool:
@@ -882,6 +1059,7 @@ async def notanish_buyruq(xabar: Message) -> None:
     await xabar.answer(
         "Bunday buyruq yo'q. Mavjud buyruqlar:\n"
         "/jarima — jarima qonuniyligini tekshirish\n"
+        "/radar — radar suratini tekshirish\n"
         "/rejim — javob uslubi\n"
         "/ovoz — ovozli javob sozlamasi\n"
         "/yordam — nima qila olaman\n\n"

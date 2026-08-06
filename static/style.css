@@ -443,13 +443,15 @@ body {
 .vosita-tugma:hover { background: #fff; border-color: var(--urgu); }
 .jarima-forma { display: grid; gap: 8px; margin-top: 8px; }
 .jarima-maydon { display: flex; flex-direction: column; gap: 3px; font-size: .82rem; color: var(--sokin); }
-.jarima-maydon input {
+.jarima-maydon input,
+.jarima-maydon select {
   border: 1px solid var(--chiziq);
   border-radius: 8px;
   padding: 7px 9px;
   font: inherit;
   font-size: .88rem;
   color: var(--matn);
+  background: var(--fon);
 }
 .jarima-belgi { flex-direction: row; align-items: center; gap: 7px; }
 .jarima-belgi input { width: auto; }
@@ -681,6 +683,28 @@ body {
   margin: 8px 0 4px;
 }
 .jarima-rasm .vosita-tugma { margin: 0; }
+.jarima-eslatma { font-size: .8rem; color: var(--sokin); margin: 2px 0 8px; }
+
+/* Radar suratidan ko'rilgan holat — huquqiy xulosadan alohida blok */
+.radar-kuzatuv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 6px 0 10px;
+  font-size: .85rem;
+}
+.radar-kuzatuv dt { color: var(--sokin); }
+.radar-kuzatuv dd { margin: 0; color: var(--matn); }
+.radar-dislokatsiya {
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: .82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 4px 0 8px;
+}
 .bot-havola {
   font-size: .8rem;
   color: var(--urgu);
@@ -696,3 +720,37 @@ body {
 .imkoniyatlar li { margin: 5px 0; }
 .vosita-qator { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 a.vosita-tugma { text-decoration: none; display: inline-block; }
+
+/* Hujjat yo'li: turi, muddat, tekshirish ro'yxati va bekor qilish qadamlari */
+.qism-sarlavha.kichik { font-size: .82rem; margin-top: 14px; }
+.hujjat-taxmin {
+  font-size: .82rem;
+  color: var(--sokin);
+  font-style: italic;
+  margin: -2px 0 8px;
+}
+.hujjat-muddat {
+  background: var(--krem);
+  border: 1px solid var(--chiziq);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin: 4px 0 8px;
+  font-size: .9rem;
+}
+.hujjat-muddat-izoh { color: var(--sokin); font-size: .8rem; margin-top: 3px; }
+.hujjat-royxat {
+  margin: 6px 0 10px;
+  padding-left: 20px;
+  font-size: .87rem;
+  line-height: 1.55;
+}
+.hujjat-royxat li { margin: 9px 0; }
+.hujjat-nom { font-weight: 600; margin-bottom: 2px; }
+.hujjat-modda {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: .78rem;
+  color: var(--urgu);
+  text-decoration: none;
+}
+.hujjat-modda:hover { text-decoration: underline; }

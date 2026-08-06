@@ -1,6 +1,6 @@
 # So'rov/javob sxemalari (Pydantic)
 from datetime import date
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -45,6 +45,9 @@ class ChatJavob(BaseModel):
     tavsiya: str                # 2-qism: LLM tavsiyasi
     murojaat: Optional[OrganJavob] = None  # 3-qism: bazadagi kontakt
     murojaat_mavzusi: str = "umumiy"  # ariza generatori uchun
+    # Fayl yuklanganda to'ldiriladi: hujjat turi, tekshirish ro'yxati va bekor
+    # qilish yo'li. Oddiy chat savolida bo'sh — tekshiriladigan hujjat yo'q.
+    hujjat_yoli: Optional["HujjatJavob"] = None
     disclaimer: str = (
         "Diqqat: bu ma'lumot tanishtiruv xarakteriga ega bo'lib, professional "
         "huquqiy maslahat o'rnini bosmaydi."
@@ -127,6 +130,15 @@ class JarimaSorov(BaseModel):
     radar_turi: str = Field(default="", max_length=20)
     # Radarni xizmatga aloqasi bo'lmagan shaxs boshqargan bo'lsa (32-band)
     begona_shaxs: bool = False
+
+    # Quyidagilar radar suratidan yoki foydalanuvchi so'zidan olinadi.
+    # None — ma'lumot yo'q; False — aniq yo'q edi. Bu farq muhim: 32-band
+    # bo'yicha asos "patrul avtomobili YO'Q edi" degan DALILDAN kelib chiqadi,
+    # ma'lumotning yo'qligidan emas.
+    patrul_avtomobili: Optional[bool] = None   # radar yonida YPX avtomobili bormidi
+    xodim_formada: Optional[bool] = None       # moslamani formadagi xodim boshqarganmi
+    moslama_qarovsiz: bool = False             # radar odamsiz qoldirilgan (35-band)
+    norozilik_bildirilgan: bool = False        # haydovchi ko'rsatkichga e'tiroz bildirgan (29-band)
     tavsif: str = Field(default="", max_length=2000)  # nima bo'lgani, o'z so'zlari bilan
 
 
@@ -168,6 +180,86 @@ class JarimaRasmJavob(BaseModel):
     tekshiruv: JarimaJavob
 
 
+class HujjatTekshiruv(BaseModel):
+    """Hujjatdan tekshirib ko'riladigan bitta narsa.
+
+    `jarima.py` dagi JarimaTekshiruv'dan farqi — bu yerda "holat" yo'q:
+    hujjat matni o'qilmagani uchun tizim "asos bor" deya olmaydi, faqat
+    nimaga qarash kerakligini ko'rsatadi.
+    """
+    nomi: str
+    izoh: str
+    modda: Optional[ModdaJavob] = None
+
+
+class BekorQadam(BaseModel):
+    """Hujjatni bekor qildirish yo'lidagi bitta qadam."""
+    matn: str
+    modda: Optional[ModdaJavob] = None
+
+
+class HujjatJavob(BaseModel):
+    """Hujjat turi, tekshiruv ro'yxati va bekor qilish yo'li.
+
+    `ishonch` FOYDALANUVCHIGA KO'RSATILADI: tur noto'g'ri aniqlansa muddat
+    ham noto'g'ri bo'ladi, va bu qaytarib bo'lmaydigan zarar.
+    """
+    turi: str
+    turi_nomi: str
+    ishonch: str = "taxmin"          # "aniq" | "taxmin"
+    muddat: str = ""                 # masalan "10 kun"; noma'lum bo'lsa bo'sh
+    muddat_izohi: str = ""           # muddat qaysi kundan hisoblanishi
+    tekshiruvlar: List[HujjatTekshiruv] = []
+    bekor_yoli: List[BekorQadam] = []
+    ogohlantirish: str = (
+        "Muddatlar qonun matnidan olingan, lekin hujjatingizning aniq turi va "
+        "holati muddatni o'zgartirishi mumkin. Muddat tugashiga yaqin bo'lsa, "
+        "advokatga murojaat qiling — o'tkazib yuborilgan muddatni tiklash har "
+        "doim ham mumkin emas."
+    )
+
+
+class RadarKuzatuv(BaseModel):
+    """Radar suratidan o'qilgan KUZATUVLAR — huquqiy baho emas.
+
+    Bu yerda ataylab "qonuniymi" degan maydon yo'q. Model faqat ko'rganini
+    aytadi, xulosani `services/jarima.py` dagi qat'iy mantiq chiqaradi:
+    aks holda model har suratda buzilish "topib", odamni asossiz shikoyatga
+    yo'llagan bo'lardi.
+    """
+    radar_bormi: bool = False
+    # "trenoga" | "avtomobilda" | "ustunda" | "qolda" | "noanik"
+    ornatilish: str = Field(default="noanik", max_length=20)
+    # None — kadrdan aniqlab bo'lmadi (bu False dan farq qiladi, 32-bandga qarang)
+    patrul_avtomobili: Optional[bool] = None
+    avtomobil_tavsifi: str = Field(default="", max_length=300)
+    odam_bormi: bool = False
+    xodim_formada: Optional[bool] = None
+    moslama_qarovsiz: bool = False
+    yashiringan: bool = False
+    yashirish_tavsifi: str = Field(default="", max_length=300)
+    moslama_rusumi: str = Field(default="", max_length=60)
+    tezlik_belgisi: Optional[int] = Field(default=None, ge=0, le=200)
+    korinadigan_belgilar: List[str] = []
+    joy_belgilari: List[str] = []
+    izoh: str = Field(default="", max_length=600)
+
+    # Suratning o'zidan (EXIF), modeldan emas — dislokatsiya so'rovi uchun
+    sana: str = Field(default="", max_length=40)
+    gps: Optional[Tuple[float, float]] = None
+
+
+class RadarJavob(BaseModel):
+    """Radar surati tekshiruvi natijasi.
+
+    `kuzatuv` foydalanuvchiga ko'rsatiladi: model suratni xato o'qishi mumkin
+    va odam buni ko'rib, qo'lda tuzata olishi kerak.
+    """
+    kuzatuv: RadarKuzatuv
+    tekshiruv: JarimaJavob
+    dislokatsiya_sorovi: str = ""   # 34-band bo'yicha so'raladigan joy va vaqt
+
+
 class ShikoyatSorov(BaseModel):
     """Jarima ustidan shikoyat qoralamasi uchun so'rov."""
     fish: str = Field(min_length=1, max_length=200)
@@ -195,3 +287,8 @@ class ModdaKiritish(BaseModel):
     lex_url: str = ""
     teglar: List[str] = []
     holat: str = "needs_verification"  # "verified" | "needs_verification"
+
+
+# ChatJavob HujjatJavob'ga o'zidan oldin havola qiladi (oldinga qarab e'lon):
+# ikkalasi ham bir faylda va tartibini o'zgartirish boshqa importlarni buzardi.
+ChatJavob.model_rebuild()
