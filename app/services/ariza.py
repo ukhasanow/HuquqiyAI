@@ -129,7 +129,10 @@ def shikoyat_tuz(
         for qonun, raqamlar in guruhlar.items():
             # Bitta modda — birlik shakl ("36-moddasi"), bir nechtasi — ko'plik
             if len(raqamlar) == 1:
-                qismlar.append(f"{qonun}ning {raqamlar[0]}si")
+                # Egalik qo'shimchasi oxirgi tovushga qarab: unlidan keyin -si
+                # ("moddasi"), undoshdan keyin -i ("bandi")
+                qoshimcha = "si" if raqamlar[0][-1] in "aeiou" else "i"
+                qismlar.append(f"{qonun}ning {raqamlar[0]}{qoshimcha}")
             else:
                 royxat = ", ".join(r.replace("-modda", "-").replace("-band", "-") for r in raqamlar)
                 birlik = "bandlari" if "Qoidalari" in qonun else "moddalari"

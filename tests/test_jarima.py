@@ -338,6 +338,21 @@ def test_shikoyatda_qaror_malumotlari_bor():
     assert "1 062 500 so'm" in matn
 
 
+def test_bitta_havolada_egalik_qoshimchasi_togri():
+    """Egalik qo'shimchasi oxirgi tovushga qarab tanlanadi: "modda" unlida
+    tugaydi ("moddasi"), "band" esa undoshda ("bandi", "bandsi" EMAS).
+
+    Hujjat sudga topshiriladi — nizom bandiga noto'g'ri havola ko'zga tashlanadi.
+    """
+    modda = _shikoyat(moddalar=[{"qonun_nomi": "MJK", "modda_raqami": "36-modda"}])
+    assert "MJKning 36-moddasi bilan tasdiqlanadi" in modda
+
+    band = _shikoyat(moddalar=[{"qonun_nomi": "YPX nizomi",
+                                "modda_raqami": "32-band"}])
+    assert "YPX nizomining 32-bandi bilan tasdiqlanadi" in band
+    assert "bandsi" not in band
+
+
 def test_tolangan_bolsa_pulni_qaytarish_talabi_qoshiladi():
     assert "324-moddasiga" in _shikoyat(tolangan=True)
     assert "324-moddasiga" not in _shikoyat(tolangan=False)
