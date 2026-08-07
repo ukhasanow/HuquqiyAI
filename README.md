@@ -559,6 +559,14 @@ Repo'da `render.yaml` tayyor. Qadamlar:
 Bepul tierda xizmat 15 daqiqa harakatsizlikdan keyin uxlaydi (birinchi ochilish
 ~1 daqiqa). Demo oldidan sahifani bir marta ochib qo'ying.
 
+Doimiy uyg'oq tutish uchun `/health` ga uptime monitor qo'yiladi (5 daqiqada bir
+marta). Sayt va Telegram bot bitta xizmat — bitta monitor ikkalasini ham
+uyg'otadi. `/telegram/webhook` faqat POST qabul qiladi, unga monitor qo'yilmaydi.
+
+**Bot javob bermasa:** `GET /api/admin/telegram` (sarlavha: `X-Admin-Parol`)
+webhook holatini ko'rsatadi — `url` `kutilgan_url` bilan bir xilmi,
+`pending_update_count` (yetkazilmagan savollar) va `last_error_message`.
+
 ## Demo uchun 3 ta namunaviy savol
 
 1. **Mehnat** (oddiy rejim): *"Ish beruvchi meni asossiz ishdan bo'shatmoqchi,

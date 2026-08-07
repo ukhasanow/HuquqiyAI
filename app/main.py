@@ -53,10 +53,13 @@ _fon_vazifalari: set = set()
 async def _hayot(_app: FastAPI):
     if telegram_bot.mavjud() and TELEGRAM_WEBHOOK_URL:
         try:
+            # drop_pending_updates BERILMAYDI (ya'ni False): Render bepul
+            # tierda xizmat uxlab qolsa, o'sha paytda yozilgan savollar
+            # Telegram navbatida turadi. True bo'lsa ular uyg'onish paytida
+            # o'chirib tashlanardi va foydalanuvchi umuman javob olmasdi.
             await telegram_bot.bot().set_webhook(
                 url=TELEGRAM_WEBHOOK_URL.rstrip("/") + WEBHOOK_YOLI,
                 secret_token=TELEGRAM_WEBHOOK_SECRET or None,
-                drop_pending_updates=True,
             )
             await telegram_bot.buyruqlarni_ornat()
             log.info("Telegram webhook o'rnatildi")
@@ -335,6 +338,27 @@ def admin_modda_saqlash(modda: ModdaKiritish, x_admin_parol: Optional[str] = Hea
 def admin_statistika(x_admin_parol: Optional[str] = Header(None)):
     _admin_tekshir(x_admin_parol)
     return statistika.statistika_oqi()
+
+
+@app.get("/api/admin/telegram")
+async def admin_telegram_holati(x_admin_parol: Optional[str] = Header(None)):
+    """Webhook haqiqatan o'rnatilganmi va Telegram xato qaytaryaptimi.
+
+    Bot javob bermaganda birinchi shu yerga qaraladi:
+    `pending_update_count` — navbatda turgan (yetkazilmagan) savollar soni,
+    `last_error_message` — Telegram webhook'ga yetkaza olmagan oxirgi sabab.
+    api.telegram.org ba'zi tarmoqlardan ochilmaydi, shuning uchun so'rov
+    serverning o'zidan yuboriladi.
+    """
+    _admin_tekshir(x_admin_parol)
+    if not telegram_bot.mavjud():
+        raise HTTPException(status_code=404, detail="Bot sozlanmagan")
+    malumot = (await telegram_bot.bot().get_webhook_info()).model_dump(mode="json")
+    malumot["kutilgan_url"] = (
+        TELEGRAM_WEBHOOK_URL.rstrip("/") + WEBHOOK_YOLI if TELEGRAM_WEBHOOK_URL else ""
+    )
+    malumot["sir_yoqilgan"] = bool(TELEGRAM_WEBHOOK_SECRET)
+    return malumot
 
 
 # ---------- Telegram webhook ----------

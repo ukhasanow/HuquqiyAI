@@ -195,6 +195,76 @@ def test_webhook_darhol_javob_qaytaradi(monkeypatch):
     assert r.status_code == 200 and r.json() == {"ok": True}
 
 
+def test_uyquda_yigilgan_updatelar_tashlanmaydi(monkeypatch):
+    """Render bepul tierda xizmat uxlaydi; uyg'onganda navbatdagi savollarga
+    javob berilishi kerak, aks holda foydalanuvchi umuman javob olmaydi."""
+    chaqiruvlar = []
+
+    class SoxtaBot:
+        async def set_webhook(self, **kw):
+            chaqiruvlar.append(kw)
+
+    monkeypatch.setattr(telegram_bot, "mavjud", lambda: True)
+    monkeypatch.setattr(telegram_bot, "bot", lambda: SoxtaBot())
+    monkeypatch.setattr(telegram_bot, "buyruqlarni_ornat", _hech_narsa)
+    monkeypatch.setattr(telegram_bot, "yopish", _hech_narsa)
+    monkeypatch.setattr(main, "TELEGRAM_WEBHOOK_URL", "https://misol.test")
+
+    async def hayot():
+        async with main._hayot(main.app):
+            pass
+
+    _ishga_tushir(hayot())
+    assert len(chaqiruvlar) == 1
+    assert chaqiruvlar[0]["url"] == "https://misol.test" + main.WEBHOOK_YOLI
+    assert not chaqiruvlar[0].get("drop_pending_updates")
+
+
+async def _hech_narsa(*a, **k):
+    return None
+
+
+# ---------- Webhook diagnostikasi ----------
+
+def test_admin_telegram_parolsiz_yopiq():
+    assert client.get("/api/admin/telegram").status_code == 401
+    assert client.get("/api/admin/telegram", headers={"X-Admin-Parol": "xato"}).status_code == 401
+
+
+def test_admin_telegram_bot_sozlanmagan_bolsa_404(monkeypatch):
+    from app.config import ADMIN_PASSWORD
+
+    monkeypatch.setattr(telegram_bot, "mavjud", lambda: False)
+    r = client.get("/api/admin/telegram", headers={"X-Admin-Parol": ADMIN_PASSWORD})
+    assert r.status_code == 404
+
+
+def test_admin_telegram_webhook_holatini_qaytaradi(monkeypatch):
+    from aiogram.types import WebhookInfo
+
+    from app.config import ADMIN_PASSWORD
+
+    class SoxtaBot:
+        async def get_webhook_info(self):
+            return WebhookInfo(
+                url="https://misol.test" + main.WEBHOOK_YOLI,
+                has_custom_certificate=False,
+                pending_update_count=3,
+                last_error_message="Read timeout expired",
+            )
+
+    monkeypatch.setattr(telegram_bot, "mavjud", lambda: True)
+    monkeypatch.setattr(telegram_bot, "bot", lambda: SoxtaBot())
+    monkeypatch.setattr(main, "TELEGRAM_WEBHOOK_URL", "https://misol.test")
+
+    r = client.get("/api/admin/telegram", headers={"X-Admin-Parol": ADMIN_PASSWORD})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["pending_update_count"] == 3
+    assert d["last_error_message"] == "Read timeout expired"
+    assert d["url"] == d["kutilgan_url"]
+
+
 def test_takroriy_update_bir_marta_qayta_ishlanadi():
     telegram_bot._korilgan_update_idlar.clear()
     assert not telegram_bot.takroriy_update(100)
