@@ -4,6 +4,7 @@
 
   const parolKarta = document.getElementById("parol-karta");
   const statistikaKarta = document.getElementById("statistika-karta");
+  const botKarta = document.getElementById("bot-karta");
   const royxatKarta = document.getElementById("royxat-karta");
   const formaKarta = document.getElementById("forma-karta");
   const royxat = document.getElementById("moddalar-royxati");
@@ -14,6 +15,7 @@
     if (e.key === "Enter") kirish();
   });
   document.getElementById("saqlash-tugma").addEventListener("click", saqlash);
+  document.getElementById("bot-yangila-tugma").addEventListener("click", botHolatiYukla);
 
   async function kirish() {
     parol = document.getElementById("parol").value;
@@ -24,10 +26,92 @@
     }
     parolKarta.hidden = true;
     statistikaKarta.hidden = false;
+    botKarta.hidden = false;
     royxatKarta.hidden = false;
     formaKarta.hidden = false;
     renderRoyxat(await j.json());
     statistikaYukla();
+    botHolatiYukla();
+  }
+
+  // ---- Telegram bot holati ----
+  //
+  // Bot javob bermay qolganda sabab shu yerda ko'rinadi: webhook Telegram'da
+  // haqiqatan o'rnatilganmi, navbatda yetkazilmagan savol turibdimi va
+  // Telegram oxirgi marta nima xato qaytargan.
+
+  async function botHolatiYukla() {
+    const xulosa = document.getElementById("bot-xulosa");
+    const idish = document.getElementById("bot-holati");
+    xulosa.className = "";
+    xulosa.textContent = "Tekshirilmoqda…";
+    idish.innerHTML = "";
+    try {
+      const j = await fetch("/api/admin/telegram", { headers: { "X-Admin-Parol": parol } });
+      if (j.status === 404) {
+        xulosa.className = "xato-xabar";
+        xulosa.textContent = "Bot sozlanmagan — TELEGRAM_BOT_TOKEN berilmagan.";
+        return;
+      }
+      if (!j.ok) {
+        const d = await j.json().catch(() => ({}));
+        xulosa.className = "xato-xabar";
+        xulosa.textContent = d.detail || "Holatni olib bo'lmadi (" + j.status + ").";
+        return;
+      }
+      renderBotHolati(await j.json());
+    } catch (e) {
+      xulosa.className = "xato-xabar";
+      xulosa.textContent = "Serverga ulanib bo'lmadi.";
+    }
+  }
+
+  function renderBotHolati(d) {
+    const xulosa = document.getElementById("bot-xulosa");
+    const kutilgan = d.kutilgan_url || "";
+    const navbat = d.pending_update_count || 0;
+
+    let matn, sinf;
+    if (!d.url) {
+      matn = "Webhook o'rnatilmagan — Telegram xabarlarni hech qayerga yubormayapti.";
+      sinf = "xato-xabar";
+    } else if (kutilgan && d.url !== kutilgan) {
+      matn = "Webhook boshqa manzilga o'rnatilgan — xabarlar bu xizmatga kelmayapti.";
+      sinf = "xato-xabar";
+    } else if (d.last_error_message) {
+      matn = "Telegram oxirgi yetkazishda xato oldi: " + d.last_error_message;
+      sinf = "xato-xabar";
+    } else if (navbat > 0) {
+      matn = navbat + " ta savol navbatda — xizmat uyquda yoki band bo'lgan, uyg'onishi bilan javob beriladi.";
+      sinf = "";
+    } else {
+      matn = "Hammasi joyida — webhook o'rnatilgan, navbat bo'sh.";
+      sinf = "ok-xabar";
+    }
+    xulosa.className = sinf;
+    xulosa.textContent = matn;
+
+    const idish = document.getElementById("bot-holati");
+    const qatorlar = [
+      ["Webhook manzili", d.url || "—"],
+      ["Kutilgan manzil", kutilgan || "—"],
+      ["Navbatdagi savollar", navbat],
+      ["Maxfiy sir tekshiruvi", d.sir_yoqilgan ? "yoqilgan" : "o'chiq"],
+      ["Oxirgi xato", d.last_error_message || "yo'q"],
+      ["Oxirgi xato vaqti", sanaMatni(d.last_error_date)],
+    ];
+    idish.innerHTML =
+      '<div class="manba-nomi">Webhook tafsilotlari</div>' +
+      qatorlar
+        .map(([n, q]) =>
+          '<div class="manba-qator"><span>' + esc(n) + "</span><b>" + esc(String(q)) + "</b></div>")
+        .join("");
+  }
+
+  // Telegram vaqtni unix soniyada beradi.
+  function sanaMatni(unix) {
+    if (!unix) return "—";
+    return new Date(unix * 1000).toLocaleString("uz-UZ");
   }
 
   // ---- Statistika ----

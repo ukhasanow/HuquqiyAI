@@ -239,6 +239,21 @@ def test_admin_telegram_bot_sozlanmagan_bolsa_404(monkeypatch):
     assert r.status_code == 404
 
 
+def test_admin_telegram_ulanmasa_sabab_koinadi(monkeypatch):
+    from app.config import ADMIN_PASSWORD
+
+    class SoxtaBot:
+        async def get_webhook_info(self):
+            raise ConnectionError("Read timeout")
+
+    monkeypatch.setattr(telegram_bot, "mavjud", lambda: True)
+    monkeypatch.setattr(telegram_bot, "bot", lambda: SoxtaBot())
+
+    r = client.get("/api/admin/telegram", headers={"X-Admin-Parol": ADMIN_PASSWORD})
+    assert r.status_code == 502
+    assert "Read timeout" in r.json()["detail"]
+
+
 def test_admin_telegram_webhook_holatini_qaytaradi(monkeypatch):
     from aiogram.types import WebhookInfo
 

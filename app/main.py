@@ -353,7 +353,12 @@ async def admin_telegram_holati(x_admin_parol: Optional[str] = Header(None)):
     _admin_tekshir(x_admin_parol)
     if not telegram_bot.mavjud():
         raise HTTPException(status_code=404, detail="Bot sozlanmagan")
-    malumot = (await telegram_bot.bot().get_webhook_info()).model_dump(mode="json")
+    try:
+        holat_obyekti = await telegram_bot.bot().get_webhook_info()
+    except Exception as e:
+        # Sabab odatda tarmoq yoki noto'g'ri token — admin uni ko'rishi kerak.
+        raise HTTPException(status_code=502, detail=f"Telegram javob bermadi: {e}")
+    malumot = holat_obyekti.model_dump(mode="json")
     malumot["kutilgan_url"] = (
         TELEGRAM_WEBHOOK_URL.rstrip("/") + WEBHOOK_YOLI if TELEGRAM_WEBHOOK_URL else ""
     )
