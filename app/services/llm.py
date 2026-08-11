@@ -1,7 +1,9 @@
 # AI modellari bilan ishlash qatlami.
-# Asosiy provayder — Anthropic; u ishlamasa (kredit/limit/xato) avtomatik
-# ravishda Google Gemini zaxira provayderiga o'tiladi. Ikkalasi ham bir xil
-# tuzilgan JSON javob qaytaradi, shuning uchun qolgan kod provayderni sezmaydi.
+# Provayderlar navbati: Anthropic -> Gemini -> OpenAI. Biri ishlamasa
+# (kredit/limit/xato) keyingisiga o'tiladi. Tartib narxga qarab tanlangan:
+# avval asosiy, so'ng Gemini'ning BEPUL kvotasi, u tugagach pulli OpenAI.
+# Uchalasi ham bir xil tuzilgan JSON javob qaytaradi, shuning uchun qolgan
+# kod provayderni sezmaydi.
 # Kirish — oddiy matn (savol yoki hujjat matni), manbasidan qat'i nazar.
 import json
 from typing import List, Optional
@@ -9,7 +11,14 @@ from typing import List, Optional
 import anthropic
 import httpx
 
-from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, GEMINI_MODEL, MODEL
+from ..config import (
+    ANTHROPIC_API_KEY,
+    GEMINI_API_KEY,
+    GEMINI_MODEL,
+    MODEL,
+    OPENAI_API_KEY,
+    OPENAI_MODEL,
+)
 
 _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
 
@@ -134,8 +143,207 @@ def _xatolar_matni(xatolar: List[Exception]) -> str:
     """
     matnlar = [str(e) for e in xatolar]
     ogir = [m for m in matnlar if "credit balance" in m.lower() or "billing" in m.lower()
+            or "insufficient_quota" in m.lower()
             or "authentication" in m.lower() or "api key" in m.lower()]
     return " | ".join(ogir + [m for m in matnlar if m not in ogir])
+
+
+# Har bir provayderning oxirgi HAQIQIY chaqiruvda qanday tugagani — /health uchun.
+#
+# Nega faol tekshiruv emas: /health'ni uptime monitoring har necha daqiqada
+# so'raydi. Har so'rovda provayderga murojaat qilinsa, Gemini bepul kvotasi
+# (kuniga 20 ta so'rov) bir soatda yonib bitadi va Anthropic tokeni bekorga
+# sarflanadi. Shuning uchun holat foydalanuvchi so'rovlaridan yig'iladi.
+#
+# Buning narxi: qayta ishga tushgandan keyin birinchi savolgacha holat
+# "noma'lum" bo'lib turadi. Ayirboshlash ongli — nosozlik birinchi savoldayoq
+# ko'rinadi, monitoring esa kvotani yemaydi.
+_holat: dict = {}
+
+
+def _xato_sababi(e: Exception) -> str:
+    """Provayder xatosini qisqa sababga aylantiradi (foydalanuvchi matni emas, diagnostika)."""
+    s = str(e).lower()
+    # OpenAI hisobi tugaganini 429 bilan qaytaradi va matnida "quota" bor —
+    # limitdan OLDIN tekshirilmasa "bir daqiqadan so'ng urinib ko'ring" degan
+    # chalg'ituvchi xabar chiqadi, aslida kutish hech narsani o'zgartirmaydi.
+    if "credit balance" in s or "billing" in s or "insufficient_quota" in s:
+        return "hisob"
+    if "authentication" in s or "invalid x-api-key" in s or "api key" in s or "401" in s:
+        return "kalit"
+    if "quota" in s or "rate limit" in s or "resource_exhausted" in s or "429" in s:
+        return "limit"
+    # Model nomi yopilgani takrorlanuvchi tuzoq: Google aniq versiyalarni
+    # yangi kalitlar uchun to'sadi ("no longer available to new users").
+    if "not found" in s or "404" in s:
+        return "model"
+    if "overloaded" in s or "529" in s:
+        return "band"
+    # Kesilgan JSON: javob token chegarasida uzilgan yoki bo'sh kelgan.
+    if "uzildi" in s or "unterminated" in s or "bo'sh javob" in s:
+        return "uzildi"
+    return "xato"
+
+
+def _urin(provayder: str, ish, xatolar: List[Exception]):
+    """Provayderni chaqiradi va natijasini holatga yozadi.
+
+    Xato bo'lsa None qaytaradi — chaqiruvchi keyingi provayderga o'tadi.
+    """
+    try:
+        natija = ish()
+    except Exception as e:
+        _holat[provayder] = _xato_sababi(e)
+        xatolar.append(e)
+        return None
+    _holat[provayder] = "ishlayapti"
+    return natija
+
+
+def provayderlar_holati() -> dict:
+    """Provayderlar holati va model nomlari — /health uchun.
+
+    Model nomi sir emas, lekin diagnostikada hal qiluvchi: "model" sababi
+    aynan qaysi nom yopilganini shu yerda ko'rsatadi.
+    """
+    return {
+        "anthropic": {
+            "holat": _holat.get("anthropic", "noma'lum" if _client else "sozlanmagan"),
+            "model": MODEL,
+        },
+        "gemini": {
+            "holat": _holat.get("gemini", "noma'lum" if GEMINI_API_KEY else "sozlanmagan"),
+            "model": GEMINI_MODEL,
+        },
+        "openai": {
+            "holat": _holat.get("openai", "noma'lum" if OPENAI_API_KEY else "sozlanmagan"),
+            "model": OPENAI_MODEL,
+        },
+    }
+
+
+# Gemini "thinking" modellari (gemini-3.x) o'ylash tokenlarini ham
+# maxOutputTokens ichidan yeydi — o'lchandi: bir qatorlik savolga 988 ta
+# o'ylash tokeni. Byudjet tor bo'lsa u o'ylashga sarflanadi va JSON yarmida
+# uzilib qoladi; json.loads "Unterminated string" beradi.
+#
+# Bu nosozlik ayniqsa xavfli, chunki KO'RINMAYDI: Anthropic krediti tugagan
+# paytda xatolar yig'ilganda "hisob" xabari birinchi ko'rsatiladi, foydalanuvchi
+# esa zaxira ham o'lganini bilmaydi. Shuning uchun byudjet keng olingan —
+# ishlatilmagan token uchun to'lanmaydi, faqat haqiqiy chiqish hisoblanadi.
+_GEMINI_JAVOB_TOKEN = 8192
+_GEMINI_SHARTNOMA_TOKEN = 12288
+
+
+def _gemini_matni(javob: httpx.Response) -> str:
+    """Gemini javobidan matnni ajratadi, uzilishni ochiq xatoga aylantiradi.
+
+    Chegaraga urilganda `parts` umuman bo'lmasligi mumkin — tekshiruvsiz bu
+    KeyError bo'lib chiqadi va sabab yo'qoladi.
+    """
+    nomzod = javob.json()["candidates"][0]
+    if nomzod.get("finishReason") == "MAX_TOKENS":
+        raise RuntimeError(
+            "Gemini javobi maxOutputTokens chegarasida uzildi "
+            "(o'ylash tokenlari byudjetni yeb qo'ygan)"
+        )
+    for qism in nomzod.get("content", {}).get("parts", []):
+        # O'ylash qismlari (thought) javob emas — ular tashlab ketiladi.
+        if qism.get("text") and not qism.get("thought"):
+            return qism["text"]
+    raise RuntimeError(f"Gemini bo'sh javob qaytardi (finishReason={nomzod.get('finishReason')})")
+
+
+# ---------- OpenAI (uchinchi provayder) ----------
+
+# Gemini'dagi "thinking" tuzog'i bu yerda yo'q (o'lchandi: reasoning_tokens=0),
+# lekin chegara baribir qo'yiladi — uzilishni jimgina o'tkazib yubormaslik uchun
+# finish_reason tekshiriladi.
+_OPENAI_JAVOB_TOKEN = 4096
+_OPENAI_SHARTNOMA_TOKEN = 8192
+
+
+def _openai_sxemaga(sxema: dict) -> dict:
+    """Anthropic uchun yozilgan JSON Schema'ni OpenAI strict rejimiga o'giradi.
+
+    Uchinchi sxemani qo'lda yozish o'rniga mavjudi o'giriladi: Gemini nusxasi
+    allaqachon ko'rsatdiki, qo'lda takrorlangan sxemalar vaqt o'tib
+    bir-biridan uzoqlashadi — biriga qo'shilgan maydon ikkinchisida qolib ketadi.
+
+    Strict rejim talabi: har obyektda additionalProperties=false va BARCHA
+    xossalar required ichida. Uzunlik cheklovlari qo'llab-quvvatlanmaydi —
+    ular tashlanadi, chegaralar description'da baribir aytilgan.
+    """
+    if not isinstance(sxema, dict):
+        return sxema
+    natija = {k: v for k, v in sxema.items() if k not in ("maxLength", "maxItems", "minItems")}
+    if "properties" in natija:
+        natija["properties"] = {k: _openai_sxemaga(v) for k, v in natija["properties"].items()}
+        natija["required"] = list(natija["properties"])
+        natija["additionalProperties"] = False
+    if "items" in natija:
+        natija["items"] = _openai_sxemaga(natija["items"])
+    return natija
+
+
+def _openai_chaqir(nom: str, sxema: dict, tizim: str, xabarlar: List[dict],
+                   token: int, timeout: int) -> dict:
+    """OpenAI Chat Completions, structured output bilan.
+
+    `xabarlar` allaqachon OpenAI formatida ({"role", "content"}), shuning uchun
+    Gemini'dagidek o'girish kerak emas.
+    """
+    javob = httpx.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+        json={
+            "model": OPENAI_MODEL,
+            "messages": [{"role": "system", "content": tizim}] + xabarlar,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": nom, "strict": True, "schema": sxema},
+            },
+            "max_completion_tokens": token,
+        },
+        timeout=timeout,
+    )
+    javob.raise_for_status()
+    tanlov = javob.json()["choices"][0]
+    if tanlov.get("finish_reason") == "length":
+        raise RuntimeError("OpenAI javobi max_completion_tokens chegarasida uzildi")
+    xabar = tanlov["message"]
+    # Model rad etsa content bo'sh keladi — tekshirmasak json.loads tushunarsiz
+    # xato beradi va sabab yo'qoladi.
+    if xabar.get("refusal"):
+        raise RuntimeError(f"OpenAI so'rovni rad etdi: {xabar['refusal']}")
+    return json.loads(xabar["content"])
+
+
+def _openai_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
+    natija = _openai_chaqir(
+        "huquqiy_javob",
+        _openai_sxemaga(_javob_tool(batafsil)["input_schema"]),
+        tizim + "\n\nJavobni faqat berilgan JSON sxema bo'yicha qaytar.",
+        xabarlar,
+        _OPENAI_JAVOB_TOKEN,
+        60,
+    )
+    # Sxema kafolatiga qo'shimcha himoya (Gemini yo'lidagidek)
+    if natija.get("murojaat_mavzusi") not in MUROJAAT_MAVZULARI:
+        natija["murojaat_mavzusi"] = "umumiy"
+    natija.setdefault("tegishli_modda_idlari", [])
+    return natija
+
+
+def _openai_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
+    return _openai_chaqir(
+        "shartnoma_tahlili",
+        _openai_sxemaga(_shartnoma_tool()["input_schema"]),
+        tizim,
+        xabarlar,
+        _OPENAI_SHARTNOMA_TOKEN,
+        90,
+    )
 
 
 def _gemini_sxema(batafsil: bool = False) -> dict:
@@ -373,15 +581,17 @@ def shartnoma_tahlil_yarat(hujjat_matni: str, nomzod_moddalar: List[dict]) -> di
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
     xatolar: List[Exception] = []
     if _client is not None:
-        try:
-            return _anthropic_shartnoma(tizim, xabarlar)
-        except Exception as e:
-            xatolar.append(e)
+        natija = _urin("anthropic", lambda: _anthropic_shartnoma(tizim, xabarlar), xatolar)
+        if natija is not None:
+            return natija
     if GEMINI_API_KEY:
-        try:
-            return _gemini_shartnoma(tizim, xabarlar)
-        except Exception as e:
-            xatolar.append(e)
+        natija = _urin("gemini", lambda: _gemini_shartnoma(tizim, xabarlar), xatolar)
+        if natija is not None:
+            return natija
+    if OPENAI_API_KEY:
+        natija = _urin("openai", lambda: _openai_shartnoma(tizim, xabarlar), xatolar)
+        if natija is not None:
+            return natija
     if xatolar:
         raise RuntimeError(_xatolar_matni(xatolar))
     raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
@@ -412,13 +622,13 @@ def _gemini_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
             "generationConfig": {
                 "response_mime_type": "application/json",
                 "response_schema": _gemini_shartnoma_sxemasi(),
-                "maxOutputTokens": 4096,
+                "maxOutputTokens": _GEMINI_SHARTNOMA_TOKEN,
             },
         },
         timeout=90,
     )
     javob.raise_for_status()
-    return json.loads(javob.json()["candidates"][0]["content"]["parts"][0]["text"])
+    return json.loads(_gemini_matni(javob))
 
 
 # Model modda matnini qayta yozmaydi — u faqat qaysi modda mos kelishini
@@ -507,14 +717,13 @@ def _gemini_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> d
             "generationConfig": {
                 "response_mime_type": "application/json",
                 "response_schema": _gemini_sxema(batafsil),
-                "maxOutputTokens": 2048,
+                "maxOutputTokens": _GEMINI_JAVOB_TOKEN,
             },
         },
         timeout=60,
     )
     javob.raise_for_status()
-    matn = javob.json()["candidates"][0]["content"]["parts"][0]["text"]
-    natija = json.loads(matn)
+    natija = json.loads(_gemini_matni(javob))
     # Sxema kafolatiga qo'shimcha himoya
     if natija.get("murojaat_mavzusi") not in MUROJAAT_MAVZULARI:
         natija["murojaat_mavzusi"] = "umumiy"
@@ -559,23 +768,37 @@ def javob_yarat(
         )
     xabarlar.append({"role": "user", "content": foydalanuvchi_matni})
 
-    # Provayderlar navbati: Anthropic -> Gemini. Birinchisi ishlamasa
-    # (kredit tugashi, limit, tarmoq xatosi) ikkinchisiga o'tiladi.
+    # Provayderlar navbati: Anthropic -> Gemini (bepul) -> OpenAI (pulli).
+    # Biri ishlamasa (kredit tugashi, limit, tarmoq xatosi) keyingisiga o'tiladi.
     # Xatolar YIG'ILADI, oxirgisi emas: Anthropic kredit tugashi bilan
     # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
     # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
     xatolar: List[Exception] = []
     if _client is not None:
-        try:
-            return _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil))
-        except Exception as e:
-            xatolar.append(e)
+        natija = _urin(
+            "anthropic",
+            lambda: _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil)),
+            xatolar,
+        )
+        if natija is not None:
+            return natija
     if GEMINI_API_KEY:
-        try:
-            return _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil))
-        except Exception as e:
-            xatolar.append(e)
+        natija = _urin(
+            "gemini",
+            lambda: _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil)),
+            xatolar,
+        )
+        if natija is not None:
+            return natija
+    if OPENAI_API_KEY:
+        natija = _urin(
+            "openai",
+            lambda: _tavsiyani_matnga(_openai_javob(tizim, xabarlar, batafsil)),
+            xatolar,
+        )
+        if natija is not None:
+            return natija
     if xatolar:
         raise RuntimeError(_xatolar_matni(xatolar))
     raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")

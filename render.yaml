@@ -25,6 +25,9 @@ services:
       # Kvota tugasa boshqa modelga o'tish vaqtincha yechim beradi.
       - key: GEMINI_MODEL
         value: gemini-3.5-flash
+      # Uchinchi provayder — Gemini kvotasi tugagach ishga tushadi (pulli)
+      - key: OPENAI_MODEL
+        value: gpt-5.4-mini
       # Ovozli javob (TTS). Yoqish uchun: gemini
       - key: TTS_PROVAYDER
         value: gemini

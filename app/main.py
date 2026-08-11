@@ -33,7 +33,7 @@ from .models import (
     ShartnomaJavob,
     ShikoyatSorov,
 )
-from .services import ariza, documents, ovoz, statistika
+from .services import ariza, documents, llm, ovoz, statistika
 from .services import hujjat as hujjat_xizmati
 from .services import jarima as jarima_xizmati
 from .services import radar as radar_xizmati
@@ -105,6 +105,12 @@ def health():
     `statistika_saqlash` — sozlash xatosini darhol ko'rsatadi: Render'da disk
     vaqtinchalik, shuning uchun "fayl" qiymati statistika saqlanmasligini
     anglatadi. Sir oshkor qilinmaydi, faqat qaysi usul faolligi.
+
+    `provayderlar` — zaxira provayder jimgina o'lib qolmasligi uchun. Anthropic
+    krediti tugaganda butun sayt Gemini'ga tayanadi; agar u ham yiqilsa,
+    foydalanuvchiga faqat "hisob to'ldirilishi kerak" ko'rinadi va zaxira
+    ishlamayotgani bilinmaydi. Sabablar: hisob | kalit | limit | model | band |
+    uzildi | xato | ishlayapti | sozlanmagan | noma'lum (hali chaqirilmagan).
     """
     return {
         "holat": "ok",
@@ -112,6 +118,7 @@ def health():
         "javoblar_soni": statistika.javoblar_soni(),
         "statistika_saqlash": "tashqi" if statistika.tashqi_saqlash() else "fayl",
         "bot": "yoqilgan" if telegram_bot.mavjud() else "o'chiq",
+        "provayderlar": llm.provayderlar_holati(),
     }
 
 @app.post("/api/chat", response_model=ChatJavob)

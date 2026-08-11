@@ -10,7 +10,7 @@ import re
 from typing import List, Optional
 
 from .. import storage
-from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, MAX_HUJJAT_BELGILAR
+from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, MAX_HUJJAT_BELGILAR, OPENAI_API_KEY
 from ..models import ModdaJavob, ShartnomaBand, ShartnomaJavob, ShartnomaMazmuni
 from . import llm, retrieval
 from .javob import AiSozlanmagan, AiXato
@@ -163,7 +163,7 @@ def _bandlarni_tuz(xom: list) -> List[ShartnomaBand]:
 
 def shartnomani_tahlil(hujjat_matni: str) -> ShartnomaJavob:
     """Shartnomani band-band tahlil qiladi."""
-    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY:
+    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY and not OPENAI_API_KEY:
         raise AiSozlanmagan()
 
     matn = (hujjat_matni or "").strip()[:MAX_HUJJAT_BELGILAR]

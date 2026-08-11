@@ -54,8 +54,23 @@ def test_javob_qatlami_fastapi_ga_boglanmagan():
 def test_kalit_yoq_bolsa_ai_sozlanmagan(monkeypatch):
     monkeypatch.setattr(javob_xizmati, "ANTHROPIC_API_KEY", "")
     monkeypatch.setattr(javob_xizmati, "GEMINI_API_KEY", "")
+    monkeypatch.setattr(javob_xizmati, "OPENAI_API_KEY", "")
     with pytest.raises(javob_xizmati.AiSozlanmagan):
         javob_xizmati.uch_qismli_javob("aliment qancha")
+
+
+def test_bitta_openai_kaliti_yetarli(monkeypatch):
+    """Faqat OpenAI sozlangan bo'lsa ham xizmat ishlashi kerak — u endi
+    to'laqonli provayder, faqat ovoz zaxirasi emas."""
+    monkeypatch.setattr(javob_xizmati, "ANTHROPIC_API_KEY", "")
+    monkeypatch.setattr(javob_xizmati, "GEMINI_API_KEY", "")
+    monkeypatch.setattr(javob_xizmati, "OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(
+        javob_xizmati.llm, "javob_yarat",
+        lambda *a, **k: {"javob_topildi": True, "tegishli_modda_idlari": [],
+                         "tavsiya": "test", "murojaat_mavzusi": "umumiy"},
+    )
+    assert javob_xizmati.uch_qismli_javob("aliment qancha") is not None
 
 
 @pytest.mark.parametrize(

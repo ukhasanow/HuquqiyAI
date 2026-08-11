@@ -18,9 +18,11 @@ MODEL = os.getenv("MODEL", "claude-sonnet-4-5")
 # o'lik qilib qo'yadi — nosozlik faqat Anthropic ishlamay qolganda bilinadi.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
-# Ovozli xabarni matnga o'girish uchun ixtiyoriy zaxira (Whisper).
-# Asosiy provayder — Gemini, kaliti yuqorida.
+# Uchinchi provayder: ovozni matnga o'girish (Whisper) va LLM zaxirasi.
+# Navbatda oxirgi turadi — Gemini bepul kvotasi (kuniga 20 ta so'rov) tugagach
+# ishga tushadi, ya'ni pulli chaqiruv faqat haqiqatan zarur bo'lganda ketadi.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "huquqiy-admin-2026")
 
 # Yuklanadigan hujjat uchun cheklovlar

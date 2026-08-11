@@ -10,7 +10,7 @@
 from typing import List, Optional
 
 from .. import storage
-from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY
+from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY
 from ..models import ChatJavob
 from . import kesh, llm, retrieval, statistika
 
@@ -28,8 +28,8 @@ class AiSozlanmagan(JavobXato):
 
     def __init__(self):
         super().__init__(
-            "AI provayder sozlanmagan (ANTHROPIC_API_KEY yoki GEMINI_API_KEY kerak). "
-            ".env faylini tekshiring."
+            "AI provayder sozlanmagan (ANTHROPIC_API_KEY, GEMINI_API_KEY yoki "
+            "OPENAI_API_KEY kerak). .env faylini tekshiring."
         )
 
 
@@ -44,7 +44,9 @@ class AiXato(JavobXato):
 def _ai_xato_matni(e: Exception) -> str:
     """AI provayder xatolarini foydalanuvchiga tushunarli o'zbekcha xabarga aylantiradi."""
     s = str(e).lower()
-    if "credit balance" in s or "billing" in s:
+    # OpenAI hisob tugaganini 429 + "quota" bilan qaytaradi — pastdagi limit
+    # shartidan OLDIN tekshiriladi, aks holda odam bekorga kutadi.
+    if "credit balance" in s or "billing" in s or "insufficient_quota" in s:
         return "AI xizmati vaqtincha mavjud emas (hisob to'ldirilishi kerak). Birozdan so'ng urinib ko'ring."
     if "authentication" in s or "invalid x-api-key" in s or "401" in s:
         return "AI xizmati sozlanmagan (API kalit noto'g'ri). Administratorga murojaat qiling."
@@ -67,7 +69,7 @@ def uch_qismli_javob(
 
     batafsil=True — javob uzunroq va umumiy xulosa bilan (Telegram bot).
     """
-    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY:
+    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY and not OPENAI_API_KEY:
         raise AiSozlanmagan()
 
     hamma_moddalar = storage.moddalarni_oqi()

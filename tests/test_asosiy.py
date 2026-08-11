@@ -257,7 +257,118 @@ def test_health_sozlash_holatini_korsatadi():
     assert d["bot"] in ("yoqilgan", "o'chiq")
 
 
+def test_health_provayder_holati():
+    p = client.get("/health").json()["provayderlar"]
+    assert set(p) == {"anthropic", "gemini", "openai"}
+    for nom in p:
+        assert p[nom]["model"]
+        assert p[nom]["holat"] in (
+            "ishlayapti", "sozlanmagan", "noma'lum",
+            "hisob", "kalit", "limit", "model", "band", "uzildi", "xato",
+        )
+
+
+def test_health_provayder_xatosini_eslab_qoladi():
+    """Zaxira jimgina o'lib qolmasligi kerak: Anthropic krediti tugab,
+    Gemini ham yiqilsa, /health ikkalasining sababini ko'rsatishi shart."""
+    from app.services import llm
+
+    asl = llm._holat.copy()
+    try:
+        llm._holat.clear()
+        xatolar = []
+        llm._urin("anthropic", _yiqiluvchi("Your credit balance is too low"), xatolar)
+        llm._urin("gemini", _yiqiluvchi("429 RESOURCE_EXHAUSTED: quota"), xatolar)
+        holat = llm.provayderlar_holati()
+        assert holat["anthropic"]["holat"] == "hisob"
+        assert holat["gemini"]["holat"] == "limit"
+        assert len(xatolar) == 2
+        # Muvaffaqiyat holatni tozalaydi
+        assert llm._urin("gemini", lambda: {"ok": True}, xatolar) == {"ok": True}
+        assert llm.provayderlar_holati()["gemini"]["holat"] == "ishlayapti"
+    finally:
+        llm._holat.clear()
+        llm._holat.update(asl)
+
+
+def test_openai_sxemasi_strict_talablariga_javob_beradi():
+    """OpenAI strict rejimi: har obyektda additionalProperties=false va BARCHA
+    xossalar required ichida. Sxema qo'lda emas, mavjudidan o'giriladi —
+    shuning uchun yangi maydon qo'shilsa ham shart buzilmasligi kerak."""
+    from app.services import llm
+
+    def tekshir(s):
+        if s.get("type") == "object" or "properties" in s:
+            assert s["additionalProperties"] is False
+            assert set(s["required"]) == set(s["properties"])
+            for ichki in s["properties"].values():
+                tekshir(ichki)
+        if "items" in s:
+            tekshir(s["items"])
+        # Strict rejim uzunlik cheklovlarini qabul qilmaydi
+        assert "maxLength" not in s and "maxItems" not in s
+
+    for sxema in (
+        llm._openai_sxemaga(llm._javob_tool()["input_schema"]),
+        llm._openai_sxemaga(llm._javob_tool(batafsil=True)["input_schema"]),
+        llm._openai_sxemaga(llm._shartnoma_tool()["input_schema"]),
+    ):
+        tekshir(sxema)
+
+    # Batafsil rejimda qo'shiladigan maydon o'girishdan keyin ham saqlanadi
+    assert "xulosa" in llm._openai_sxemaga(
+        llm._javob_tool(batafsil=True)["input_schema"]
+    )["properties"]
+
+
+def test_openai_hisob_xatosi_limitdan_ajratiladi():
+    """OpenAI hisob tugaganini 429 + "quota" bilan qaytaradi. Limit deb
+    tasniflansa, odam bekorga "bir daqiqadan so'ng urining" deb kutadi."""
+    from app.services import llm
+    from app.services.javob import _ai_xato_matni
+
+    xato = RuntimeError("Error code: 429 - insufficient_quota: You exceeded your current quota")
+    assert llm._xato_sababi(xato) == "hisob"
+    assert "hisob to'ldirilishi kerak" in _ai_xato_matni(xato)
+    # Haqiqiy tezlik limiti esa limit bo'lib qolishi kerak
+    assert llm._xato_sababi(RuntimeError("429 rate limit exceeded")) == "limit"
+
+
+def test_gemini_uzilgan_javob_ochiq_xato_beradi():
+    """Chegaraga urilganda Gemini `parts` ni umuman qaytarmaydi. Tekshiruvsiz
+    bu KeyError bo'lib chiqadi va zaxira nega o'lgani noma'lum qoladi."""
+    from app.services import llm
+
+    class SoxtaJavob:
+        def __init__(self, malumot):
+            self._m = malumot
+
+        def json(self):
+            return self._m
+
+    with pytest.raises(RuntimeError, match="uzildi"):
+        llm._gemini_matni(SoxtaJavob({"candidates": [{"finishReason": "MAX_TOKENS"}]}))
+
+    with pytest.raises(RuntimeError, match="bo'sh javob"):
+        llm._gemini_matni(SoxtaJavob({"candidates": [{"content": {"parts": []}}]}))
+
+    # O'ylash qismi javob emas — u tashlab ketilishi kerak
+    matn = llm._gemini_matni(SoxtaJavob({"candidates": [{"content": {"parts": [
+        {"text": "o'ylash", "thought": True},
+        {"text": '{"javob": 1}'},
+    ]}}]}))
+    assert matn == '{"javob": 1}'
+
+    assert llm._xato_sababi(RuntimeError("Unterminated string at char 411")) == "uzildi"
+
+
+def _yiqiluvchi(xabar: str):
+    def ish():
+        raise RuntimeError(xabar)
+    return ish
+
+
 def test_health_sir_oshkor_qilmaydi():
     matn = client.get("/health").text
-    for sir in ("sk-ant", "AQ.", "upstash.io", "AAGnz"):
+    for sir in ("sk-ant", "sk-proj", "AQ.", "upstash.io", "AAGnz"):
         assert sir not in matn
