@@ -106,11 +106,12 @@ def health():
     vaqtinchalik, shuning uchun "fayl" qiymati statistika saqlanmasligini
     anglatadi. Sir oshkor qilinmaydi, faqat qaysi usul faolligi.
 
-    `provayderlar` — zaxira provayder jimgina o'lib qolmasligi uchun. Anthropic
-    krediti tugaganda butun sayt Gemini'ga tayanadi; agar u ham yiqilsa,
-    foydalanuvchiga faqat "hisob to'ldirilishi kerak" ko'rinadi va zaxira
-    ishlamayotgani bilinmaydi. Sabablar: hisob | kalit | limit | model | band |
-    uzildi | xato | ishlayapti | sozlanmagan | noma'lum (hali chaqirilmagan).
+    `provayderlar` — zaxira jimgina o'lib qolmasligi uchun. Ro'yxat NAVBAT
+    TARTIBIDA: har element bitta "provayder/model" bosqichi, chunki limitlar
+    model bo'yicha hisoblanadi. Tartibning o'zi ham ma'lumot — pulli provayder
+    haqiqatan oxirida turibdimi, shu yerdan ko'rinadi. Sabablar: hisob |
+    kalit | limit | model | band | uzildi | xato | ishlayapti | sozlanmagan |
+    noma'lum (hali chaqirilmagan).
     """
     return {
         "holat": "ok",

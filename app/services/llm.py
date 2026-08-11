@@ -17,9 +17,9 @@ import httpx
 from ..config import (
     ANTHROPIC_API_KEY,
     GEMINI_API_KEY,
-    GEMINI_MODEL,
+    GEMINI_MODELLAR,
     GROQ_API_KEY,
-    GROQ_MODEL,
+    GROQ_MODELLAR,
     MODEL,
     OPENAI_API_KEY,
     OPENAI_MODEL,
@@ -245,7 +245,9 @@ def _xato_sababi(e: Exception) -> str:
 # har so'rovga bekorga bitta murojaat qo'shiladi, va uning xatosi boshqa
 # provayderlarning VAQTINCHALIK xatosini bosib, foydalanuvchiga "hisob
 # to'ldiring" deb ko'rsatadi — aslida bir daqiqa kutsa yetardi.
-_DOIMIY_SABABLAR = ("hisob", "kalit")
+# "model" ham shu yerda: Google yopgan model ("no longer available to new
+# users") qaytib ochilmaydi, uni har savolda sinash bekorga kechikish.
+_DOIMIY_SABABLAR = ("hisob", "kalit", "model")
 _BLOK_MUDDATI = 600  # sekund; muddatdan keyin yana bir marta sinab ko'riladi
 _bloklangan: dict = {}
 
@@ -329,30 +331,48 @@ def _navbat(bosqichlar: List[tuple]) -> dict:
     raise xato
 
 
-def provayderlar_holati() -> dict:
-    """Provayderlar holati va model nomlari — /health uchun.
+def _bosqichlar(anthropic_ish=None, gemini_ish=None, mos_ish=None) -> List[tuple]:
+    """Navbatni quradi: (nom, sozlanganmi, funksiya) ro'yxati, tartib bilan.
 
-    Model nomi sir emas, lekin diagnostikada hal qiluvchi: "model" sababi
+    HAR MODEL alohida bosqich, chunki limitlar model bo'yicha hisoblanadi:
+    o'lchandi — Groq'da gpt-oss-120b qoldig'i 4323 ga tushganda gpt-oss-20b
+    hamon 7924 edi. Shu sababli bir modelning limiti boshqasiga to'sqinlik
+    qilmaydi va foydalanuvchi almashuvni sezmaydi.
+
+    Tartib narxga bog'liq: asosiy -> bepullar -> pulli. Bitta manba, chunki
+    /health ham shu ro'yxatdan o'qiydi — navbat va diagnostika ajralib
+    ketmasligi kerak (chaqiruvsiz ishlatilganda funksiyalar None bo'ladi).
+    """
+    bosqichlar: List[tuple] = [(f"anthropic/{MODEL}", _client is not None, anthropic_ish)]
+    for model in GEMINI_MODELLAR:
+        bosqichlar.append((
+            f"gemini/{model}", bool(GEMINI_API_KEY),
+            (lambda m=model: gemini_ish(m)) if gemini_ish else None,
+        ))
+    for model in GROQ_MODELLAR:
+        bosqichlar.append((
+            f"groq/{model}", bool(GROQ_API_KEY),
+            (lambda m=model: mos_ish(_groq_provayder(m))) if mos_ish else None,
+        ))
+    bosqichlar.append((
+        f"openai/{OPENAI_MODEL}", bool(OPENAI_API_KEY),
+        (lambda: mos_ish(_openai_provayder())) if mos_ish else None,
+    ))
+    return bosqichlar
+
+
+def provayderlar_holati() -> list:
+    """Har bosqichning holati — /health uchun, NAVBAT TARTIBIDA.
+
+    Ro'yxat (lug'at emas), chunki tartibning o'zi ma'lumot: qaysi model
+    birinchi sinaladi va pulli provayder haqiqatan oxirida turibdimi.
+    Model nomi sir emas, lekin diagnostikada hal qiluvchi — "model" sababi
     aynan qaysi nom yopilganini shu yerda ko'rsatadi.
     """
-    return {
-        "anthropic": {
-            "holat": _holat.get("anthropic", "noma'lum" if _client else "sozlanmagan"),
-            "model": MODEL,
-        },
-        "gemini": {
-            "holat": _holat.get("gemini", "noma'lum" if GEMINI_API_KEY else "sozlanmagan"),
-            "model": GEMINI_MODEL,
-        },
-        "groq": {
-            "holat": _holat.get("groq", "noma'lum" if GROQ_API_KEY else "sozlanmagan"),
-            "model": GROQ_MODEL,
-        },
-        "openai": {
-            "holat": _holat.get("openai", "noma'lum" if OPENAI_API_KEY else "sozlanmagan"),
-            "model": OPENAI_MODEL,
-        },
-    }
+    return [
+        {"nom": nom, "holat": _holat.get(nom, "noma'lum" if bor else "sozlanmagan")}
+        for nom, bor, _ in _bosqichlar()
+    ]
 
 
 # Gemini "thinking" modellari (gemini-3.x) o'ylash tokenlarini ham
@@ -405,9 +425,9 @@ def _openai_provayder() -> "_MosProvayder":
                          OPENAI_API_KEY, OPENAI_MODEL)
 
 
-def _groq_provayder() -> "_MosProvayder":
+def _groq_provayder(model: str) -> "_MosProvayder":
     return _MosProvayder("groq", "https://api.groq.com/openai/v1/chat/completions",
-                         GROQ_API_KEY, GROQ_MODEL)
+                         GROQ_API_KEY, model)
 
 
 # Gemini'dagi "thinking" tuzog'i bu yerda yo'q (o'lchandi: reasoning_tokens=0),
@@ -736,12 +756,11 @@ def shartnoma_tahlil_yarat(hujjat_matni: str, nomzod_moddalar: List[dict]) -> di
     # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
     # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
-    return _navbat([
-        ("anthropic", _client is not None, lambda: _anthropic_shartnoma(tizim, xabarlar)),
-        ("gemini", bool(GEMINI_API_KEY), lambda: _gemini_shartnoma(tizim, xabarlar)),
-        ("groq", bool(GROQ_API_KEY), lambda: _mos_shartnoma(_groq_provayder(), tizim, xabarlar)),
-        ("openai", bool(OPENAI_API_KEY), lambda: _mos_shartnoma(_openai_provayder(), tizim, xabarlar)),
-    ])
+    return _navbat(_bosqichlar(
+        anthropic_ish=lambda: _anthropic_shartnoma(tizim, xabarlar),
+        gemini_ish=lambda model: _gemini_shartnoma(model, tizim, xabarlar),
+        mos_ish=lambda p: _mos_shartnoma(p, tizim, xabarlar),
+    ))
 
 
 def _anthropic_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
@@ -759,9 +778,9 @@ def _anthropic_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
     raise RuntimeError("Model tool chaqirmadi")
 
 
-def _gemini_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
+def _gemini_shartnoma(model: str, tizim: str, xabarlar: List[dict]) -> dict:
     javob = httpx.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         params={"key": GEMINI_API_KEY},
         json={
             "system_instruction": {"parts": [{"text": tizim}]},
@@ -846,7 +865,7 @@ def _anthropic_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -
     raise RuntimeError("Model tool chaqirmadi")
 
 
-def _gemini_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
+def _gemini_javob(model: str, tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
     """Zaxira provayder: Gemini REST API, structured JSON output bilan."""
     contents = [
         {
@@ -856,7 +875,7 @@ def _gemini_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> d
         for x in xabarlar
     ]
     javob = httpx.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         params={"key": GEMINI_API_KEY},
         json={
             "system_instruction": {"parts": [{"text": tizim + "\n\nJavobni faqat berilgan JSON sxema bo'yicha qaytar."}]},
@@ -921,13 +940,8 @@ def javob_yarat(
     # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
     # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
-    return _navbat([
-        ("anthropic", _client is not None,
-         lambda: _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil))),
-        ("gemini", bool(GEMINI_API_KEY),
-         lambda: _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil))),
-        ("groq", bool(GROQ_API_KEY),
-         lambda: _tavsiyani_matnga(_mos_javob(_groq_provayder(), tizim, xabarlar, batafsil))),
-        ("openai", bool(OPENAI_API_KEY),
-         lambda: _tavsiyani_matnga(_mos_javob(_openai_provayder(), tizim, xabarlar, batafsil))),
-    ])
+    return _navbat(_bosqichlar(
+        anthropic_ish=lambda: _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil)),
+        gemini_ish=lambda model: _tavsiyani_matnga(_gemini_javob(model, tizim, xabarlar, batafsil)),
+        mos_ish=lambda p: _tavsiyani_matnga(_mos_javob(p, tizim, xabarlar, batafsil)),
+    ))

@@ -43,7 +43,7 @@ class AiXato(JavobXato):
 
 # Kutish bilan o'tib ketadigan sabablar. Foydalanuvchi uchun asosiy savol
 # bitta: kutsam o'zi tuzaladimi yoki yo'qmi.
-_VAQTINCHALIK = ("limit", "band", "uzildi", "xato", "model")
+_VAQTINCHALIK = ("limit", "band", "uzildi", "xato")
 
 
 def _qachon(soniya: Optional[int]) -> str:
@@ -76,7 +76,7 @@ def _ai_xato_matni(e: Exception) -> str:
     sabablar = getattr(e, "sabablar", None) or []
     if any(s in _VAQTINCHALIK for s in sabablar):
         return "So'rovlar ko'payib ketdi. " + _qachon(getattr(e, "kutish", None))
-    if sabablar and all(s in ("hisob", "kalit") for s in sabablar):
+    if sabablar and all(s in ("hisob", "kalit", "model") for s in sabablar):
         return "AI xizmati vaqtincha mavjud emas. Administratorga murojaat qiling."
 
     # Sabablar biriktirilmagan (eski chaqiruv yo'li) — matndan aniqlanadi

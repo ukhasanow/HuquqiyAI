@@ -17,7 +17,23 @@ MODEL = os.getenv("MODEL", "claude-sonnet-4-5")
 # yopib qo'yadi ("no longer available to new users"), bu esa zaxirani jimgina
 # o'lik qilib qo'yadi — nosozlik faqat Anthropic ishlamay qolganda bilinadi.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+
+
+def _modellar(nom: str, sukut: str) -> list:
+    """Vergul bilan ajratilgan model ro'yxatini o'qiydi.
+
+    Limitlar HAR MODEL uchun alohida hisoblanadi (o'lchandi: Groq'da
+    gpt-oss-120b qoldig'i 4323 ga tushganda gpt-oss-20b hamon 7924 edi).
+    Shuning uchun bitta provayderga bir necha model berilsa, bepul sig'im
+    shuncha barobar oshadi va foydalanuvchi limitni umuman ko'rmaydi.
+    """
+    return [q.strip() for q in os.getenv(nom, sukut).split(",") if q.strip()]
+
+
+GEMINI_MODELLAR = _modellar("GEMINI_MODEL", "gemini-flash-latest")
+# Boshqa xizmatlar (rasm/OCR: documents, radar, jarima, ovoz) bitta model
+# nomini kutadi — ular uchun ro'yxatning birinchisi ishlatiladi.
+GEMINI_MODEL = GEMINI_MODELLAR[0]
 # Uchinchi provayder: ovozni matnga o'girish (Whisper) va LLM zaxirasi.
 # Navbatda oxirgi turadi — Gemini bepul kvotasi (kuniga 20 ta so'rov) tugagach
 # ishga tushadi, ya'ni pulli chaqiruv faqat haqiqatan zarur bo'lganda ketadi.
@@ -28,7 +44,7 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
 # qo'llab-quvvatlamaydi, qwen3.6-27b esa bizning prompt hajmiga sig'maydi.
 # gpt-oss-120b ikkalasidan ham o'tdi va o'zbekcha javobi to'g'ri chiqdi.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_MODELLAR = _modellar("GROQ_MODEL", "openai/gpt-oss-120b,openai/gpt-oss-20b")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "huquqiy-admin-2026")
 
 # Yuklanadigan hujjat uchun cheklovlar

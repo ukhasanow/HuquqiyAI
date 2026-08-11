@@ -259,13 +259,17 @@ def test_health_sozlash_holatini_korsatadi():
 
 def test_health_provayder_holati():
     p = client.get("/health").json()["provayderlar"]
-    assert set(p) == {"anthropic", "gemini", "groq", "openai"}
-    for nom in p:
-        assert p[nom]["model"]
-        assert p[nom]["holat"] in (
+    assert isinstance(p, list) and p, "navbat tartibi saqlanishi uchun ro'yxat bo'lishi kerak"
+    for bosqich in p:
+        nom, holat = bosqich["nom"], bosqich["holat"]
+        assert "/" in nom, f"bosqich nomida model bo'lishi kerak: {nom}"
+        assert holat in (
             "ishlayapti", "sozlanmagan", "noma'lum",
             "hisob", "kalit", "limit", "model", "band", "uzildi", "xato",
         )
+    # Pulli provayder oxirida turishi shart — aks holda har savol pul yeydi
+    assert p[-1]["nom"].startswith("openai/")
+    assert p[0]["nom"].startswith("anthropic/")
 
 
 def test_health_provayder_xatosini_eslab_qoladi():
@@ -273,22 +277,30 @@ def test_health_provayder_xatosini_eslab_qoladi():
     Gemini ham yiqilsa, /health ikkalasining sababini ko'rsatishi shart."""
     from app.services import llm
 
-    asl = llm._holat.copy()
+    asl, asl_blok = llm._holat.copy(), llm._bloklangan.copy()
     try:
         llm._holat.clear()
+        llm._bloklangan.clear()
+        # Haqiqiy bosqich nomlari olinadi — holat va navbat bir xil kalitni
+        # ishlatishi shart, aks holda /health hech qachon to'lmaydi
+        nomlar = [n for n, _, _ in llm._bosqichlar()]
+        anth = next(n for n in nomlar if n.startswith("anthropic/"))
+        gem = next(n for n in nomlar if n.startswith("gemini/"))
+
         xatolar = []
-        llm._urin("anthropic", _yiqiluvchi("Your credit balance is too low"), xatolar)
-        llm._urin("gemini", _yiqiluvchi("429 RESOURCE_EXHAUSTED: quota"), xatolar)
-        holat = llm.provayderlar_holati()
-        assert holat["anthropic"]["holat"] == "hisob"
-        assert holat["gemini"]["holat"] == "limit"
+        llm._urin(anth, _yiqiluvchi("Your credit balance is too low"), xatolar)
+        llm._urin(gem, _yiqiluvchi("429 RESOURCE_EXHAUSTED: quota"), xatolar)
+        holat = {b["nom"]: b["holat"] for b in llm.provayderlar_holati()}
+        assert holat[anth] == "hisob"
+        assert holat[gem] == "limit"
         assert len(xatolar) == 2
         # Muvaffaqiyat holatni tozalaydi
-        assert llm._urin("gemini", lambda: {"ok": True}, xatolar) == {"ok": True}
-        assert llm.provayderlar_holati()["gemini"]["holat"] == "ishlayapti"
+        assert llm._urin(gem, lambda: {"ok": True}, xatolar) == {"ok": True}
+        yangi = {b["nom"]: b["holat"] for b in llm.provayderlar_holati()}
+        assert yangi[gem] == "ishlayapti"
     finally:
-        llm._holat.clear()
-        llm._holat.update(asl)
+        llm._holat.clear(); llm._holat.update(asl)
+        llm._bloklangan.clear(); llm._bloklangan.update(asl_blok)
 
 
 def test_openai_sxemasi_strict_talablariga_javob_beradi():
@@ -371,25 +383,35 @@ def test_groq_openai_bilan_bir_xil_yoldan_boradi():
     Faqat manzil, kalit va model farq qilishi kerak."""
     from app.services import llm
 
-    g, o = llm._groq_provayder(), llm._openai_provayder()
+    g, o = llm._groq_provayder("test-model"), llm._openai_provayder()
+    assert g.model == "test-model", "model parametr bo'lishi kerak"
     assert g.nom == "groq" and o.nom == "openai"
     assert "groq.com" in g.manzil and "openai.com" in o.manzil
     assert g.manzil.endswith("/chat/completions") and o.manzil.endswith("/chat/completions")
     assert g.model and o.model and g.model != o.model
 
 
-def test_bepul_provayderlar_pullidan_oldin_turadi():
-    """Tartib narxga bog'liq: pul faqat bepul kvotalar tugagach sarflanadi.
-    Tartib buzilsa har savol bekorga pul yeydi — testsiz bu sezilmaydi."""
-    import inspect
-
+def test_har_model_alohida_bosqich_va_bepullar_oldinda():
+    """Ikki narsa bir vaqtda: har model alohida bosqich (limit model bo'yicha
+    hisoblanadi, shuning uchun ro'yxat bepul sig'imni oshiradi) va pulli
+    provayder oxirida (aks holda har savol bekorga pul yeydi)."""
+    from app import config
     from app.services import llm
 
-    manba = inspect.getsource(llm.javob_yarat)
-    tartib = [n for n in ("anthropic", "gemini", "groq", "openai")
-              if f'("{n}"' in manba]
-    assert tartib == ["anthropic", "gemini", "groq", "openai"], tartib
-    assert manba.index('("groq"') < manba.index('("openai"')
+    nomlar = [n for n, _, _ in llm._bosqichlar()]
+    assert nomlar[0].startswith("anthropic/")
+    assert nomlar[-1].startswith("openai/")
+
+    # Har sozlangan model o'z bosqichini olishi kerak
+    for model in config.GEMINI_MODELLAR:
+        assert f"gemini/{model}" in nomlar
+    for model in config.GROQ_MODELLAR:
+        assert f"groq/{model}" in nomlar
+
+    # Bepullar pullidan oldin
+    oxirgi_bepul = max(i for i, n in enumerate(nomlar)
+                       if n.startswith(("gemini/", "groq/")))
+    assert oxirgi_bepul < nomlar.index(nomlar[-1])
 
 
 def test_krediti_tugagan_provayder_chetlab_otiladi():

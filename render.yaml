@@ -25,13 +25,15 @@ services:
       # 20 ta so'rov (GenerateRequestsPerDayPerProjectPerModel-FreeTier).
       # Yangi kalit yasash yordam bermaydi — kvota o'sha loyihanikidir.
       # Kvota tugasa boshqa modelga o'tish vaqtincha yechim beradi.
+      # Vergul bilan ro'yxat: limit har model uchun alohida hisoblanadi,
+      # shuning uchun ikkinchi model bepul sig'imni ikki barobar oshiradi.
       - key: GEMINI_MODEL
-        value: gemini-3.5-flash
+        value: gemini-3.5-flash,gemini-flash-latest
       # Bepul zaxira — Gemini kvotasi tugagach ishga tushadi, OpenAI'dan oldin.
       # Model o'lchov bilan tanlangan: llama-3.3-70b json_schema'ni
       # qo'llab-quvvatlamaydi, qwen3.6-27b prompt hajmiga sig'maydi.
       - key: GROQ_MODEL
-        value: openai/gpt-oss-120b
+        value: openai/gpt-oss-120b,openai/gpt-oss-20b
       # Oxirgi zaxira (pulli) — faqat bepul kvotalar tugagach chaqiriladi
       - key: OPENAI_MODEL
         value: gpt-5.4-mini
