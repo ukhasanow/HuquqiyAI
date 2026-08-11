@@ -101,6 +101,10 @@ STATISTIKA_KV_URL = (
 STATISTIKA_KV_TOKEN = (
     os.getenv("STATISTIKA_KV_TOKEN") or os.getenv("UPSTASH_REDIS_REST_TOKEN") or ""
 )
+# Javob keshi ham xuddi shu omborda saqlanadi (alohida kalit prefiksi bilan).
+# Yangi o'zgaruvchi ataylab kiritilmadi: bitta Upstash bazasi ikkalasiga
+# yetadi va sozlashda adashish uchun joy qolmaydi.
+KESH_KV_MUDDATI = int(os.getenv("KESH_MUDDATI", str(24 * 3600)))
 
 # Ovozli xabar cheklovlari (5-bosqich)
 MAX_OVOZ_DAVOMIYLIGI = 60  # soniya

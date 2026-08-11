@@ -509,3 +509,26 @@ def test_health_sir_oshkor_qilmaydi():
     matn = client.get("/health").text
     for sir in ("sk-ant", "sk-proj", "gsk_", "AQ.", "upstash.io", "AAGnz"):
         assert sir not in matn
+
+
+def test_health_kesh_holati():
+    """Isitilgan kesh saqlanadimi — demo oldidan buni ko'rish shart.
+    "xotira" bo'lsa Render uyg'onishi bilan yo'qoladi va isitish behuda."""
+    k = client.get("/health").json()["kesh"]
+    assert k["saqlash"] in ("tashqi", "xotira")
+    assert isinstance(k["yozuvlar"], int)
+
+
+def test_isitgich_savollari_bazaga_mos():
+    """Isitgich ro'yxatidagi har savolga qidiruv nomzod topishi kerak —
+    aks holda isitish "javob topilmadi" ni keshlab, kvotani behuda yeydi."""
+    from tools.kesh_isit import SAVOLLAR, savollarni_yig
+
+    from app import storage
+    from app.services import retrieval
+
+    moddalar = storage.moddalarni_oqi()
+    nomzodsiz = [s for royxat in SAVOLLAR.values() for s in royxat
+                 if not retrieval.moddalarni_qidir(s, moddalar)]
+    assert not nomzodsiz, f"bazada javobi yo'q savollar: {nomzodsiz}"
+    assert len(savollarni_yig(False)) >= 50

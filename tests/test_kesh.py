@@ -84,3 +84,106 @@ def test_chegaradan_oshsa_eng_eskisi_chiqariladi():
         kesh.qoy(kesh.kalit(f"savol raqam {i}", "oddiy", "v1"), i)
     assert kesh.holat()["yozuvlar"] == monkeypatch_max
     assert kesh.ol(kesh.kalit("savol raqam 0", "oddiy", "v1")) is None
+
+
+# ---------- Tashqi qavat (Upstash) ----------
+#
+# Bu testlar tarmoqqa CHIQMAYDI: httpx chaqiruvlari almashtiriladi. Maqsad —
+# qavatlar orasidagi mantiq to'g'riligini tekshirish, Upstash'ni emas.
+
+from app.models import ChatJavob  # noqa: E402
+
+
+def _javob(tavsiya="test tavsiya"):
+    return ChatJavob(javob_topildi=True, moddalar=[], tavsiya=tavsiya,
+                     murojaat_mavzusi="mehnat")
+
+
+def test_kv_ochiq_bolmasa_tarmoqqa_chiqilmaydi(monkeypatch):
+    """Ombor sozlanmagan bo'lsa kesh oddiy xotira keshi bo'lib qolishi kerak."""
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_URL", "")
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_TOKEN", "")
+    monkeypatch.setattr(kesh.httpx, "get", _portlaydi)
+    monkeypatch.setattr(kesh.httpx, "post", _portlaydi)
+    k = _kalit("kv yo'q")
+    kesh.qoy(k, _javob())
+    assert kesh.ol(k).tavsiya == "test tavsiya"
+
+
+def _portlaydi(*a, **k):
+    raise AssertionError("tarmoqqa chiqildi")
+
+
+def test_xotirada_bolsa_omborga_borilmaydi(monkeypatch):
+    """Xotira birinchi qavat: tarmoq so'rovi javobga kechikish qo'shmasin."""
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_URL", "https://misol")
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_TOKEN", "t")
+    monkeypatch.setattr(kesh.httpx, "post", lambda *a, **k: _SoxtaJavob({}))
+    k = _kalit("xotirada bor")
+    kesh.qoy(k, _javob())
+    monkeypatch.setattr(kesh.httpx, "get", _portlaydi)  # endi tegilmasligi kerak
+    assert kesh.ol(k) is not None
+
+
+class _SoxtaJavob:
+    def __init__(self, malumot, xato=False):
+        self._m = malumot
+        self._xato = xato
+
+    def raise_for_status(self):
+        if self._xato:
+            raise RuntimeError("500")
+
+    def json(self):
+        return self._m
+
+
+def test_qayta_ishga_tushgandan_keyin_ombordan_tiklanadi(monkeypatch):
+    """Asosiy maqsad: Render uxlab-uyg'onganda isitilgan kesh yo'qolmasin."""
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_URL", "https://misol")
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_TOKEN", "t")
+    saqlangan = {}
+
+    def soxta_post(url, **kw):
+        saqlangan[url.split("/setex/")[1].split("/")[0]] = kw["content"].decode()
+        return _SoxtaJavob({})
+
+    def soxta_get(url, **kw):
+        return _SoxtaJavob({"result": saqlangan.get(url.rsplit("/", 1)[1])})
+
+    monkeypatch.setattr(kesh.httpx, "post", soxta_post)
+    monkeypatch.setattr(kesh.httpx, "get", soxta_get)
+
+    k = _kalit("ombordan tiklanadi")
+    kesh.qoy(k, _javob("ombordagi javob"))
+    kesh.tozala()                       # xotira yo'qoldi (qayta ishga tushish)
+    tiklangan = kesh.ol(k)
+    assert tiklangan is not None, "ombordan tiklanmadi"
+    assert tiklangan.tavsiya == "ombordagi javob"
+    # Tiklangach xotiraga ko'chirilishi kerak — ikkinchi so'rov tarmoqsiz
+    monkeypatch.setattr(kesh.httpx, "get", _portlaydi)
+    assert kesh.ol(k) is not None
+
+
+def test_ombor_yiqilsa_javob_buzilmaydi(monkeypatch):
+    """Kesh — tezlashtirish vositasi. U yiqilsa xizmat to'xtamasligi shart."""
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_URL", "https://misol")
+    monkeypatch.setattr(kesh, "STATISTIKA_KV_TOKEN", "t")
+    monkeypatch.setattr(kesh.httpx, "post",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("tarmoq")))
+    monkeypatch.setattr(kesh.httpx, "get",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("tarmoq")))
+    k = _kalit("ombor yiqilgan")
+    kesh.qoy(k, _javob())              # xato ko'tarilmasligi kerak
+    assert kesh.ol(k) is not None      # xotiradan qaytadi
+    kesh.tozala()
+    assert kesh.ol(k) is None          # ombor yo'q — lekin xato ham yo'q
+
+
+def test_kv_kaliti_url_uchun_xavfsiz():
+    """Kalit ichida savol matni bor: bo'sh joy va | URL'ni buzadi."""
+    k = _kalit("Ish haqi to'lanmayapti | juda uzun " + "a" * 500)
+    kv = kesh._kv_kalit(k)
+    assert kv.startswith("kesh:")
+    assert len(kv) < 80
+    assert all(c.isalnum() or c in ":" for c in kv)

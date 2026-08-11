@@ -33,7 +33,7 @@ from .models import (
     ShartnomaJavob,
     ShikoyatSorov,
 )
-from .services import ariza, documents, llm, ovoz, statistika
+from .services import ariza, documents, kesh, llm, ovoz, statistika
 from .services import hujjat as hujjat_xizmati
 from .services import jarima as jarima_xizmati
 from .services import radar as radar_xizmati
@@ -119,6 +119,7 @@ def health():
         "javoblar_soni": statistika.javoblar_soni(),
         "statistika_saqlash": "tashqi" if statistika.tashqi_saqlash() else "fayl",
         "bot": "yoqilgan" if telegram_bot.mavjud() else "o'chiq",
+        "kesh": kesh.holat(),
         "provayderlar": llm.provayderlar_holati(),
     }
 
