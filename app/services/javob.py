@@ -10,7 +10,7 @@
 from typing import List, Optional
 
 from .. import storage
-from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY
+from ..config import ANTHROPIC_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, OPENAI_API_KEY
 from ..models import ChatJavob
 from . import kesh, llm, retrieval, statistika
 
@@ -28,8 +28,8 @@ class AiSozlanmagan(JavobXato):
 
     def __init__(self):
         super().__init__(
-            "AI provayder sozlanmagan (ANTHROPIC_API_KEY, GEMINI_API_KEY yoki "
-            "OPENAI_API_KEY kerak). .env faylini tekshiring."
+            "AI provayder sozlanmagan (ANTHROPIC_API_KEY, GEMINI_API_KEY, "
+            "GROQ_API_KEY yoki OPENAI_API_KEY kerak). .env faylini tekshiring."
         )
 
 
@@ -41,13 +41,48 @@ class AiXato(JavobXato):
         self.asl = asl
 
 
+# Kutish bilan o'tib ketadigan sabablar. Foydalanuvchi uchun asosiy savol
+# bitta: kutsam o'zi tuzaladimi yoki yo'qmi.
+_VAQTINCHALIK = ("limit", "band", "uzildi", "xato", "model")
+
+
+def _qachon(soniya: Optional[int]) -> str:
+    """Kutish muddatini odam o'qiydigan ko'rinishga keltiradi.
+
+    "1729 soniyadan so'ng" hech kimga tushunarli emas — yarim soatdan ko'p
+    kutish kerak bo'lsa, buni ochiq aytish kerak, aks holda odam har 10
+    soniyada qayta urinaveradi.
+    """
+    if not soniya:
+        return "Bir daqiqadan so'ng qaytadan urinib ko'ring."
+    if soniya < 90:
+        return f"{soniya} soniyadan so'ng qaytadan urinib ko'ring."
+    daqiqa = round(soniya / 60)
+    if daqiqa < 60:
+        return f"Taxminan {daqiqa} daqiqadan so'ng qaytadan urinib ko'ring."
+    return f"Taxminan {round(daqiqa / 60)} soatdan so'ng qaytadan urinib ko'ring."
+
+
 def _ai_xato_matni(e: Exception) -> str:
-    """AI provayder xatolarini foydalanuvchiga tushunarli o'zbekcha xabarga aylantiradi."""
+    """AI provayder xatolarini foydalanuvchiga tushunarli o'zbekcha xabarga aylantiradi.
+
+    Muhim qoida: agar provayderlardan HECH BO'LMASA BITTASI o'zi tiklanadigan
+    sababdan yiqilgan bo'lsa, foydalanuvchiga kutishni aytamiz — hatto boshqa
+    provayderning krediti tugagan bo'lsa ham. Aks holda daqiqalik limit
+    "hisob to'ldirilishi kerak" bo'lib ko'rinadi va odam saytni buzuq deb
+    o'ylaydi, aslida 40 soniyadan keyin ishlayveradi. Hisob muammosi
+    administratorniki — u /health'da ko'rinadi.
+    """
+    sabablar = getattr(e, "sabablar", None) or []
+    if any(s in _VAQTINCHALIK for s in sabablar):
+        return "So'rovlar ko'payib ketdi. " + _qachon(getattr(e, "kutish", None))
+    if sabablar and all(s in ("hisob", "kalit") for s in sabablar):
+        return "AI xizmati vaqtincha mavjud emas. Administratorga murojaat qiling."
+
+    # Sabablar biriktirilmagan (eski chaqiruv yo'li) — matndan aniqlanadi
     s = str(e).lower()
-    # OpenAI hisob tugaganini 429 + "quota" bilan qaytaradi — pastdagi limit
-    # shartidan OLDIN tekshiriladi, aks holda odam bekorga kutadi.
-    if "credit balance" in s or "billing" in s or "insufficient_quota" in s:
-        return "AI xizmati vaqtincha mavjud emas (hisob to'ldirilishi kerak). Birozdan so'ng urinib ko'ring."
+    if "credit balance" in s or "insufficient_quota" in s:
+        return "AI xizmati vaqtincha mavjud emas. Administratorga murojaat qiling."
     if "authentication" in s or "invalid x-api-key" in s or "401" in s:
         return "AI xizmati sozlanmagan (API kalit noto'g'ri). Administratorga murojaat qiling."
     if "rate limit" in s or "429" in s:
@@ -69,7 +104,7 @@ def uch_qismli_javob(
 
     batafsil=True — javob uzunroq va umumiy xulosa bilan (Telegram bot).
     """
-    if not ANTHROPIC_API_KEY and not GEMINI_API_KEY and not OPENAI_API_KEY:
+    if not any((ANTHROPIC_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, OPENAI_API_KEY)):
         raise AiSozlanmagan()
 
     hamma_moddalar = storage.moddalarni_oqi()

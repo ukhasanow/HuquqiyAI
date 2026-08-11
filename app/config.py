@@ -23,6 +23,12 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 # ishga tushadi, ya'ni pulli chaqiruv faqat haqiqatan zarur bo'lganda ketadi.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
+# Groq — bepul va saxiy limitli zaxira. OpenAI bilan bir xil API shaklida.
+# Model tanlovi o'lchovga asoslangan: llama-3.3-70b `json_schema` ni umuman
+# qo'llab-quvvatlamaydi, qwen3.6-27b esa bizning prompt hajmiga sig'maydi.
+# gpt-oss-120b ikkalasidan ham o'tdi va o'zbekcha javobi to'g'ri chiqdi.
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "huquqiy-admin-2026")
 
 # Yuklanadigan hujjat uchun cheklovlar

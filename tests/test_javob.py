@@ -52,19 +52,19 @@ def test_javob_qatlami_fastapi_ga_boglanmagan():
 # ---------- Xato turlari ----------
 
 def test_kalit_yoq_bolsa_ai_sozlanmagan(monkeypatch):
-    monkeypatch.setattr(javob_xizmati, "ANTHROPIC_API_KEY", "")
-    monkeypatch.setattr(javob_xizmati, "GEMINI_API_KEY", "")
-    monkeypatch.setattr(javob_xizmati, "OPENAI_API_KEY", "")
+    for kalit in ("ANTHROPIC_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "OPENAI_API_KEY"):
+        monkeypatch.setattr(javob_xizmati, kalit, "")
     with pytest.raises(javob_xizmati.AiSozlanmagan):
         javob_xizmati.uch_qismli_javob("aliment qancha")
 
 
-def test_bitta_openai_kaliti_yetarli(monkeypatch):
-    """Faqat OpenAI sozlangan bo'lsa ham xizmat ishlashi kerak — u endi
-    to'laqonli provayder, faqat ovoz zaxirasi emas."""
-    monkeypatch.setattr(javob_xizmati, "ANTHROPIC_API_KEY", "")
-    monkeypatch.setattr(javob_xizmati, "GEMINI_API_KEY", "")
-    monkeypatch.setattr(javob_xizmati, "OPENAI_API_KEY", "sk-test")
+@pytest.mark.parametrize("yagona", ["OPENAI_API_KEY", "GROQ_API_KEY"])
+def test_bitta_zaxira_kaliti_ham_yetarli(monkeypatch, yagona):
+    """Faqat bitta zaxira sozlangan bo'lsa ham xizmat ishlashi kerak — ular
+    endi to'laqonli provayder, OpenAI faqat ovoz zaxirasi emas."""
+    for kalit in ("ANTHROPIC_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "OPENAI_API_KEY"):
+        monkeypatch.setattr(javob_xizmati, kalit, "")
+    monkeypatch.setattr(javob_xizmati, yagona, "test-kalit")
     monkeypatch.setattr(
         javob_xizmati.llm, "javob_yarat",
         lambda *a, **k: {"javob_topildi": True, "tegishli_modda_idlari": [],
@@ -76,7 +76,7 @@ def test_bitta_openai_kaliti_yetarli(monkeypatch):
 @pytest.mark.parametrize(
     "xato_matni,kutilgan_bolak",
     [
-        ("Your credit balance is too low", "hisob to'ldirilishi"),
+        ("Your credit balance is too low", "Administratorga murojaat"),
         ("authentication_error: invalid x-api-key", "API kalit noto'g'ri"),
         ("rate limit exceeded (429)", "So'rovlar ko'payib ketdi"),
         ("Server overloaded (529)", "hozir band"),
@@ -183,19 +183,37 @@ def test_statistika_xatosi_javobni_buzmaydi(monkeypatch):
 
 from app.services.javob import _ai_xato_matni  # noqa: E402
 
-def test_hisob_xatosi_limit_xatosidan_ustun(monkeypatch):
-    """Anthropic krediti tugab, keyin Gemini limitga urilsa: foydalanuvchi
-    "bir daqiqadan so'ng urinib ko'ring" deb kutmasligi kerak — hisob
-    to'ldirilmaguncha hech narsa o'zgarmaydi."""
+def test_tiklanadigan_xato_hisob_xatosidan_ustun():
+    """Anthropic krediti tugab, Gemini esa DAQIQALIK limitga urilsa —
+    foydalanuvchiga kutishni aytish kerak, chunki bir daqiqadan keyin javob
+    haqiqatan qaytadi. "Hisob to'ldiring" desak, odam saytni butunlay buzuq
+    deb o'ylaydi. Hisob muammosi administratorniki, u /health'da ko'rinadi."""
+    xato = RuntimeError("credit balance too low | 429 quota exceeded")
+    xato.sabablar = ["hisob", "limit"]
+    xato.kutish = 47
+    matn = _ai_xato_matni(xato)
+    assert "47 soniyadan" in matn
+    assert "hisob" not in matn.lower()
+
+
+def test_hammasi_doimiy_bolsa_administratorga_yuboriladi():
+    """Kutish yordam bermaydigan holat: hech kimga "bir daqiqadan so'ng" deyilmaydi."""
+    xato = RuntimeError("credit balance too low | invalid x-api-key")
+    xato.sabablar = ["hisob", "kalit"]
+    xato.kutish = None
+    assert "Administratorga" in _ai_xato_matni(xato)
+
+
+def test_kutish_muddati_provayder_javobidan_olinadi():
+    """Gemini va OpenAI qancha kutish kerakligini o'zlari aytadi — eng qisqasi olinadi."""
     from app.services import llm
 
-    matn = llm._xatolar_matni([
-        RuntimeError("Your credit balance is too low to access the Anthropic API"),
-        RuntimeError("429 RESOURCE_EXHAUSTED quota exceeded"),
-    ])
-    # Hisob xatosi birinchi bo'lsa, _ai_xato_matni to'g'ri xabarni tanlaydi
-    assert matn.index("credit balance") < matn.index("429")
-    assert "hisob to'ldirilishi kerak" in _ai_xato_matni(RuntimeError(matn))
+    gemini = RuntimeError('HTTP 429 — {"error":{"details":[{"retryDelay": "47s"}]}}')
+    openai = RuntimeError("HTTP 429 — Rate limit reached. Please try again in 1m17.76s.")
+    assert llm._kutish_soniyasi([gemini]) == 48
+    assert llm._kutish_soniyasi([openai]) == 78
+    assert llm._kutish_soniyasi([openai, gemini]) == 48   # eng qisqasi
+    assert llm._kutish_soniyasi([RuntimeError("tarmoq uzildi")]) is None
 
 
 def test_ikkala_provayder_xatosi_ham_saqlanadi():

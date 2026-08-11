@@ -1,12 +1,15 @@
 # AI modellari bilan ishlash qatlami.
-# Provayderlar navbati: Anthropic -> Gemini -> OpenAI. Biri ishlamasa
+# Provayderlar navbati: Anthropic -> Gemini -> Groq -> OpenAI. Biri ishlamasa
 # (kredit/limit/xato) keyingisiga o'tiladi. Tartib narxga qarab tanlangan:
-# avval asosiy, so'ng Gemini'ning BEPUL kvotasi, u tugagach pulli OpenAI.
-# Uchalasi ham bir xil tuzilgan JSON javob qaytaradi, shuning uchun qolgan
+# avval asosiy, so'ng BEPUL zaxiralar (Gemini, Groq), eng oxirida pulli
+# OpenAI — ya'ni pul faqat bepul kvotalar tugagach sarflanadi.
+# Hammasi bir xil tuzilgan JSON javob qaytaradi, shuning uchun qolgan
 # kod provayderni sezmaydi.
 # Kirish — oddiy matn (savol yoki hujjat matni), manbasidan qat'i nazar.
 import json
-from typing import List, Optional
+import re
+import time
+from typing import List, NamedTuple, Optional
 
 import anthropic
 import httpx
@@ -15,6 +18,8 @@ from ..config import (
     ANTHROPIC_API_KEY,
     GEMINI_API_KEY,
     GEMINI_MODEL,
+    GROQ_API_KEY,
+    GROQ_MODEL,
     MODEL,
     OPENAI_API_KEY,
     OPENAI_MODEL,
@@ -134,18 +139,61 @@ def _javob_tool(batafsil: bool = False) -> dict:
 
 
 def _xatolar_matni(xatolar: List[Exception]) -> str:
-    """Barcha provayder xatolarini bitta satrga yig'adi.
+    """Barcha provayder xatolarini bitta satrga yig'adi (jurnal uchun).
 
-    Tartib muhim: hisob/kalit muammosi birinchi bo'lishi kerak. Anthropic
-    krediti tugab, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
-    foydalanuvchi "bir daqiqadan so'ng urinib ko'ring" deb kutaveradi —
-    aslida hisob to'ldirilmaguncha hech narsa o'zgarmaydi.
+    Tartib: hisob/kalit muammosi birinchi. Bu SABABNI topish uchun — nima
+    ko'rsatilishini `_kutish_soniyasi` va javob.py hal qiladi.
     """
     matnlar = [str(e) for e in xatolar]
     ogir = [m for m in matnlar if "credit balance" in m.lower() or "billing" in m.lower()
             or "insufficient_quota" in m.lower()
             or "authentication" in m.lower() or "api key" in m.lower()]
     return " | ".join(ogir + [m for m in matnlar if m not in ogir])
+
+
+def _javobni_tekshir(javob: httpx.Response) -> None:
+    """HTTP xatosini javob TANASI bilan birga ko'taradi.
+
+    `raise_for_status()` faqat status kodni beradi. Aynan tanada provayder
+    qancha kutish kerakligini aytadi (Gemini: `"retryDelay": "47s"`,
+    OpenAI: `try again in 1m17s`) — busiz foydalanuvchiga "birozdan so'ng"
+    deb noaniq javob beriladi va u qachon qaytishni bilmaydi.
+    """
+    if not javob.is_error:
+        return
+    kutish = javob.headers.get("retry-after", "")
+    qoshimcha = f" retry-after: {kutish}" if kutish else ""
+    raise RuntimeError(f"HTTP {javob.status_code}{qoshimcha} — {javob.text[:600]}")
+
+
+# Provayder "qachon qayting" deb aytgan muddatni topadigan naqshlar.
+_KUTISH_NAQSHLARI = (
+    re.compile(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"'),          # Gemini
+    re.compile(r"try again in (?:(\d+)m)?(\d+(?:\.\d+)?)s"),        # OpenAI
+    re.compile(r"retry-after: (\d+)"),                              # HTTP sarlavhasi
+)
+
+
+def _kutish_soniyasi(xatolar: List[Exception]) -> Optional[int]:
+    """Provayderlar aytgan kutish muddatlaridan eng qisqasini qaytaradi.
+
+    Eng qisqasi olinadi, chunki navbatdagi provayderlardan qaysi biri birinchi
+    tiklansa, javob o'shandan keladi. Hech biri aytmagan bo'lsa — None.
+    """
+    topilgan = []
+    for e in xatolar:
+        s = str(e)
+        for naqsh in _KUTISH_NAQSHLARI:
+            m = naqsh.search(s)
+            if not m:
+                continue
+            qismlar = [q for q in m.groups() if q]
+            soniya = float(qismlar[-1])
+            if naqsh.pattern.startswith("try again") and m.group(1):
+                soniya += int(m.group(1)) * 60
+            topilgan.append(int(soniya) + 1)  # yaxlitlash pastga tushmasin
+            break
+    return min(topilgan) if topilgan else None
 
 
 # Har bir provayderning oxirgi HAQIQIY chaqiruvda qanday tugagani — /health uchun.
@@ -164,15 +212,22 @@ _holat: dict = {}
 def _xato_sababi(e: Exception) -> str:
     """Provayder xatosini qisqa sababga aylantiradi (foydalanuvchi matni emas, diagnostika)."""
     s = str(e).lower()
-    # OpenAI hisobi tugaganini 429 bilan qaytaradi va matnida "quota" bor —
-    # limitdan OLDIN tekshirilmasa "bir daqiqadan so'ng urinib ko'ring" degan
-    # chalg'ituvchi xabar chiqadi, aslida kutish hech narsani o'zgartirmaydi.
-    if "credit balance" in s or "billing" in s or "insufficient_quota" in s:
+    # Tartib muhim va o'lchovga asoslangan. Gemini ham, OpenAI ham 429
+    # javobining MATNIDA "billing" so'zini ishlatadi — "karta qo'shsangiz
+    # limit ortadi" degan maslahat sifatida. Agar "billing" bo'yicha
+    # tasniflansa, oddiy daqiqalik limit "hisob tugagan" bo'lib ko'rinadi va
+    # provayder butunlay bloklanadi. Shuning uchun:
+    #   1) OpenAI'ning HAQIQIY tugashi — `insufficient_quota` kodi;
+    #   2) qolgan har qanday 429 — vaqtinchalik limit;
+    #   3) "credit balance" (Anthropic, HTTP 400) — haqiqiy hisob muammosi.
+    if "insufficient_quota" in s:
+        return "hisob"
+    if "429" in s or "rate limit" in s or "resource_exhausted" in s or "quota" in s:
+        return "limit"
+    if "credit balance" in s or "billing" in s:
         return "hisob"
     if "authentication" in s or "invalid x-api-key" in s or "api key" in s or "401" in s:
         return "kalit"
-    if "quota" in s or "rate limit" in s or "resource_exhausted" in s or "429" in s:
-        return "limit"
     # Model nomi yopilgani takrorlanuvchi tuzoq: Google aniq versiyalarni
     # yangi kalitlar uchun to'sadi ("no longer available to new users").
     if "not found" in s or "404" in s:
@@ -185,19 +240,93 @@ def _xato_sababi(e: Exception) -> str:
     return "xato"
 
 
+# Kredit tugashi yoki noto'g'ri kalit — bir necha soniyada o'tib ketmaydi.
+# Bunday provayderni har savolda qayta chaqirish ikki zarar keltiradi:
+# har so'rovga bekorga bitta murojaat qo'shiladi, va uning xatosi boshqa
+# provayderlarning VAQTINCHALIK xatosini bosib, foydalanuvchiga "hisob
+# to'ldiring" deb ko'rsatadi — aslida bir daqiqa kutsa yetardi.
+_DOIMIY_SABABLAR = ("hisob", "kalit")
+_BLOK_MUDDATI = 600  # sekund; muddatdan keyin yana bir marta sinab ko'riladi
+_bloklangan: dict = {}
+
+
+def _ishlatsa_boladi(provayder: str) -> bool:
+    tugash = _bloklangan.get(provayder)
+    if tugash is None:
+        return True
+    if time.monotonic() >= tugash:
+        del _bloklangan[provayder]  # muddat o'tdi — hisob to'ldirilgan bo'lishi mumkin
+        return True
+    return False
+
+
+# Qisqa limitda kutib turgan ma'qul. Groq bepul tierda 8000 token/daqiqa
+# beradi va "3.2 soniyadan keyin qayting" deydi — bunday holatda darhol
+# taslim bo'lish javobni bekorga yo'qotadi. Chegara ataylab kichik: javob
+# baribir ~10-17 soniya davom etadi, ustiga 8 soniyadan ko'p qo'shilsa
+# foydalanuvchi kutib turolmaydi va Render so'rovni uzib yuborishi mumkin.
+_AVTO_KUTISH_CHEGARASI = 8
+
+
 def _urin(provayder: str, ish, xatolar: List[Exception]):
     """Provayderni chaqiradi va natijasini holatga yozadi.
 
-    Xato bo'lsa None qaytaradi — chaqiruvchi keyingi provayderga o'tadi.
+    Limitga urilsa va provayder qisqa muddat aytgan bo'lsa — bir marta kutib
+    qayta uriniladi. Xato bo'lsa None qaytaradi va chaqiruvchi keyingisiga o'tadi.
     """
-    try:
-        natija = ish()
-    except Exception as e:
-        _holat[provayder] = _xato_sababi(e)
-        xatolar.append(e)
-        return None
-    _holat[provayder] = "ishlayapti"
-    return natija
+    for qayta in (False, True):
+        try:
+            natija = ish()
+        except Exception as e:
+            sabab = _xato_sababi(e)
+            _holat[provayder] = sabab
+            if sabab in _DOIMIY_SABABLAR:
+                _bloklangan[provayder] = time.monotonic() + _BLOK_MUDDATI
+                xatolar.append(e)
+                return None
+            kutish = _kutish_soniyasi([e])
+            if not qayta and sabab == "limit" and kutish and kutish <= _AVTO_KUTISH_CHEGARASI:
+                time.sleep(kutish)
+                continue  # limit oynasi yangilandi — yana bir marta
+            xatolar.append(e)
+            return None
+        _holat[provayder] = "ishlayapti"
+        _bloklangan.pop(provayder, None)
+        return natija
+    return None
+
+
+def _navbat(bosqichlar: List[tuple]) -> dict:
+    """Provayderlarni navbat bilan sinaydi: [(nom, sozlanganmi, funksiya), ...].
+
+    Birinchi muvaffaqiyatli javob qaytariladi. Hammasi yiqilsa, yig'ma xato
+    ko'tariladi — unga sabablar va kutish muddati biriktiriladi, chunki
+    foydalanuvchiga nima deyishni javob.py shularga qarab hal qiladi.
+    """
+    xatolar: List[Exception] = []
+    sozlangan = [nom for nom, bor, _ in bosqichlar if bor]
+    for nom, bor, ish in bosqichlar:
+        if not bor or not _ishlatsa_boladi(nom):
+            continue
+        natija = _urin(nom, ish, xatolar)
+        if natija is not None:
+            return natija
+
+    if not sozlangan:
+        raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
+    if xatolar:
+        xato = RuntimeError(_xatolar_matni(xatolar))
+        xato.sabablar = [_xato_sababi(e) for e in xatolar]
+        xato.kutish = _kutish_soniyasi(xatolar)
+    else:
+        # Hamma provayder doimiy nosozlik sababli chetlangan — hech biri chaqirilmadi
+        xato = RuntimeError(
+            "Barcha provayderlar chetlangan: "
+            + ", ".join(f"{n}={_holat.get(n, '?')}" for n in sozlangan)
+        )
+        xato.sabablar = [_holat.get(n, "xato") for n in sozlangan]
+        xato.kutish = None
+    raise xato
 
 
 def provayderlar_holati() -> dict:
@@ -214,6 +343,10 @@ def provayderlar_holati() -> dict:
         "gemini": {
             "holat": _holat.get("gemini", "noma'lum" if GEMINI_API_KEY else "sozlanmagan"),
             "model": GEMINI_MODEL,
+        },
+        "groq": {
+            "holat": _holat.get("groq", "noma'lum" if GROQ_API_KEY else "sozlanmagan"),
+            "model": GROQ_MODEL,
         },
         "openai": {
             "holat": _holat.get("openai", "noma'lum" if OPENAI_API_KEY else "sozlanmagan"),
@@ -254,7 +387,28 @@ def _gemini_matni(javob: httpx.Response) -> str:
     raise RuntimeError(f"Gemini bo'sh javob qaytardi (finishReason={nomzod.get('finishReason')})")
 
 
-# ---------- OpenAI (uchinchi provayder) ----------
+# ---------- OpenAI-mos provayderlar (OpenAI va Groq) ----------
+#
+# Groq aynan OpenAI Chat Completions shaklidan foydalanadi, shuning uchun
+# ikkalasiga bitta chaqiruvchi xizmat qiladi — faqat manzil, kalit va model
+# farq qiladi. Alohida nusxa yozilsa, ular vaqt o'tib bir-biridan uzoqlashadi.
+
+class _MosProvayder(NamedTuple):
+    nom: str
+    manzil: str
+    kalit: str
+    model: str
+
+
+def _openai_provayder() -> "_MosProvayder":
+    return _MosProvayder("openai", "https://api.openai.com/v1/chat/completions",
+                         OPENAI_API_KEY, OPENAI_MODEL)
+
+
+def _groq_provayder() -> "_MosProvayder":
+    return _MosProvayder("groq", "https://api.groq.com/openai/v1/chat/completions",
+                         GROQ_API_KEY, GROQ_MODEL)
+
 
 # Gemini'dagi "thinking" tuzog'i bu yerda yo'q (o'lchandi: reasoning_tokens=0),
 # lekin chegara baribir qo'yiladi — uzilishni jimgina o'tkazib yubormaslik uchun
@@ -286,18 +440,18 @@ def _openai_sxemaga(sxema: dict) -> dict:
     return natija
 
 
-def _openai_chaqir(nom: str, sxema: dict, tizim: str, xabarlar: List[dict],
-                   token: int, timeout: int) -> dict:
-    """OpenAI Chat Completions, structured output bilan.
+def _mos_chaqir(p: _MosProvayder, nom: str, sxema: dict, tizim: str,
+                xabarlar: List[dict], token: int, timeout: int) -> dict:
+    """OpenAI-mos Chat Completions, structured output bilan.
 
-    `xabarlar` allaqachon OpenAI formatida ({"role", "content"}), shuning uchun
+    `xabarlar` allaqachon shu formatda ({"role", "content"}), shuning uchun
     Gemini'dagidek o'girish kerak emas.
     """
     javob = httpx.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+        p.manzil,
+        headers={"Authorization": f"Bearer {p.kalit}"},
         json={
-            "model": OPENAI_MODEL,
+            "model": p.model,
             "messages": [{"role": "system", "content": tizim}] + xabarlar,
             "response_format": {
                 "type": "json_schema",
@@ -307,20 +461,22 @@ def _openai_chaqir(nom: str, sxema: dict, tizim: str, xabarlar: List[dict],
         },
         timeout=timeout,
     )
-    javob.raise_for_status()
+    _javobni_tekshir(javob)
     tanlov = javob.json()["choices"][0]
     if tanlov.get("finish_reason") == "length":
-        raise RuntimeError("OpenAI javobi max_completion_tokens chegarasida uzildi")
+        raise RuntimeError(f"{p.nom} javobi max_completion_tokens chegarasida uzildi")
     xabar = tanlov["message"]
     # Model rad etsa content bo'sh keladi — tekshirmasak json.loads tushunarsiz
     # xato beradi va sabab yo'qoladi.
     if xabar.get("refusal"):
-        raise RuntimeError(f"OpenAI so'rovni rad etdi: {xabar['refusal']}")
+        raise RuntimeError(f"{p.nom} so'rovni rad etdi: {xabar['refusal']}")
     return json.loads(xabar["content"])
 
 
-def _openai_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> dict:
-    natija = _openai_chaqir(
+def _mos_javob(p: _MosProvayder, tizim: str, xabarlar: List[dict],
+               batafsil: bool = False) -> dict:
+    natija = _mos_chaqir(
+        p,
         "huquqiy_javob",
         _openai_sxemaga(_javob_tool(batafsil)["input_schema"]),
         tizim + "\n\nJavobni faqat berilgan JSON sxema bo'yicha qaytar.",
@@ -335,8 +491,9 @@ def _openai_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> d
     return natija
 
 
-def _openai_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
-    return _openai_chaqir(
+def _mos_shartnoma(p: _MosProvayder, tizim: str, xabarlar: List[dict]) -> dict:
+    return _mos_chaqir(
+        p,
         "shartnoma_tahlili",
         _openai_sxemaga(_shartnoma_tool()["input_schema"]),
         tizim,
@@ -579,22 +736,12 @@ def shartnoma_tahlil_yarat(hujjat_matni: str, nomzod_moddalar: List[dict]) -> di
     # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
     # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
-    xatolar: List[Exception] = []
-    if _client is not None:
-        natija = _urin("anthropic", lambda: _anthropic_shartnoma(tizim, xabarlar), xatolar)
-        if natija is not None:
-            return natija
-    if GEMINI_API_KEY:
-        natija = _urin("gemini", lambda: _gemini_shartnoma(tizim, xabarlar), xatolar)
-        if natija is not None:
-            return natija
-    if OPENAI_API_KEY:
-        natija = _urin("openai", lambda: _openai_shartnoma(tizim, xabarlar), xatolar)
-        if natija is not None:
-            return natija
-    if xatolar:
-        raise RuntimeError(_xatolar_matni(xatolar))
-    raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
+    return _navbat([
+        ("anthropic", _client is not None, lambda: _anthropic_shartnoma(tizim, xabarlar)),
+        ("gemini", bool(GEMINI_API_KEY), lambda: _gemini_shartnoma(tizim, xabarlar)),
+        ("groq", bool(GROQ_API_KEY), lambda: _mos_shartnoma(_groq_provayder(), tizim, xabarlar)),
+        ("openai", bool(OPENAI_API_KEY), lambda: _mos_shartnoma(_openai_provayder(), tizim, xabarlar)),
+    ])
 
 
 def _anthropic_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
@@ -627,7 +774,7 @@ def _gemini_shartnoma(tizim: str, xabarlar: List[dict]) -> dict:
         },
         timeout=90,
     )
-    javob.raise_for_status()
+    _javobni_tekshir(javob)
     return json.loads(_gemini_matni(javob))
 
 
@@ -722,7 +869,7 @@ def _gemini_javob(tizim: str, xabarlar: List[dict], batafsil: bool = False) -> d
         },
         timeout=60,
     )
-    javob.raise_for_status()
+    _javobni_tekshir(javob)
     natija = json.loads(_gemini_matni(javob))
     # Sxema kafolatiga qo'shimcha himoya
     if natija.get("murojaat_mavzusi") not in MUROJAAT_MAVZULARI:
@@ -768,37 +915,19 @@ def javob_yarat(
         )
     xabarlar.append({"role": "user", "content": foydalanuvchi_matni})
 
-    # Provayderlar navbati: Anthropic -> Gemini (bepul) -> OpenAI (pulli).
+    # Provayderlar navbati: Anthropic -> Gemini/Groq (bepul) -> OpenAI (pulli).
     # Biri ishlamasa (kredit tugashi, limit, tarmoq xatosi) keyingisiga o'tiladi.
     # Xatolar YIG'ILADI, oxirgisi emas: Anthropic kredit tugashi bilan
     # yiqilib, keyin Gemini limitga urilsa, faqat oxirgisi ko'rsatilsa
     # foydalanuvchi "so'rovlar ko'payib ketdi" degan chalg'ituvchi xabar
     # oladi va kutadi — aslida hisob to'ldirilishi kerak.
-    xatolar: List[Exception] = []
-    if _client is not None:
-        natija = _urin(
-            "anthropic",
-            lambda: _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil)),
-            xatolar,
-        )
-        if natija is not None:
-            return natija
-    if GEMINI_API_KEY:
-        natija = _urin(
-            "gemini",
-            lambda: _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil)),
-            xatolar,
-        )
-        if natija is not None:
-            return natija
-    if OPENAI_API_KEY:
-        natija = _urin(
-            "openai",
-            lambda: _tavsiyani_matnga(_openai_javob(tizim, xabarlar, batafsil)),
-            xatolar,
-        )
-        if natija is not None:
-            return natija
-    if xatolar:
-        raise RuntimeError(_xatolar_matni(xatolar))
-    raise RuntimeError("Hech qanday AI provayder sozlanmagan (API kalit yo'q)")
+    return _navbat([
+        ("anthropic", _client is not None,
+         lambda: _tavsiyani_matnga(_anthropic_javob(tizim, xabarlar, batafsil))),
+        ("gemini", bool(GEMINI_API_KEY),
+         lambda: _tavsiyani_matnga(_gemini_javob(tizim, xabarlar, batafsil))),
+        ("groq", bool(GROQ_API_KEY),
+         lambda: _tavsiyani_matnga(_mos_javob(_groq_provayder(), tizim, xabarlar, batafsil))),
+        ("openai", bool(OPENAI_API_KEY),
+         lambda: _tavsiyani_matnga(_mos_javob(_openai_provayder(), tizim, xabarlar, batafsil))),
+    ])

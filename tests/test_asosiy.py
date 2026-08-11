@@ -259,7 +259,7 @@ def test_health_sozlash_holatini_korsatadi():
 
 def test_health_provayder_holati():
     p = client.get("/health").json()["provayderlar"]
-    assert set(p) == {"anthropic", "gemini", "openai"}
+    assert set(p) == {"anthropic", "gemini", "groq", "openai"}
     for nom in p:
         assert p[nom]["model"]
         assert p[nom]["holat"] in (
@@ -329,9 +329,124 @@ def test_openai_hisob_xatosi_limitdan_ajratiladi():
 
     xato = RuntimeError("Error code: 429 - insufficient_quota: You exceeded your current quota")
     assert llm._xato_sababi(xato) == "hisob"
-    assert "hisob to'ldirilishi kerak" in _ai_xato_matni(xato)
+    assert "Administratorga" in _ai_xato_matni(xato)
     # Haqiqiy tezlik limiti esa limit bo'lib qolishi kerak
     assert llm._xato_sababi(RuntimeError("429 rate limit exceeded")) == "limit"
+
+
+def test_qisqa_limitda_avtomatik_qayta_uriniladi(monkeypatch):
+    """Groq bepul tierda "3 soniyadan keyin qayting" deydi — shu qisqa
+    kutishda taslim bo'lish javobni bekorga yo'qotadi. Uzoq kutishda esa
+    kutmasdan keyingi provayderga o'tish kerak."""
+    from app.services import llm
+
+    uxlagan = []
+    monkeypatch.setattr(llm.time, "sleep", uxlagan.append)
+
+    qisqa = ['HTTP 429 retry-after: 4 — {"code":"rate_limit_exceeded"}']
+
+    def bir_marta_yiqiladi():
+        if qisqa:
+            raise RuntimeError(qisqa.pop())
+        return {"ok": True}
+
+    xatolar = []
+    assert llm._urin("groq", bir_marta_yiqiladi, xatolar) == {"ok": True}
+    # 4 emas 5: muddat ataylab bir soniyaga ko'paytiriladi, aks holda
+    # yaxlitlash tufayli limit oynasi hali yangilanmagan bo'lishi mumkin
+    assert uxlagan == [5], "provayder aytgan muddat kutilmadi"
+    assert xatolar == []
+
+    # Uzoq kutishda kutilmaydi — navbat keyingisiga o'tishi kerak
+    uxlagan.clear()
+    xatolar = []
+    uzoq = 'HTTP 429 — Rate limit reached. Please try again in 28m48s.'
+    assert llm._urin("groq", lambda: (_ for _ in ()).throw(RuntimeError(uzoq)), xatolar) is None
+    assert uxlagan == []
+    assert len(xatolar) == 1
+
+
+def test_groq_openai_bilan_bir_xil_yoldan_boradi():
+    """Groq OpenAI-mos API ishlatadi — alohida nusxa emas, o'sha chaqiruvchi.
+    Faqat manzil, kalit va model farq qilishi kerak."""
+    from app.services import llm
+
+    g, o = llm._groq_provayder(), llm._openai_provayder()
+    assert g.nom == "groq" and o.nom == "openai"
+    assert "groq.com" in g.manzil and "openai.com" in o.manzil
+    assert g.manzil.endswith("/chat/completions") and o.manzil.endswith("/chat/completions")
+    assert g.model and o.model and g.model != o.model
+
+
+def test_bepul_provayderlar_pullidan_oldin_turadi():
+    """Tartib narxga bog'liq: pul faqat bepul kvotalar tugagach sarflanadi.
+    Tartib buzilsa har savol bekorga pul yeydi — testsiz bu sezilmaydi."""
+    import inspect
+
+    from app.services import llm
+
+    manba = inspect.getsource(llm.javob_yarat)
+    tartib = [n for n in ("anthropic", "gemini", "groq", "openai")
+              if f'("{n}"' in manba]
+    assert tartib == ["anthropic", "gemini", "groq", "openai"], tartib
+    assert manba.index('("groq"') < manba.index('("openai"')
+
+
+def test_krediti_tugagan_provayder_chetlab_otiladi():
+    """Krediti tugagan provayder har savolda qayta chaqirilmasligi kerak:
+    bu bekorga kechikish qo'shadi va uning xatosi boshqalarnikini bosib
+    ketadi. Muddat o'tgach yana bir marta sinaladi (hisob to'ldirilgan
+    bo'lishi mumkin)."""
+    from app.services import llm
+
+    asl_blok, asl_holat = llm._bloklangan.copy(), llm._holat.copy()
+    try:
+        llm._bloklangan.clear()
+        llm._holat.clear()
+        chaqiruvlar = []
+
+        def olik():
+            chaqiruvlar.append(1)
+            raise RuntimeError("Your credit balance is too low")
+
+        natija = llm._navbat([
+            ("anthropic", True, olik),
+            ("gemini", True, lambda: {"ok": 1}),
+        ])
+        assert natija == {"ok": 1}
+        assert len(chaqiruvlar) == 1
+
+        # Ikkinchi savolda o'lik provayder umuman chaqirilmaydi
+        llm._navbat([("anthropic", True, olik), ("gemini", True, lambda: {"ok": 2})])
+        assert len(chaqiruvlar) == 1, "bloklangan provayder qayta chaqirildi"
+
+        # Muddat o'tgach yana sinaladi
+        llm._bloklangan["anthropic"] = 0
+        llm._navbat([("anthropic", True, olik), ("gemini", True, lambda: {"ok": 3})])
+        assert len(chaqiruvlar) == 2
+    finally:
+        llm._bloklangan.clear(); llm._bloklangan.update(asl_blok)
+        llm._holat.clear(); llm._holat.update(asl_holat)
+
+
+def test_hamma_provayder_bloklansa_tushunarli_xato():
+    """Hammasi chetlangan bo'lsa "API kalit yo'q" deyish chalg'itadi —
+    kalit bor, u ishlamayapti."""
+    from app.services import llm
+
+    asl_blok, asl_holat = llm._bloklangan.copy(), llm._holat.copy()
+    try:
+        llm._bloklangan.clear()
+        llm._holat.clear()
+        llm._holat["gemini"] = "hisob"
+        llm._bloklangan["gemini"] = float("inf")
+        with pytest.raises(RuntimeError) as xato:
+            llm._navbat([("gemini", True, lambda: {"ok": 1})])
+        assert "chetlangan" in str(xato.value)
+        assert xato.value.sabablar == ["hisob"]
+    finally:
+        llm._bloklangan.clear(); llm._bloklangan.update(asl_blok)
+        llm._holat.clear(); llm._holat.update(asl_holat)
 
 
 def test_gemini_uzilgan_javob_ochiq_xato_beradi():
@@ -370,5 +485,5 @@ def _yiqiluvchi(xabar: str):
 
 def test_health_sir_oshkor_qilmaydi():
     matn = client.get("/health").text
-    for sir in ("sk-ant", "sk-proj", "AQ.", "upstash.io", "AAGnz"):
+    for sir in ("sk-ant", "sk-proj", "gsk_", "AQ.", "upstash.io", "AAGnz"):
         assert sir not in matn
