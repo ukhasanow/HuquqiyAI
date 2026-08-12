@@ -6,6 +6,49 @@ Ro'yxatdan o'tish talab qilinmaydi — ochilgan zahoti ishlatiladi.
 
 President AI Award 2026 tanlovi uchun tayyorlangan prototip.
 
+🌐 **Jonli sayt:** https://huquqiyai-kjpa.onrender.com
+🤖 **Telegram bot:** saytdagi havola orqali
+📄 **English:** [README.en.md](README.en.md)
+
+---
+
+## Bir qarashda
+
+| | |
+|---|---|
+| **Muammo** | Fuqaro huquqiy savoliga javob izlaganda ikki narsaga duch keladi: qonun tili tushunarsiz, internetdagi maslahat esa manbasiz. |
+| **Yechim** | Har javob uch qismdan: qonunning **asl matni**, sodda tavsiya va **aniq organ** manzili bilan. |
+| **Asosiy kafolat** | Modda matni AI orqali **umuman o'tmaydi** — u bazadan bevosita chiqadi. Ya'ni qonunni "qayta yozib yuborish" texnik jihatdan mumkin emas. |
+| **Baza** | 602 modda/band, 15 ta hujjat — hammasi [lex.uz](https://lex.uz)dan olingan, har biriga to'g'ridan-to'g'ri havola bilan |
+| **Til** | O'zbek lotin, o'zbek kirill va rus — savol qaysi yozuvda bo'lsa, javob ham o'shanda |
+| **Sifat nazorati** | 427 avtomatik test; ular tarmoqqa umuman chiqmaydi |
+
+### Nega bu ishonchli
+
+Huquqiy AI'da eng katta xavf — modelning qonun matnini o'zicha "tushuntirib"
+yuborishi. Bu yerda buni oldini olish uchun **arxitektura darajasida** chora
+ko'rilgan:
+
+- Model faqat **qaysi modda mos kelishini tanlaydi** (ID sifatida), matnni
+  yozmaydi. Modda matni foydalanuvchiga `data/qonunlar.json` dan chiqadi.
+- Model bazada yo'q ID qaytarsa, u **tashlab yuboriladi** — o'ylab topilgan
+  modda foydalanuvchiga yetib bormaydi.
+- lex.uz'dan olinmagan matnlar to'qib chiqarilmaydi: ular `needs_verification`
+  deb belgilanadi va faqat havola bilan ko'rsatiladi.
+- Ariza qoralamasi **AI'siz** tuziladi, jarima arifmetikasi ham — u yerda
+  taxminga o'rin yo'q.
+
+### Uzluksizlik
+
+Xizmat **8 bosqichli provayder navbati** ustida ishlaydi: biri limitga urilsa
+yoki yiqilsa, keyingisi javob beradi va foydalanuvchi buni sezmaydi. Tartib
+narx bo'yicha — avval bepul zaxiralar, pulli provayder eng oxirida.
+
+Holatni ochiq ko'rish mumkin: [`/health`](https://huquqiyai-kjpa.onrender.com/health)
+har bosqichning holatini va javob keshi saqlanishini ko'rsatadi.
+
+---
+
 ## Asosiy imkoniyatlar
 
 - **Chat interfeysi** — ikki rejim:
@@ -310,9 +353,58 @@ tanlaydi (majburiy structured output, JSON schema). Modda matnining o'zi esa
 **hech qachon LLM orqali o'tmaydi** — foydalanuvchiga bevosita bazadan
 (`data/qonunlar.json`) yuboriladi. Bu parafraza xavfini texnik jihatdan yo'q qiladi.
 
-Ikki provayderli arxitektura: asosiy AI provayder ishlamay qolsa (kredit
-tugashi, limit), tizim avtomatik zaxira provayderga (Google Gemini) o'tadi —
-xizmat uzluksiz ishlaydi.
+### Provayder navbati (8 bosqich)
+
+Biri ishlamay qolsa (kredit tugashi, daqiqalik limit, tarmoq xatosi) tizim
+avtomatik keyingisiga o'tadi. Tartib ikki mezon bo'yicha: avval **bepul**
+zaxiralar, eng oxirida **pulli** provayder — ya'ni pul faqat bepul kvotalar
+tugagach sarflanadi.
+
+| # | Bosqich | Roli |
+|---|---|---|
+| 1 | Anthropic `claude-sonnet-4-5` | asosiy, eng sifatli |
+| 2-3 | Google Gemini (2 model) | bepul zaxira |
+| 4-5 | Groq `gpt-oss-120b` / `20b` | bepul, kunlik kvotasi katta |
+| 6 | OpenRouter `nemotron-3-super` | bepul, **20 so'rov/daqiqa** — cho'qqi uchun |
+| 7 | BazaarLink `auto:free` | bepul, 10 so'rov/daqiqa |
+| 8 | OpenAI `gpt-5.4-mini` | pulli, faqat oxirgi chora |
+
+Nozik joyi: **har model alohida bosqich**, chunki limitlar model bo'yicha
+hisoblanadi (o'lchandi: Groq'da bir model qoldig'i 4323 ga tushganda
+ikkinchisi hamon 7924 edi). Shu sababli ro'yxatga model qo'shish bepul
+sig'imni shuncha barobar oshiradi — `GEMINI_MODEL` va `GROQ_MODEL` vergul
+bilan bir necha model qabul qiladi.
+
+Kunlik kvotasi kichik, lekin daqiqalik limiti keng bo'lganlar (6 va 7)
+ataylab **oxirida** turadi: oddiy kunda ularga navbat yetmaydi, cho'qqi
+paytda esa aynan o'shalar ushlab qoladi.
+
+### Foydalanuvchiga nima ko'rinadi
+
+Provayder vaqtincha limitga ursa, xabar aniq bo'ladi: *"So'rovlar ko'payib
+ketdi. 47 soniyadan so'ng qaytadan urinib ko'ring"* — muddat provayderning
+o'z javobidan olinadi, taxmin qilinmaydi. Limit qisqa bo'lsa (8 soniyagacha)
+tizim o'zi kutib qayta uriniladi va foydalanuvchi xatoni umuman ko'rmaydi.
+
+Kredit tugashi kabi **doimiy** nosozlikda provayder 10 daqiqaga chetlanadi —
+bu bekorga kechikish qo'shmaslik va uning xatosi boshqalarning vaqtinchalik
+xatosini bosib ketmasligi uchun.
+
+### Javob keshi
+
+Bir xil savol qayta so'ralsa AI'ga umuman murojaat qilinmaydi. Kesh ikki
+qavatli: xotira (tarmoqsiz, ~0 ms) va Upstash (qayta ishga tushishdan omon
+qoladi). Jonli o'lchov: **11.07s → 0.128s**.
+
+Demo oldidan keshni oldindan to'ldirish mumkin:
+
+```bash
+python -m tools.kesh_isit          # 69 ta hayotiy savol
+python -m tools.kesh_isit --moddalar   # + modda sarlavhalaridan 400+
+```
+
+Keshdagi javob provayderga bormaydi — u yerda limit ham, xarajat ham,
+kutish ham yo'q.
 
 lex.uz'dan olib bo'lmagan matnlar to'qib chiqarilmaydi — ular bazada
 `needs_verification` deb belgilanadi va UI'da "matn tekshirilmoqda" ko'rinishida,
@@ -535,13 +627,10 @@ Ikki himoya qo'yilgan va ikkalasi testda qayd etilgan:
 
 ## Keyingi bosqichlar
 
-- **Ovozli suhbat** — arxitektura tayyor: `services/llm.py` kirish matnini
-  manbasidan mustaqil qabul qiladi, STT/TTS qo'shish faqat yangi endpoint
-  talab qiladi
 - **lex.uz o'zgarishlarini kuzatish** — importerda `--tekshir` rejimi bor,
   lekin u qo'lda ishga tushiriladi; buni jadval bo'yicha avtomatlashtirish kerak
 - **Semantik qidiruv** — embedding asosidagi qidiruv. Hozirgi leksik qidiruv
-  (BM25 + qo'lda tanlangan teglar) 348 modda uchun yetarli, lekin savol
+  (BM25 + qo'lda tanlangan teglar) hozirgi baza uchun yetarli, lekin savol
   moddadagidan butunlay boshqa so'z bilan yozilsa uni topa olmaydi
 - Javoblarni streaming qilish, foydalanuvchi fikri (feedback) yig'ish
 
