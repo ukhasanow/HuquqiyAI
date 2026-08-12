@@ -178,17 +178,6 @@ real questions.
 
 ---
 
-## Running it locally
-
-```bash
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env      # add at least one provider key
-uvicorn app.main:app --port 8000
-```
-
-Then open **http://127.0.0.1:8000** (admin at `/admin`).
-
 **One provider key is enough** to run the whole application — any of
 `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` or
 `BAZAARLINK_API_KEY`. The more you supply, the longer the fallback chain.
@@ -201,12 +190,6 @@ python -m pytest tests/ -q     # 427 tests, no network access
 
 ---
 
-## Deployment
-
-`render.yaml` is included; the live instance runs on Render's free tier with
-Upstash Redis for statistics and the answer cache. On that tier the service
-sleeps after 15 minutes of inactivity, so an uptime monitor pings `/health`
-to keep it warm.
 
 ---
 
