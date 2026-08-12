@@ -511,15 +511,6 @@ Import avtomatik teg taklif qiladi (sarlavhadan), lekin foydalanuvchi
 Teglar qidiruvda eng katta vaznga ega, shuning uchun ular
 `tests/test_retrieval.py` dagi real savollar testi yiqilganda sozlanadi.
 
-## Ishga tushirish
-
-```bash
-source venv/bin/activate
-uvicorn app.main:app --port 8000
-```
-
-So'ng brauzerda: **http://127.0.0.1:8000** (admin: **http://127.0.0.1:8000/admin**)
-
 ## Statistikani saqlash
 
 Render bepul tierda **disk vaqtinchalik**: har deploy'da va xizmat uxlab
@@ -535,50 +526,12 @@ Shu sababli statistika ikki joyda saqlanishi mumkin:
 Ombor sifatida **Upstash Redis** ishlatiladi: u oddiy HTTP REST API beradi,
 shuning uchun yangi paket kerak emas — mavjud `httpx` yetadi.
 
-Sozlash: [upstash.com](https://upstash.com) da bepul Redis bazasi yarating,
-**REST API** bo'limidan `UPSTASH_REDIS_REST_URL` va `UPSTASH_REDIS_REST_TOKEN`
-ni oling va ularni Render'da `STATISTIKA_KV_URL` / `STATISTIKA_KV_TOKEN` qilib
-qo'ying.
-
 Ikki himoya qo'yilgan va ikkalasi testda qayd etilgan:
 
 - **Ombor javob bermasa ilova to'xtamaydi** — statistika yozilmaydi, xolos.
 - **Ombor javob bermasa faylga tushilmaydi.** Aks holda eski lokal fayl
   o'qilib, keyingi yozuvda tashqi ombordagi haqiqiy ma'lumot ustiga
   yozilib ketardi.
-
-## Bepul hostingga joylash (Render)
-
-Repo'da `render.yaml` tayyor. Qadamlar:
-
-1. Kodni GitHub'ga push qiling
-2. [render.com](https://render.com)da GitHub bilan kiring
-3. **New + → Blueprint** → repo'ni tanlang
-4. So'ralganda `ANTHROPIC_API_KEY` va `ADMIN_PASSWORD` qiymatlarini kiriting
-
-Bepul tierda xizmat 15 daqiqa harakatsizlikdan keyin uxlaydi (birinchi ochilish
-~1 daqiqa). Demo oldidan sahifani bir marta ochib qo'ying.
-
-Doimiy uyg'oq tutish uchun `/health` ga uptime monitor qo'yiladi (5 daqiqada bir
-marta). Sayt va Telegram bot bitta xizmat — bitta monitor ikkalasini ham
-uyg'otadi. `/telegram/webhook` faqat POST qabul qiladi, unga monitor qo'yilmaydi.
-
-**Bot javob bermasa:** `/admin` sahifasidagi «🤖 Telegram bot holati» bloki
-webhook holatini ko'rsatadi — manzil kutilganidek o'rnatilganmi, navbatda
-nechta savol turibdi va Telegram oxirgi marta qanday xato olgan. O'sha
-ma'lumot API orqali ham olinadi: `GET /api/admin/telegram` (`X-Admin-Parol`).
-
-## Demo uchun 3 ta namunaviy savol
-
-1. **Mehnat** (oddiy rejim): *"Ish beruvchi meni asossiz ishdan bo'shatmoqchi,
-   nima qilay?"* → Mehnat kodeksi 161-modda + Mehnat inspeksiyasi (1176)
-2. **Iste'molchi** (oddiy rejim): *"Sotib olgan telefonim nuqsonli chiqdi,
-   qaytarib bera olamanmi?"* → Iste'molchilar qonuni 14-modda + Raqobat qo'mitasi (1159)
-3. **Oila** (pro rejim): *"Ajrashganda bola alimenti qanday undiriladi?"* →
-   Oila kodeksi 96-97-moddalar + sud/FHDYo (pro rejimda protsessual tartib bilan)
-
-Bonus: biror mehnat shartnomasini (PDF/DOCX) yuklab, "Bu shartnomada xodim
-huquqlari buzilganmi?" deb so'rash mumkin.
 
 ## Keyingi bosqichlar
 
