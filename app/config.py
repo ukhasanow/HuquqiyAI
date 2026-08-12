@@ -45,6 +45,18 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
 # gpt-oss-120b ikkalasidan ham o'tdi va o'zbekcha javobi to'g'ri chiqdi.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODELLAR = _modellar("GROQ_MODEL", "openai/gpt-oss-120b,openai/gpt-oss-20b")
+# OpenRouter va BazaarLink — bepul zaxiralar, ikkalasi ham OpenAI-mos API.
+# Ular navbatda Groq'dan KEYIN turadi va bu ataylab: kunlik kvotasi kichik
+# (OpenRouter 50/kun, BazaarLink 150/kun), lekin daqiqalik limiti keng
+# (20 va 10 so'rov/daqiqa, Groq'da esa ~1.7). Ya'ni oddiy kunda Groq
+# ishlaydi, cho'qqi paytda Groq limitga urilib bularга o'tadi — aynan
+# shu payt ularning tez limiti kerak bo'ladi.
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_MODELLAR = _modellar(
+    "OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
+)
+BAZAARLINK_API_KEY = os.getenv("BAZAARLINK_API_KEY", "")
+BAZAARLINK_MODELLAR = _modellar("BAZAARLINK_MODEL", "auto:free")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "huquqiy-admin-2026")
 
 # Yuklanadigan hujjat uchun cheklovlar

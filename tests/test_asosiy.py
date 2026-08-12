@@ -408,10 +408,28 @@ def test_har_model_alohida_bosqich_va_bepullar_oldinda():
     for model in config.GROQ_MODELLAR:
         assert f"groq/{model}" in nomlar
 
+    for model in config.OPENROUTER_MODELLAR:
+        assert f"openrouter/{model}" in nomlar
+    for model in config.BAZAARLINK_MODELLAR:
+        assert f"bazaarlink/{model}" in nomlar
+
     # Bepullar pullidan oldin
-    oxirgi_bepul = max(i for i, n in enumerate(nomlar)
-                       if n.startswith(("gemini/", "groq/")))
-    assert oxirgi_bepul < nomlar.index(nomlar[-1])
+    bepul = ("gemini/", "groq/", "openrouter/", "bazaarlink/")
+    oxirgi_bepul = max(i for i, n in enumerate(nomlar) if n.startswith(bepul))
+    assert oxirgi_bepul < len(nomlar) - 1, "pulli provayder oxirida turmagan"
+
+
+def test_choqqi_provayderlari_groqdan_keyin():
+    """OpenRouter va BazaarLink kunlik kvotasi kichik (50 va 150), lekin
+    daqiqalik limiti keng. Shuning uchun ular Groq'dan KEYIN turishi kerak:
+    oddiy kunda Groq ishlaydi, cho'qqida esa bular ushlab qoladi. Oldinga
+    o'tkazilsa, kichik kvota oddiy kunlarda behuda yeb bitiriladi."""
+    from app.services import llm
+
+    nomlar = [n for n, _, _ in llm._bosqichlar()]
+    oxirgi_groq = max(i for i, n in enumerate(nomlar) if n.startswith("groq/"))
+    for tez in ("openrouter/", "bazaarlink/"):
+        assert min(i for i, n in enumerate(nomlar) if n.startswith(tez)) > oxirgi_groq
 
 
 def test_krediti_tugagan_provayder_chetlab_otiladi():

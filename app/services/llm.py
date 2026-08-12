@@ -1,8 +1,16 @@
 # AI modellari bilan ishlash qatlami.
-# Provayderlar navbati: Anthropic -> Gemini -> Groq -> OpenAI. Biri ishlamasa
-# (kredit/limit/xato) keyingisiga o'tiladi. Tartib narxga qarab tanlangan:
-# avval asosiy, so'ng BEPUL zaxiralar (Gemini, Groq), eng oxirida pulli
-# OpenAI — ya'ni pul faqat bepul kvotalar tugagach sarflanadi.
+# Provayderlar navbati:
+#   Anthropic -> Gemini -> Groq -> OpenRouter -> BazaarLink -> OpenAI
+# Biri ishlamasa (kredit/limit/xato) keyingisiga o'tiladi.
+#
+# Tartib ikki mezon bo'yicha: avval asosiy provayder, so'ng BEPUL zaxiralar,
+# eng oxirida PULLI OpenAI — ya'ni pul faqat bepullar tugagach sarflanadi.
+# Bepullar orasidagi tartib esa kunlik kvota bo'yicha: kvotasi kattalari
+# oldinda (Groq 2000/kun), kichiklari oxirida (OpenRouter 50/kun,
+# BazaarLink 150/kun). Sababi — kichik kvotalilar aynan CHO'QQI uchun
+# saqlanadi: ularning daqiqalik limiti keng (20 va 10 so'rov/daqiqa,
+# Groq'da ~1.7), shuning uchun Groq limitga urilganda o'shalar ushlaydi.
+#
 # Hammasi bir xil tuzilgan JSON javob qaytaradi, shuning uchun qolgan
 # kod provayderni sezmaydi.
 # Kirish — oddiy matn (savol yoki hujjat matni), manbasidan qat'i nazar.
@@ -16,6 +24,8 @@ import httpx
 
 from ..config import (
     ANTHROPIC_API_KEY,
+    BAZAARLINK_API_KEY,
+    BAZAARLINK_MODELLAR,
     GEMINI_API_KEY,
     GEMINI_MODELLAR,
     GROQ_API_KEY,
@@ -23,6 +33,8 @@ from ..config import (
     MODEL,
     OPENAI_API_KEY,
     OPENAI_MODEL,
+    OPENROUTER_API_KEY,
+    OPENROUTER_MODELLAR,
 )
 
 _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
@@ -354,6 +366,16 @@ def _bosqichlar(anthropic_ish=None, gemini_ish=None, mos_ish=None) -> List[tuple
             f"groq/{model}", bool(GROQ_API_KEY),
             (lambda m=model: mos_ish(_groq_provayder(m))) if mos_ish else None,
         ))
+    for model in OPENROUTER_MODELLAR:
+        bosqichlar.append((
+            f"openrouter/{model}", bool(OPENROUTER_API_KEY),
+            (lambda m=model: mos_ish(_openrouter_provayder(m))) if mos_ish else None,
+        ))
+    for model in BAZAARLINK_MODELLAR:
+        bosqichlar.append((
+            f"bazaarlink/{model}", bool(BAZAARLINK_API_KEY),
+            (lambda m=model: mos_ish(_bazaarlink_provayder(m))) if mos_ish else None,
+        ))
     bosqichlar.append((
         f"openai/{OPENAI_MODEL}", bool(OPENAI_API_KEY),
         (lambda: mos_ish(_openai_provayder())) if mos_ish else None,
@@ -428,6 +450,16 @@ def _openai_provayder() -> "_MosProvayder":
 def _groq_provayder(model: str) -> "_MosProvayder":
     return _MosProvayder("groq", "https://api.groq.com/openai/v1/chat/completions",
                          GROQ_API_KEY, model)
+
+
+def _openrouter_provayder(model: str) -> "_MosProvayder":
+    return _MosProvayder("openrouter", "https://openrouter.ai/api/v1/chat/completions",
+                         OPENROUTER_API_KEY, model)
+
+
+def _bazaarlink_provayder(model: str) -> "_MosProvayder":
+    return _MosProvayder("bazaarlink", "https://bazaarlink.ai/api/v1/chat/completions",
+                         BAZAARLINK_API_KEY, model)
 
 
 # Gemini'dagi "thinking" tuzog'i bu yerda yo'q (o'lchandi: reasoning_tokens=0),

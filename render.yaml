@@ -19,6 +19,10 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: BAZAARLINK_API_KEY
+        sync: false
       - key: MODEL
         value: claude-sonnet-4-5
       # Gemini bepul tierda kvota LOYIHAGA bog'langan: har model uchun kuniga
@@ -34,6 +38,12 @@ services:
       # qo'llab-quvvatlamaydi, qwen3.6-27b prompt hajmiga sig'maydi.
       - key: GROQ_MODEL
         value: openai/gpt-oss-120b,openai/gpt-oss-20b
+      # Bepul zaxiralar cho'qqi uchun: kunlik kvotasi kichik (50 va 150),
+      # lekin daqiqalik limiti keng (20 va 10 so'rov/daqiqa)
+      - key: OPENROUTER_MODEL
+        value: nvidia/nemotron-3-super-120b-a12b:free
+      - key: BAZAARLINK_MODEL
+        value: auto:free
       # Oxirgi zaxira (pulli) — faqat bepul kvotalar tugagach chaqiriladi
       - key: OPENAI_MODEL
         value: gpt-5.4-mini
