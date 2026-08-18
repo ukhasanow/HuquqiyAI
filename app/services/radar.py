@@ -1,16 +1,3 @@
-# Radar o'rnatilishi suratini ko'rib, YPX nizomi bo'yicha tekshirish.
-#
-# NEGA BU YERDA AI FAQAT "KO'ZI". Model suratdan FAKTNI o'qiydi: patrul
-# avtomobili bormi, odam formadami, moslama qarovsizmi. Huquqiy xulosani —
-# ya'ni "bu 32-band buzilishi" degan gapni — model emas, quyidagi Python
-# mantig'i chiqaradi. Sababi oddiy: model "bu jarima noqonuniy" deb yozib
-# yuborsa, odam shu asosda shikoyat beradi va yutqazadi.
-#
-# ENG MUHIM QOIDA (jarima.py dagi izohni ham o'qing): uch oyoqli tagliksa
-# qo'yilgan radarning O'ZI taqiqlanmagan. Nizomning 30, 31 va 34-bandlari
-# ko'chma fotoradarni ochiq nazarda tutadi. Surat faqat 32-bandni buzilganini
-# ko'rsatadigan haqiqiy dalilni topish uchun kerak: yonida patrul avtomobili
-# yo'qmi, moslamani formadagi xodim boshqaryaptimi.
 import base64
 import binascii
 import json
