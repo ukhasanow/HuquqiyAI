@@ -1,13 +1,3 @@
-# Ovoz xizmatlari: ovozni matnga (STT) va matnni ovozga (TTS) o'girish.
-#
-# Telegram ovozli xabarni OGG/Opus formatida beradi. Uni boshqa formatga
-# o'girish uchun ffmpeg kerak bo'lardi — Render bepul tierda esa apt yo'q.
-# Shuning uchun audio provayderga O'ZGARTIRILMASDAN yuboriladi: Gemini ham,
-# Whisper ham OGG/Opus'ni to'g'ridan-to'g'ri qabul qiladi.
-#
-# Asosiy provayder — Gemini: loyihada kaliti allaqachon bor (llm.py zaxira
-# provayderi) va o'zbek tilini tushunadi. OPENAI_API_KEY berilsa, Gemini
-# ishlamay qolganda Whisper'ga o'tiladi.
 import base64
 import io
 import logging
@@ -29,8 +19,7 @@ from ..config import (
 
 log = logging.getLogger(__name__)
 
-# Ovozni matnga o'girish — ijodkorlik talab qilmaydi, aksincha zarar qiladi:
-# model eshitmagan so'zini "to'g'rilab" yozib qo'yishi mumkin.
+
 _KORSATMA = (
     "Bu ovozli xabar — O'zbekiston fuqarosining huquqiy savoli. "
     "Uni AYNAN eshitilganidek matnga ko'chir. "
@@ -60,9 +49,7 @@ def matnga_ogir(bayt: bytes, mime: str = "audio/ogg") -> str:
     if not bayt:
         raise OvozXato("Ovozli xabar bo'sh.")
 
-    # Provayder xatosi foydalanuvchiga umumiy xabar bo'lib ko'rinadi ("matn
-    # bilan yozing"), sabab esa faqat log'da qoladi. Kalit yaroqsiz bo'lsa
-    # (401) buni boshqacha bilib bo'lmaydi — shuning uchun log majburiy.
+    
     oxirgi_xato: Optional[Exception] = None
     if GEMINI_API_KEY:
         try:
@@ -123,11 +110,7 @@ def _whisper_transkript(bayt: bytes, mime: str) -> str:
     return (javob.json().get("text") or "").strip()
 
 
-# ---------- Matnni ovozga o'girish (TTS) ----------
 
-# Nutq ohangi: quruq matn o'qish emas, odamga tushuntirayotgandek. Bu ko'rsatma
-# o'qiladigan matnning O'ZIGA qo'shilmaydi — Gemini TTS uslub ko'rsatmasini
-# matn boshida qabul qiladi va uni ovozga chiqarmaydi.
 _TTS_KORSATMA = (
     "Quyidagi huquqiy tavsiyani o'zbek tilida, xotirjam va aniq ohangda, "
     "shoshilmasdan o'qib ber:\n\n"
