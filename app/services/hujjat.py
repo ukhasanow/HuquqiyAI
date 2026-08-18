@@ -1,14 +1,3 @@
-# Hujjat turini aniqlash, tekshirish ro'yxati va bekor qilish yo'li.
-#
-# NEGA BU YERDA AI YO'Q. Hujjatning turi uning MUDDATINI belgilaydi: sud
-# hal qiluv qarori uchun bir oy, sudning MJK qarori uchun o'n sutka, jarima
-# qarori uchun o'n kun. Model turni xato aniqlasa, odamga noto'g'ri muddat
-# aytiladi va u haqiqiy muddatni o'tkazib yuboradi — bu qaytarib bo'lmaydigan
-# zarar. Shuning uchun tur kalit so'zlar bo'yicha aniqlanadi, muddatlar esa
-# bazadagi asl modda matniga havola qiladi.
-#
-# Ishonch darajasi doim ko'rsatiladi: tur "taxmin" bo'lsa, foydalanuvchi buni
-# bilishi va muddatni hujjatning o'zidan tekshirishi kerak.
 from typing import List, Optional
 
 from .. import storage
@@ -31,17 +20,11 @@ TUR_NOMLARI = {
     "boshqa": "Turi aniqlanmagan hujjat",
 }
 
-# Kalit so'zlar normallashtirilgan shaklda yoziladi (apostrofsiz, lotinda) —
-# hujjat kirillda yozilgan bo'lsa ham topiladi. Har tur uchun:
-#   majburiy — shulardan KAMIDA BITTASI bo'lishi shart
-#   kuchli   — bittasi topilsa tur deyarli aniq
-#   qollab   — qo'shimcha dalil, har biri ball qo'shadi
+
 _QOIDALAR = {
     "sud_mjk": {
         "majburiy": ["sud"],
-        # "sudya" va "sud qarori" — hujjatni SUD chiqarganining belgisi. Oddiy
-        # YHXX qarorida ham "sudga shikoyat berish mumkin" deb yoziladi, lekin
-        # "sudya" so'zi bo'lmaydi: farqni aynan shu ajratadi.
+        
         "kuchli": ["mamuriy huquqbuzarlik togrisidagi ish", "mjtk",
                    "mamuriy javobgarlik", "sudya", "sud qarori"],
         "qollab": ["mamuriy jazo", "protokol", "bayonnoma", "sud majlisi"],
@@ -76,8 +59,7 @@ _QOIDALAR = {
     },
 }
 
-# Shartnoma alohida aniqlanadi: unda bandlar tuzilishi asosiy belgi bo'ladi
-# va buni services/shartnoma.py allaqachon biladi.
+
 
 
 def turni_aniqla(matn: str) -> tuple:
@@ -109,14 +91,7 @@ def turni_aniqla(matn: str) -> tuple:
     qolgan = sorted((b for t, b in ballar.items() if t != turi), reverse=True)
     aniqmi = eng_kop >= 4 and (not qolgan or eng_kop - qolgan[0] >= 3)
 
-    # Chalkashadigan juftliklar: ikkalasi ham ball to'plagan bo'lsa, ball
-    # farqi qanchalik katta bo'lishidan qat'i nazar "taxmin" deyiladi.
-    #
-    # Sababi — bu juftliklarda XATO NARXI yuqori. Jarima qarori ustidan
-    # yuqori organga yoki sudga SHIKOYAT beriladi, sud chiqargan qaror
-    # ustidan esa APELLYATSIYA. Ikkalasi 10 kun bo'lsa ham, tartib va
-    # murojaat qilinadigan joy boshqa: noto'g'ri yo'l bilan berilgan hujjat
-    # qaytariladi va odam muddatni shu orada boy beradi.
+    
     for juft in _CHALKASH_JUFTLAR:
         if len(juft & ballar.keys()) > 1:
             aniqmi = False
@@ -143,11 +118,7 @@ def _q(matn: str, modda_id: str = "") -> BekorQadam:
     return BekorQadam(matn=matn, modda=_modda(modda_id) if modda_id else None)
 
 
-# ---------- Tekshirish ro'yxatlari ----------
-#
-# Har bir band hujjatning o'zidan tekshirib ko'riladigan aniq narsa bo'lishi
-# kerak. "Huquqlaringizni biling" kabi umumiy maslahat bu yerga kirmaydi:
-# odam ro'yxatni qo'lida hujjat bilan o'qiydi.
+
 
 def _tekshiruvlar(turi: str) -> List[HujjatTekshiruv]:
     if turi == "sud_fuqarolik":
