@@ -1,11 +1,3 @@
-# Shartnoma tahlili — HTTP qatlamidan mustaqil (javob.py uslubida).
-#
-# Nega alohida modul: uch qismli javob (modda + tavsiya + organ) shartnomaga
-# to'g'ri kelmaydi. Odam shartnomadan "qaysi bandi menga zarar keltiradi?"
-# degan savolga javob kutadi, ya'ni natija BAND bo'yicha tuzilishi kerak.
-#
-# Asl matn kafolati bu yerda ham kuchda: LLM faqat modda ID'sini tanlaydi,
-# modda matni bazadan qo'shiladi.
 import re
 from typing import List, Optional
 
@@ -18,10 +10,6 @@ from .javob import AiSozlanmagan, AiXato
 # Shartnoma bandi: "4.3." yoki "4.3" yoki "1.2.1." qatorning boshida.
 _BAND_NAQSHI = re.compile(r"^\s*(\d+(?:\.\d+)+)\.?\s+(.+)$", re.MULTILINE)
 
-# Har band uchun alohida qidiruv qilinadi va natijalar birlashtiriladi.
-# Butun shartnoma matni bitta so'rov sifatida berilsa, uzun bandlarning
-# tokenlari qisqa (lekin muhim) bandlarni bosib ketadi va "sinov muddati"
-# kabi bitta jumlalik band uchun modda umuman topilmaydi.
 BAND_UCHUN_NOMZOD = 3
 MAX_NOMZOD = 30
 
@@ -30,8 +18,6 @@ UMUMIY_NOMZOD = 20
 
 XAVF_TARTIBI = {"qizil": 0, "sariq": 1, "yashil": 2}
 
-# Shartnoma turini matndagi so'zlar bo'yicha taxmin qilish. Tartib muhim:
-# mehnat shartnomasida ham "to'lash" bor, shuning uchun aniqrog'i oldinda.
 _TUR_BELGILARI = [
     ("mehnat", ("mehnat shartnomasi", "ish beruvchi", "xodim", "lavozim", "ish haqi")),
     ("ijara", ("ijara", "ijaraga beruvchi", "ijaraga oluvchi", "yollash")),
@@ -39,13 +25,7 @@ _TUR_BELGILARI = [
     ("oldi-sotdi", ("oldi-sotdi", "sotuvchi", "xaridor", "tovar", "mahsulot")),
 ]
 
-# Har tur uchun IMPERATIV normalar — leksik qidiruv ularni topa olmasa ham
-# nomzodlar ro'yxatiga majburan qo'shiladi.
-#
-# Nega kerak: "Ish kuni 09:00 dan 21:00 gacha, haftasiga olti kun" bandi bilan
-# "Ish vaqtining normal davomiyligi" moddasida umumiy so'z yo'q — leksik
-# qidiruv ularni bog'lay olmaydi va eng qo'pol qonunbuzarlik e'tibordan
-# chetda qoladi. Bu ro'yxat shu bo'shliqni yopadi.
+
 ASOSIY_MODDALAR = {
     "mehnat": [
         "mehnat-21",    # xodimning huquqlari
@@ -155,8 +135,7 @@ def _bandlarni_tuz(xom: list) -> List[ShartnomaBand]:
             izoh=str(b.get("izoh", "")).strip(),
             modda=_moddani_biriktir(str(b.get("modda_id", ""))),
         ))
-    # Xavflisi birinchi: odam ro'yxatni tepadan o'qiydi va pastdagi qizil
-    # bandni ko'rmay qolishi mumkin.
+   
     bandlar.sort(key=lambda b: XAVF_TARTIBI[b.xavf])
     return bandlar
 
