@@ -45,8 +45,7 @@ class ChatJavob(BaseModel):
     tavsiya: str                # 2-qism: LLM tavsiyasi
     murojaat: Optional[OrganJavob] = None  # 3-qism: bazadagi kontakt
     murojaat_mavzusi: str = "umumiy"  # ariza generatori uchun
-    # Fayl yuklanganda to'ldiriladi: hujjat turi, tekshirish ro'yxati va bekor
-    # qilish yo'li. Oddiy chat savolida bo'sh — tekshiriladigan hujjat yo'q.
+    
     hujjat_yoli: Optional["HujjatJavob"] = None
     disclaimer: str = (
         "Diqqat: bu ma'lumot tanishtiruv xarakteriga ega bo'lib, professional "
@@ -115,26 +114,17 @@ class JarimaSorov(BaseModel):
     band: str = Field(default="", max_length=40)    # Qoidalar bandi, masalan "106"
     summa: str = Field(default="", max_length=60)
     qaror_raqami: str = Field(default="", max_length=60)
-    tolangan: bool = False       # jarima allaqachon to'langanmi (324-modda)
-    # Tezlik oshirish jarimasi uchun (128³-modda): qayd etilgan tezlikdan
-    # 5 km/soat chegirib tashlanishi SHART
+    tolangan: bool = False       
     qayd_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=400)
     ruxsat_etilgan_tezlik: Optional[int] = Field(default=None, ge=0, le=200)
     jarima_bhm: Optional[float] = Field(default=None, ge=0, le=100)  # necha baravar BHM
 
-    # Radar qanday o'rnatilgan edi (YPX nizomining 28 va 32-bandlari).
-    # "trenoga"  — uch oyoqli tagliksa o'rnatilgan ko'chma radar
-    # "patrul"   — YPX patrul avtomobilida
-    # "statsionar" — doimiy o'rnatilgan kamera
-    # "" — noma'lum
+    
     radar_turi: str = Field(default="", max_length=20)
     # Radarni xizmatga aloqasi bo'lmagan shaxs boshqargan bo'lsa (32-band)
     begona_shaxs: bool = False
 
-    # Quyidagilar radar suratidan yoki foydalanuvchi so'zidan olinadi.
-    # None — ma'lumot yo'q; False — aniq yo'q edi. Bu farq muhim: 32-band
-    # bo'yicha asos "patrul avtomobili YO'Q edi" degan DALILDAN kelib chiqadi,
-    # ma'lumotning yo'qligidan emas.
+  
     patrul_avtomobili: Optional[bool] = None   # radar yonida YPX avtomobili bormidi
     xodim_formada: Optional[bool] = None       # moslamani formadagi xodim boshqarganmi
     moslama_qarovsiz: bool = False             # radar odamsiz qoldirilgan (35-band)
@@ -289,6 +279,5 @@ class ModdaKiritish(BaseModel):
     holat: str = "needs_verification"  # "verified" | "needs_verification"
 
 
-# ChatJavob HujjatJavob'ga o'zidan oldin havola qiladi (oldinga qarab e'lon):
-# ikkalasi ham bir faylda va tartibini o'zgartirish boshqa importlarni buzardi.
+
 ChatJavob.model_rebuild()
