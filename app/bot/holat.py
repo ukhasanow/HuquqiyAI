@@ -1,8 +1,3 @@
-# Foydalanuvchi holati va so'rov cheklovlari (xotirada).
-#
-# Ma'lumot diskka yozilmaydi: Render bepul tierda jarayon qayta ishga
-# tushganda rejim standart holatga qaytadi — bu yo'qotish arzimas, buning
-# uchun baza qo'shish esa ortiqcha murakkablik.
 import time
 from collections import OrderedDict
 from typing import Dict, Optional, Tuple
@@ -10,15 +5,11 @@ from typing import Dict, Optional, Tuple
 REJIMLAR = ("oddiy", "pro")
 STANDART_REJIM = "oddiy"
 
-# Ovozli javob sozlamasi:
-#   avto  — ovozli savolga ovozli javob, matnli savolga faqat matn (standart)
-#   doim  — har javobga ovoz qo'shiladi
-#   yoq   — ovozli javob umuman yuborilmaydi
+
 OVOZ_TANLOVLARI = ("avto", "doim", "yoq")
 STANDART_OVOZ = "avto"
 
-# Bir foydalanuvchi uchun: DAVR soniyada eng ko'pi bilan CHEGARA ta so'rov.
-# Maqsad — bitta odam butun AI byudjetini yoqib yuborishining oldini olish.
+
 CHEKLOV_DAVRI = 600
 CHEKLOV_CHEGARASI = 20
 
@@ -27,17 +18,11 @@ _ovoz_sozlamalari: Dict[int, str] = {}
 _sorovlar: Dict[int, list] = {}
 _band: Dict[int, float] = {}
 
-# Yuborilgan javoblar: tugmalar (moddalarni ochish, ariza) qaysi javobga
-# tegishli ekanini shu kalit orqali biladi. Faqat oxirgisini saqlash yetmaydi —
-# odam eski xabardagi tugmani bosganda unga yangi javobning moddalari
-# ochilib ketardi.
 _javoblar: "OrderedDict[str, dict]" = OrderedDict()
 JAVOB_XOTIRASI = 50
 _javob_sanagichi = 0
 
-# Bitta so'rov shuncha soniyadan uzoq davom etsa, "band" belgisi eskirgan
-# hisoblanadi (masalan jarayon xato bergan). Aks holda foydalanuvchi bot
-# bilan butunlay ishlay olmay qoladi.
+
 BAND_MUDDATI = 180
 
 
