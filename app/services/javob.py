@@ -1,12 +1,3 @@
-# Asosiy javob oqimi — HTTP qatlamidan mustaqil.
-#
-# Sayt (app/main.py) ham, Telegram bot ham AYNAN shu modulni chaqiradi.
-# Mantiq ikki joyda takrorlansa, ular vaqt o'tib bir-biridan uzoqlashadi:
-# birida tuzatilgan xato ikkinchisida qolib ketadi.
-#
-# Shu sababli bu yerda FastAPI'ga oid hech narsa yo'q (HTTPException ham) —
-# xatolar domen istisnolari ko'rinishida ko'tariladi, ularni HTTP kodiga
-# yoki Telegram xabariga aylantirish chaqiruvchining ishi.
 from typing import List, Optional
 
 from .. import storage
@@ -41,8 +32,7 @@ class AiXato(JavobXato):
         self.asl = asl
 
 
-# Kutish bilan o'tib ketadigan sabablar. Foydalanuvchi uchun asosiy savol
-# bitta: kutsam o'zi tuzaladimi yoki yo'qmi.
+
 _VAQTINCHALIK = ("limit", "band", "uzildi", "xato")
 
 
