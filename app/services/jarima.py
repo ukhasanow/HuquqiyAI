@@ -1,14 +1,3 @@
-# Jarima qonuniyligini tekshirish.
-#
-# NEGA BU YERDA AI YO'Q. Jarimaning taqdirini hal qiladigan narsa — muddatlar,
-# ya'ni sanalar ayirmasi. Buni model "taxmin qilishi" mumkin emas: bir kun
-# xato hisob odamni asossiz shikoyatga yoki aksincha, haqiqiy asosdan voz
-# kechishga olib boradi. Shuning uchun muddat tekshiruvlari oddiy arifmetika
-# bilan bajariladi, izohlar esa bazadagi ASL modda matniga havola qiladi.
-#
-# MUHIM QOIDA: bu modul hech qachon "jarima noqonuniy, to'lamang" demaydi.
-# U faqat "shu asos tekshirishga arziydi" deydi va shikoyat muddatini
-# eslatadi. Yakuniy bahoni sud yoki vakolatli organ beradi.
 import base64
 import json
 import logging
@@ -24,13 +13,7 @@ from ..models import JarimaJavob, JarimaSorov, JarimaTekshiruv, ModdaJavob
 
 log = logging.getLogger(__name__)
 
-# Muddatlar MJK matnidan olingan (tests/test_jarima.py ularni modda matni
-# bilan solishtiradi — qonun o'zgarsa test yiqiladi va bu yer yangilanadi):
-#
-#   36-modda   — jazo huquqbuzarlik sodir etilgan kundan bir yildan kechiktirmay;
-#                kamera orqali qayd etilganda esa bir oydan kechiktirmay
-#   316-modda  — qaror nusxasi olingan kundan o'n kun ichida shikoyat
-#   330-modda  — qaror chiqarilgan kundan uch oy ijroga qaratilmasa, ijro etilmaydi
+
 JAZO_MUDDATI_OY = 12
 KAMERA_JAZO_MUDDATI_OY = 1
 SHIKOYAT_MUDDATI_KUN = 10
@@ -49,9 +32,6 @@ ASOSLILIK_MODDASI = "mjk-321"   # qarorni bekor qilish asoslari
 AYB_MODDASI = "mjk-307"         # ko'rib chiqishda aniqlanishi lozim bo'lgan holatlar
 TEZLIK_MODDASI = "mjk-128-3"
 
-# YPX nizomi (VM 975-son) — radardan foydalanish tartibi. 28 va 32-bandlar
-# talablarga rioya qilinmay chiqarilgan qarorlar YURIDIK KUCHGA EGA
-# BO'LMASLIGINI belgilaydi — bu oddiy bekor qilish asosidan kuchliroq.
 SERTIFIKAT_MODDASI = "ypx-28"           # sertifikat va hisobda turish
 XOLISLAR_MODDASI = "ypx-29"             # ko'rsatkichga e'tiroz — xolislar ishtiroki
 RADAR_MODDASI = "ypx-32"                # patrul avtomobilidan yechib olish taqiqi
@@ -60,31 +40,13 @@ DISLOKATSIYA_KOCHMA_MODDASI = "ypx-34"  # ko'chma radar dislokatsiyasi
 MASULIYAT_MODDASI = "ypx-35"            # xodim moslamani qabul qiladi va mas'ul
 XOTIRA_MODDASI = "ypx-36"               # xotiraga o'rnatilgan joy va yo'nalish
 
-# DIQQAT — ko'p uchraydigan yanglish tushuncha. Nizomda "trenoga", "uch oyoqli"
-# degan so'z YO'Q, va uch oyoqli tagliksa qo'yilgan radar o'z-o'zidan
-# taqiqlanmagan: 30, 31 va 34-bandlar ko'chma fotoradarni ochiq nazarda tutadi.
-# Qarorni kuchsiz qiladigan narsa moslamaning TURI emas, quyidagilar:
-#   32-band — patrul avtomobili uchun belgilangan moslamani yechib olish,
-#             uni begona transport vositasiga o'rnatish, begona shaxsni jalb qilish
-#   28-band — sertifikat yo'q / muddati o'tgan / IIB hisobida yo'q
-#   34-band — dislokatsiyada ko'rsatilmagan joy yoki vaqt
-# Shuning uchun "trenoga" ning o'zi hech qachon "asos" deb belgilanmaydi:
-# asossiz shikoyat foydalanuvchini ham, tizimga ishonchni ham yo'qotadi.
 
-# 128³-moddaning oxirgi qismi: "tezlikni oʻlchaydigan maxsus uskunalar va
-# transport vositalari spidometri koʻrsatkichlaridagi yoʻl qoʻyilishi mumkin
-# boʻlgan jami xatolar hisobga olinib, ularda qayd etilgan tezlikdan soatiga
-# 5 kilometr chegirib tashlangan holda, maʼmuriy jazo chorasi qoʻllaniladi."
-#
-# Ya'ni radar 5 km/soat xatolikka yo'l qo'yadi va u HAYDOVCHI foydasiga
-# hisoblanishi shart. Bu eng ko'p e'tibordan chetda qoladigan qoida.
 TEZLIK_CHEGIRMASI = 5
 
 # 128³-modda qismlari: (oshirish chegarasi km/soat, BHM baravari)
 TEZLIK_JARIMALARI = [(20, 1), (40, 5), (60, 9), (None, 15)]
 
-# 17¹-moddadagi YOPIQ ro'yxat: kamera orqali FAQAT shu moddalar qayd etiladi.
-# Ro'yxatda yo'q modda bo'yicha kamera jarimasi solingan bo'lsa — bu asos.
+
 KAMERA_MODDALARI = {
     "mjk-125", "mjk-128", "mjk-128-1", "mjk-128-3", "mjk-128-4", "mjk-128-5",
     "mjk-128-6", "mjk-128-7", "mjk-128-9", "mjk-128-10", "mjk-129", "mjk-130",
