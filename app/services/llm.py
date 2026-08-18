@@ -1,19 +1,3 @@
-# AI modellari bilan ishlash qatlami.
-# Provayderlar navbati:
-#   Anthropic -> Gemini -> Groq -> OpenRouter -> BazaarLink -> OpenAI
-# Biri ishlamasa (kredit/limit/xato) keyingisiga o'tiladi.
-#
-# Tartib ikki mezon bo'yicha: avval asosiy provayder, so'ng BEPUL zaxiralar,
-# eng oxirida PULLI OpenAI — ya'ni pul faqat bepullar tugagach sarflanadi.
-# Bepullar orasidagi tartib esa kunlik kvota bo'yicha: kvotasi kattalari
-# oldinda (Groq 2000/kun), kichiklari oxirida (OpenRouter 50/kun,
-# BazaarLink 150/kun). Sababi — kichik kvotalilar aynan CHO'QQI uchun
-# saqlanadi: ularning daqiqalik limiti keng (20 va 10 so'rov/daqiqa,
-# Groq'da ~1.7), shuning uchun Groq limitga urilganda o'shalar ushlaydi.
-#
-# Hammasi bir xil tuzilgan JSON javob qaytaradi, shuning uchun qolgan
-# kod provayderni sezmaydi.
-# Kirish — oddiy matn (savol yoki hujjat matni), manbasidan qat'i nazar.
 import json
 import re
 import time
@@ -39,11 +23,7 @@ from ..config import (
 
 _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
 
-# Javob strukturasini kafolatlash uchun majburiy tool chaqiruvi ishlatiladi:
-# model modda matnini QAYTA YOZMAYDI — faqat tegishli moddalar ID'sini tanlaydi,
-# tavsiya yozadi va murojaat mavzusini belgilaydi. Asl matn bazadan olinadi.
-# Bu ro'yxat data/organlar.json dagi "mavzu" qiymatlari bilan bir xil bo'lishi shart —
-# model tanlagan mavzu bo'yicha kontakt bazadan olinadi.
+
 MUROJAAT_MAVZULARI = [
     "mehnat",
     "iste'molchi",
@@ -59,26 +39,10 @@ MUROJAAT_MAVZULARI = [
     "umumiy",
 ]
 
-# Tavsiya hajmi — javob vaqtini belgilaydigan ASOSIY sozlama.
-# Vaqtning deyarli hammasi model matn yozishiga ketadi (~30 token/sekund),
-# shuning uchun uzunlik bilan vaqt deyarli chiziqli bog'langan. O'lchangan
-# natijalar (claude-sonnet-4-5, 5-6 savol bo'yicha o'rtacha):
-#
-#   qadam × belgi   tavsiya uzunligi   javob vaqti
-#   3 × 150         ~380 belgi          ~8.4s     (qisqa, lekin tez)
-#   4 × 150         ~630 belgi         ~11.3s     <-- hozirgi tanlov
-#   4 × 220         ~980 belgi         ~17.1s     (to'liq, lekin sekin)
-#
-# Tezlik kerak bo'lsa QADAM_SONI ni 3 ga tushiring; batafsilroq tavsiya kerak
-# bo'lsa QADAM_BELGI ni oshiring. Takrorlangan savollar keshdan qaytadi
-# (services/kesh.py), shuning uchun bu sozlama faqat yangi savollarga ta'sir qiladi.
+
 TAVSIYA_QADAM_SONI = 4
 TAVSIYA_QADAM_BELGI = 150
 
-# Batafsil rejim (Telegram bot). Botda ekran cheklovi yo'q va foydalanuvchi
-# javobni o'qishga ko'proq tayyor: qadamlar ko'proq va uzunroq bo'ladi hamda
-# vaziyatning umumiy xulosasi qo'shiladi. Buning evaziga javob ~5 soniya
-# sekinlashadi, shuning uchun saytda yoqilmagan.
 BATAFSIL_QADAM_SONI = 6
 BATAFSIL_QADAM_BELGI = 260
 XULOSA_BELGI = 450
@@ -208,30 +172,13 @@ def _kutish_soniyasi(xatolar: List[Exception]) -> Optional[int]:
     return min(topilgan) if topilgan else None
 
 
-# Har bir provayderning oxirgi HAQIQIY chaqiruvda qanday tugagani — /health uchun.
-#
-# Nega faol tekshiruv emas: /health'ni uptime monitoring har necha daqiqada
-# so'raydi. Har so'rovda provayderga murojaat qilinsa, Gemini bepul kvotasi
-# (kuniga 20 ta so'rov) bir soatda yonib bitadi va Anthropic tokeni bekorga
-# sarflanadi. Shuning uchun holat foydalanuvchi so'rovlaridan yig'iladi.
-#
-# Buning narxi: qayta ishga tushgandan keyin birinchi savolgacha holat
-# "noma'lum" bo'lib turadi. Ayirboshlash ongli — nosozlik birinchi savoldayoq
-# ko'rinadi, monitoring esa kvotani yemaydi.
 _holat: dict = {}
 
 
 def _xato_sababi(e: Exception) -> str:
     """Provayder xatosini qisqa sababga aylantiradi (foydalanuvchi matni emas, diagnostika)."""
     s = str(e).lower()
-    # Tartib muhim va o'lchovga asoslangan. Gemini ham, OpenAI ham 429
-    # javobining MATNIDA "billing" so'zini ishlatadi — "karta qo'shsangiz
-    # limit ortadi" degan maslahat sifatida. Agar "billing" bo'yicha
-    # tasniflansa, oddiy daqiqalik limit "hisob tugagan" bo'lib ko'rinadi va
-    # provayder butunlay bloklanadi. Shuning uchun:
-    #   1) OpenAI'ning HAQIQIY tugashi — `insufficient_quota` kodi;
-    #   2) qolgan har qanday 429 — vaqtinchalik limit;
-    #   3) "credit balance" (Anthropic, HTTP 400) — haqiqiy hisob muammosi.
+   
     if "insufficient_quota" in s:
         return "hisob"
     if "429" in s or "rate limit" in s or "resource_exhausted" in s or "quota" in s:
@@ -252,13 +199,7 @@ def _xato_sababi(e: Exception) -> str:
     return "xato"
 
 
-# Kredit tugashi yoki noto'g'ri kalit — bir necha soniyada o'tib ketmaydi.
-# Bunday provayderni har savolda qayta chaqirish ikki zarar keltiradi:
-# har so'rovga bekorga bitta murojaat qo'shiladi, va uning xatosi boshqa
-# provayderlarning VAQTINCHALIK xatosini bosib, foydalanuvchiga "hisob
-# to'ldiring" deb ko'rsatadi — aslida bir daqiqa kutsa yetardi.
-# "model" ham shu yerda: Google yopgan model ("no longer available to new
-# users") qaytib ochilmaydi, uni har savolda sinash bekorga kechikish.
+
 _DOIMIY_SABABLAR = ("hisob", "kalit", "model")
 _BLOK_MUDDATI = 600  # sekund; muddatdan keyin yana bir marta sinab ko'riladi
 _bloklangan: dict = {}
@@ -274,11 +215,7 @@ def _ishlatsa_boladi(provayder: str) -> bool:
     return False
 
 
-# Qisqa limitda kutib turgan ma'qul. Groq bepul tierda 8000 token/daqiqa
-# beradi va "3.2 soniyadan keyin qayting" deydi — bunday holatda darhol
-# taslim bo'lish javobni bekorga yo'qotadi. Chegara ataylab kichik: javob
-# baribir ~10-17 soniya davom etadi, ustiga 8 soniyadan ko'p qo'shilsa
-# foydalanuvchi kutib turolmaydi va Render so'rovni uzib yuborishi mumkin.
+
 _AVTO_KUTISH_CHEGARASI = 8
 
 
@@ -397,15 +334,7 @@ def provayderlar_holati() -> list:
     ]
 
 
-# Gemini "thinking" modellari (gemini-3.x) o'ylash tokenlarini ham
-# maxOutputTokens ichidan yeydi — o'lchandi: bir qatorlik savolga 988 ta
-# o'ylash tokeni. Byudjet tor bo'lsa u o'ylashga sarflanadi va JSON yarmida
-# uzilib qoladi; json.loads "Unterminated string" beradi.
-#
-# Bu nosozlik ayniqsa xavfli, chunki KO'RINMAYDI: Anthropic krediti tugagan
-# paytda xatolar yig'ilganda "hisob" xabari birinchi ko'rsatiladi, foydalanuvchi
-# esa zaxira ham o'lganini bilmaydi. Shuning uchun byudjet keng olingan —
-# ishlatilmagan token uchun to'lanmaydi, faqat haqiqiy chiqish hisoblanadi.
+
 _GEMINI_JAVOB_TOKEN = 8192
 _GEMINI_SHARTNOMA_TOKEN = 12288
 
@@ -429,11 +358,6 @@ def _gemini_matni(javob: httpx.Response) -> str:
     raise RuntimeError(f"Gemini bo'sh javob qaytardi (finishReason={nomzod.get('finishReason')})")
 
 
-# ---------- OpenAI-mos provayderlar (OpenAI va Groq) ----------
-#
-# Groq aynan OpenAI Chat Completions shaklidan foydalanadi, shuning uchun
-# ikkalasiga bitta chaqiruvchi xizmat qiladi — faqat manzil, kalit va model
-# farq qiladi. Alohida nusxa yozilsa, ular vaqt o'tib bir-biridan uzoqlashadi.
 
 class _MosProvayder(NamedTuple):
     nom: str
@@ -462,9 +386,6 @@ def _bazaarlink_provayder(model: str) -> "_MosProvayder":
                          BAZAARLINK_API_KEY, model)
 
 
-# Gemini'dagi "thinking" tuzog'i bu yerda yo'q (o'lchandi: reasoning_tokens=0),
-# lekin chegara baribir qo'yiladi — uzilishni jimgina o'tkazib yubormaslik uchun
-# finish_reason tekshiriladi.
 _OPENAI_JAVOB_TOKEN = 4096
 _OPENAI_SHARTNOMA_TOKEN = 8192
 
@@ -622,11 +543,7 @@ _REJIMLAR = {
 }
 
 
-# ---------- Shartnoma tahlili ----------
-#
-# Bu alohida sxema: uch qismli javob (modda + tavsiya + organ) shartnomaga
-# to'g'ri kelmaydi. Odam shartnomadan "qaysi bandi menga zarar keltiradi?"
-# degan savolga javob kutadi, ya'ni natija BAND bo'yicha tuzilishi kerak.
+
 
 SHARTNOMA_TURLARI = ["mehnat", "ijara", "kredit", "oldi-sotdi", "xizmat", "boshqa"]
 XAVF_DARAJALARI = ["qizil", "sariq", "yashil"]
