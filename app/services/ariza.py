@@ -1,7 +1,3 @@
-# Ariza va shikoyat qoralamasi generatori.
-# LLM chaqirilmaydi — modda va organ ma'lumotlari bazadan (allaqachon
-# tekshirilgan javobdan) olinadi, foydalanuvchi faqat o'z ma'lumotini kiritadi.
-# Hujjatda shahar va sana yo'q — yoziladigan yagona joy: imzo.
 from typing import List, Optional
 
 
