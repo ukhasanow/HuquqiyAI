@@ -44,8 +44,7 @@ log = logging.getLogger(__name__)
 
 WEBHOOK_YOLI = "/telegram/webhook"
 
-# asyncio.create_task qaytargan vazifaga havola saqlanmasa, uni yig'uvchi
-# tugashidan oldin yo'q qilib yuborishi mumkin.
+
 _fon_vazifalari: set = set()
 
 
@@ -53,10 +52,7 @@ _fon_vazifalari: set = set()
 async def _hayot(_app: FastAPI):
     if telegram_bot.mavjud() and TELEGRAM_WEBHOOK_URL:
         try:
-            # drop_pending_updates BERILMAYDI (ya'ni False): Render bepul
-            # tierda xizmat uxlab qolsa, o'sha paytda yozilgan savollar
-            # Telegram navbatida turadi. True bo'lsa ular uyg'onish paytida
-            # o'chirib tashlanardi va foydalanuvchi umuman javob olmasdi.
+        
             await telegram_bot.bot().set_webhook(
                 url=TELEGRAM_WEBHOOK_URL.rstrip("/") + WEBHOOK_YOLI,
                 secret_token=TELEGRAM_WEBHOOK_SECRET or None,
