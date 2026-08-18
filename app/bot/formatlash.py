@@ -1,14 +1,8 @@
-# Javobni Telegram xabariga aylantirish.
-#
-# parse_mode=HTML ishlatiladi. MarkdownV2 da modda matnidagi har bir `.`, `-`,
-# `(` belgisi escape talab qiladi — qonun matni bunday belgilarga to'la va
-# bitta e'tibordan qolgani butun xabarni yuborilmaydigan qiladi.
 import html
 import re
 from typing import List
 
-# Telegram matn xabari uchun chegara 4096 belgi. Bir oz zaxira qoldiramiz:
-# HTML teglar ham shu hisobga kiradi.
+
 XABAR_CHEGARASI = 3900
 
 
@@ -31,8 +25,7 @@ def _urgu(matn: str) -> str:
     return _QALIN.sub(r"<b>\1</b>", xavfsiz)
 
 
-# Qalin belgisi bir xatboshi ichida yopilishi kerak: yopilmagan "**" butun
-# qolgan matnni qalin qilib yubormasin.
+
 _QALIN = re.compile(r"\*\*(.+?)\*\*", re.S)
 
 
@@ -75,8 +68,7 @@ def modda_xabari(modda: dict) -> List[str]:
     bosh = f"📖 <b>{_tozala(modda['modda_raqami'])}</b>\n<i>{_tozala(modda['qonun_nomi'])}</i>\n\n"
     sarlavha = modda.get("sarlavha", "")
     tana = ""
-    # Sarlavha odatda "23-modda. Er va xotinning umumiy mulki" — modda raqami
-    # yuqorida allaqachon bor, takrorlamaymiz.
+    
     if ". " in sarlavha:
         tana += f"<b>{_tozala(sarlavha.split('. ', 1)[1])}</b>\n\n"
     if modda.get("holat") == "verified":
