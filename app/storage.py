@@ -1,8 +1,3 @@
-# JSON bazani o'qish/yozish qatlami.
-# Fayllar har so'rovda qayta o'qilmaydi: xotiradagi kesh saqlanadi va faqat
-# fayl o'zgarganda (mtime yoki hajm boshqacha bo'lsa) qaytadan yuklanadi.
-# Shu sababli admin panel orqali kiritilgan o'zgarish darhol ko'rinadi,
-# lekin oddiy so'rov diskka tegmaydi.
 import json
 import threading
 from pathlib import Path
@@ -15,7 +10,7 @@ ORGANLAR_FAYL = DATA_DIR / "organlar.json"
 
 _lock = threading.Lock()
 
-# nom -> (fayl_belgisi, ma'lumot, id_indeksi)
+
 _kesh: Dict[str, tuple] = {}
 
 
@@ -62,7 +57,7 @@ def organlarni_oqi() -> List[dict]:
 
 def modda_top(modda_id: str) -> Optional[dict]:
     """id bo'yicha modda — chiziqli qidiruv emas, tayyor indeksdan."""
-    moddalarni_oqi()  # keshni (va indeksni) tirik holatga keltiradi
+    moddalarni_oqi()  
     indeks = _kesh["qonunlar"][2] or {}
     return indeks.get(modda_id)
 
@@ -72,7 +67,7 @@ def organ_top(mavzu: str) -> Optional[dict]:
     for o in organlar:
         if o["mavzu"] == mavzu:
             return o
-    # topilmasa umumiy organ (Adliya vazirligi) qaytariladi
+    
     for o in organlar:
         if o["mavzu"] == "umumiy":
             return o
