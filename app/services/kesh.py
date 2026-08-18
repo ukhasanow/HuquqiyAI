@@ -1,12 +1,3 @@
-# Javob keshi: bir xil savol qayta so'ralganda LLM'ga umuman murojaat qilinmaydi.
-#
-# Nima uchun kerak: javob vaqtining deyarli hammasi model matn yozishiga ketadi
-# (~40 token/sekund), ya'ni har bir yangi savol 10-20 sekund. Ommabop savollar
-# esa qayta-qayta so'raladi — ularni keshdan qaytarish javobni bir zumda qiladi
-# va AI xizmati xarajatini kamaytiradi.
-#
-# Kesh FAQAT mustaqil savollar uchun ishlaydi: suhbat tarixi yoki yuklangan
-# hujjat bo'lsa javob kontekstga bog'liq bo'ladi va keshlanmaydi.
 import hashlib
 import logging
 import re
@@ -23,13 +14,11 @@ from .retrieval import _APOSTROFLAR, _kirilldan_lotinga
 
 log = logging.getLogger(__name__)
 
-# Yozuv qancha vaqt yaroqli (sekund). Baza o'zgarsa muddatdan qat'i nazar
-# yozuv bekor bo'ladi — versiya kalitga kiradi.
+
 MUDDAT = 6 * 3600
 MAX_YOZUV = 500
 
-# Tashqi ombor so'rovi javobga qo'shiladigan kechikish — qisqa bo'lishi shart.
-# Ombor sekinlashsa, kesh javobni tezlashtirish o'rniga sekinlashtirib qo'yadi.
+
 KV_MUDDATI = 3.0
 KV_PREFIKS = "kesh"
 
@@ -38,14 +27,7 @@ _lock = threading.Lock()
 _yozuvlar: "OrderedDict[str, tuple]" = OrderedDict()
 
 
-# ---------- Tashqi qavat (Upstash) ----------
-#
-# Xotiradagi kesh Render'da har uyg'onishda va har deploy'da yo'qoladi —
-# bepul tierda xizmat 15 daqiqada uxlaydi, ya'ni amalda kesh deyarli hech
-# qachon to'lmaydi. Tashqi ombor buni tuzatadi: demo oldidan isitilgan
-# javoblar qayta ishga tushgandan keyin ham joyida qoladi.
-#
-# Ikki qavat ataylab: xotira — tez (tarmoqsiz), Upstash — omonatli.
+
 
 
 def tashqi_saqlash() -> bool:
