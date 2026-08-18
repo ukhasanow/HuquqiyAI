@@ -1,8 +1,3 @@
-# Telegram bot obyektlari.
-#
-# Bot faqat TELEGRAM_BOT_TOKEN berilgan bo'lsa yaratiladi: token qo'yilmagan
-# muhitda (masalan, faqat sayt ishlatiladigan deploy'da) ilova oldingidek
-# ishlashi kerak, bot yo'qligi xato emas.
 from typing import Optional
 
 from ..config import TELEGRAM_BOT_TOKEN
@@ -10,8 +5,6 @@ from ..config import TELEGRAM_BOT_TOKEN
 _bot = None
 _dispatcher = None
 
-# Telegram javob olmasa (yoki kech olsa) o'sha update'ni qayta yuboradi.
-# Bir savolga ikki marta javob bermaslik uchun yaqinda ko'rilganlari eslanadi.
 _korilgan_update_idlar: set = set()
 _KORILGAN_CHEGARA = 1000
 
@@ -29,8 +22,7 @@ def bot():
         from aiogram import Bot
         from aiogram.client.default import DefaultBotProperties
 
-        # parse_mode markazlashgan holda belgilanadi: handler'lar har xabarda
-        # takrorlamasin va biror joyda unutilib qolmasin.
+        
         _bot = Bot(token=TELEGRAM_BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     return _bot
 
@@ -56,8 +48,7 @@ def takroriy_update(update_id: Optional[int]) -> bool:
         return True
     _korilgan_update_idlar.add(update_id)
     if len(_korilgan_update_idlar) > _KORILGAN_CHEGARA:
-        # Eng kichik yarmini tashlaymiz: update_id o'sib boradi, shuning uchun
-        # kichiklari eng eski hisoblanadi.
+        
         for eski in sorted(_korilgan_update_idlar)[: _KORILGAN_CHEGARA // 2]:
             _korilgan_update_idlar.discard(eski)
     return False
