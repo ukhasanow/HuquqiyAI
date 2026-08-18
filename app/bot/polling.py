@@ -1,8 +1,3 @@
-# Lokal ishlab chiqish uchun: python -m app.bot.polling
-#
-# Produksiyada webhook ishlatiladi (app/main.py dagi /telegram/webhook).
-# Polling'ni webhook o'rnatilgan bot uchun ishga tushirib bo'lmaydi, shuning
-# uchun boshlashdan oldin webhook olib tashlanadi.
 import asyncio
 import logging
 
