@@ -33,20 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 QONUNLAR_FAYL = BASE_DIR / "data" / "qonunlar.json"
 KESH_DIR = BASE_DIR / ".cache" / "lex"
 
-# Ma'lum hujjatlar: kalit -> (lex.uz akt id, modda id prefiksi, qonun_nomi, tuzilma).
-#
-# `tuzilma`:
-#   "modda" — qonun/kodeks, "13-modda. Sarlavha" ko'rinishidagi bloklar
-#   "band"  — hukumat qarori ilovasi (Yo'l harakati qoidalari), sarlavhasiz
-#             raqamlangan bandlar: "116. Transport vositalarining haydovchilari..."
-#
-# `qonun_nomi` ataylab qo'lda yozilgan: lex.uz sarlavhani BOSH HARFLARDA beradi
-# ("OʻZBEKISTON RESPUBLIKASINING OILA KODEKSI"), bazada esa u foydalanuvchiga
-# ko'rinadigan odatiy shaklda saqlanadi. Registrsiz har import bu maydonni
-# buzar edi.
-#
-# Fuqarolik kodeksi lex.uz'da ikki qismga bo'lingan (1- va 2-qism), lekin
-# bazada bitta kodeks sifatida — ikkalasi ham "fuqarolik" prefiksini oladi.
+
 HUJJATLAR: Dict[str, Tuple[str, str, str, str]] = {
     "oila": ("-104720", "oila", "O'zbekiston Respublikasining Oila kodeksi", "modda"),
     "mehnat": ("-6257288", "mehnat", "O'zbekiston Respublikasining Mehnat kodeksi", "modda"),
@@ -73,35 +60,18 @@ HUJJATLAR: Dict[str, Tuple[str, str, str, str]] = {
                  "1-dekabrdagi 975-son qarori)", "band"),
 }
 
-# Kuchini yo'qotgan, ATAYLAB ishlatilmaydigan tahrirlar — bir xil nom bilan
-# lex.uz'da hanuz ochiladi, shuning uchun adashib olinmasligi kerak:
-#   -24741   "Yo'l harakati xavfsizligi to'g'risida" (1999) — 21.07.2024 dan kuchsiz,
-#            o'rniga -6764454 "Yo'l harakati to'g'risida" (O'RQ-900)
-#   -186105  Fuqarolik protsessual kodeksi (1997) — 01.04.2018 dan kuchsiz,
-#            o'rniga -3517337 (2018)
-#   -2850459 Yo'l harakati qoidalari (VM 370-son, 2015) — 01.05.2022 dan kuchsiz,
-#            o'rniga -5953883 (VM 172-son, 2022). Qidiruvda ikkalasi ham chiqadi.
 
-# 128<sup>1</sup> — teglar shunchaki olib tashlansa "1281" bo'lib ketadi,
-# aslida 128¹. Shuning uchun avval Unicode ustki indeksga aylantiramiz.
 USTKI_INDEKS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
 USTKIDAN_ODDIY = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
 
 # "13-modda." yoki "128¹-modda." — bob sarlavhalaridan ("1-bob.") ajratish uchun
 MODDA_SARLAVHA = re.compile(r"^(\d+[⁰¹²³⁴⁵⁶⁷⁸⁹]*)-modda\.")
 
-# Band boshi: "116. Transport vositalarining..." yoki (lex.uz matnida uchraydi)
-# bo'sh joysiz "117.Temir yoʻl kesishmasiga...".
-#
-# Nuqtadan keyin RAQAM kelmasligi shart: "5.1. yoʻl belgisi bilan belgilangan"
-# — bu band emas, band ichidagi yoʻl belgisi raqami. Bo'sh joyni majburiy
-# qilsak 117-band butunlay yo'qoladi, raqamga ruxsat bersak yoʻl belgilari
+
 # band bo'lib ketadi.
 BAND_BOSHI = re.compile(r"^(\d+)\.\s*(\D.*)$")
 
-# Bob sarlavhasi: "18-bob. Temir yoʻl kesishmalari orqali harakatlanish".
-# Qoidalardan keyingi ilovalarda ("Yoʻl belgilari") sarlavhalar boshqacha va
-# raqamlash qaytadan boshlanadi — shuning uchun ilova chegarasi tekshiriladi.
+
 BOB_SARLAVHA = re.compile(r"^\d+-bob\.\s*(.+)$")
 
 # Modda matnidan teg nomzodlarini ajratishda tashlab yuboriladigan so'zlar
@@ -174,10 +144,7 @@ class _BlokParser(HTMLParser):
         self._joriy.append(data)
 
     def _paragrafni_yop(self):
-        # Ketma-ket bo'sh joylar bittaga keltiriladi: lex.uz matn ichidagi
-        # havolalar atrofida ("113-moddasida </a> nazarda") va HTML qatorlarni
-        # bo'lish joyida ortiqcha probel qoldiradi. Bu bo'sh joylar qonun
-        # matnida ma'no tashimaydi, bazada esa hech qachon uchramaydi.
+        
         matn = re.sub(r"\s+", " ", "".join(self._joriy)).strip()
         if matn:
             self._paragraflar.append(matn)
