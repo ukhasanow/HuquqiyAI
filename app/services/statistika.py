@@ -1,14 +1,3 @@
-# Statistika qatlami: har bir /api/chat va /api/hujjat so'rovini hisobga oladi.
-# MUHIM: savol MATNI saqlanmaydi — faqat javob topilmagan savollar matni
-# "topilmagan_savollar" ro'yxatiga tushadi (bazani kengaytirish uchun).
-#
-# Ikki saqlash usuli:
-#   - lokal: data/statistika.json (tashqi bazasiz, storage.py uslubida)
-#   - produksiya: tashqi kalit-qiymat ombori (STATISTIKA_KV_URL berilganda)
-#
-# Nega ikkitasi: Render bepul tierda disk VAQTINCHALIK — har deploy'da va
-# xizmat uxlab uyg'onganda faylga yozilgan hamma narsa yo'qoladi. Lokal
-# ishlab chiqishda esa tashqi ombor ortiqcha murakkablik.
 import copy
 import json
 import logging
@@ -51,9 +40,7 @@ _BOSH_HOLAT = {
     "shartnoma_turlari": {},  # {"mehnat": 3, "ijara": 1, ...}
     "jarima_tekshiruvlari": 0,
     "jarima_asos_topildi": 0,  # shundan nechtasida bekor qilish asosi topilgan
-    # Har manba bo'yicha to'liq kesim: bot va sayt ko'rsatkichlari bir joyda
-    # turadi, lekin aralashmaydi — botning javob topilish ulushi saytnikidan
-    # farq qiladi va buni ko'rmasdan bazani to'g'ri kengaytirib bo'lmaydi.
+    
     "manba_kesimi": {manba: _bosh_kesim() for manba in MANBALAR},
     "mavzular": {},
     "kunlik": {},  # {"2026-07-31": {"jami": 0, "topildi": 0, "sayt": 0, "bot": 0}}
