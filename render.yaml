@@ -1,6 +1,3 @@
-# Render.com bepul tierga deploy (Blueprint)
-# render.com -> New + -> Blueprint -> shu repo'ni tanlang.
-# ANTHROPIC_API_KEY va ADMIN_PASSWORD qiymatlari dashboard'da so'raladi.
 services:
   - type: web
     name: huquqiyai
@@ -25,29 +22,21 @@ services:
         sync: false
       - key: MODEL
         value: claude-sonnet-4-5
-      # Gemini bepul tierda kvota LOYIHAGA bog'langan: har model uchun kuniga
-      # 20 ta so'rov (GenerateRequestsPerDayPerProjectPerModel-FreeTier).
-      # Yangi kalit yasash yordam bermaydi — kvota o'sha loyihanikidir.
-      # Kvota tugasa boshqa modelga o'tish vaqtincha yechim beradi.
-      # Vergul bilan ro'yxat: limit har model uchun alohida hisoblanadi,
-      # shuning uchun ikkinchi model bepul sig'imni ikki barobar oshiradi.
+      
       - key: GEMINI_MODEL
         value: gemini-3.5-flash,gemini-flash-latest
-      # Bepul zaxira — Gemini kvotasi tugagach ishga tushadi, OpenAI'dan oldin.
-      # Model o'lchov bilan tanlangan: llama-3.3-70b json_schema'ni
-      # qo'llab-quvvatlamaydi, qwen3.6-27b prompt hajmiga sig'maydi.
+     
       - key: GROQ_MODEL
         value: openai/gpt-oss-120b,openai/gpt-oss-20b
-      # Bepul zaxiralar cho'qqi uchun: kunlik kvotasi kichik (50 va 150),
-      # lekin daqiqalik limiti keng (20 va 10 so'rov/daqiqa)
+      
       - key: OPENROUTER_MODEL
         value: nvidia/nemotron-3-super-120b-a12b:free
       - key: BAZAARLINK_MODEL
         value: auto:free
-      # Oxirgi zaxira (pulli) — faqat bepul kvotalar tugagach chaqiriladi
+      
       - key: OPENAI_MODEL
         value: gpt-5.4-mini
-      # Ovozli javob (TTS). Yoqish uchun: gemini
+      
       - key: TTS_PROVAYDER
         value: gemini
       - key: GEMINI_TTS_MODEL
@@ -58,17 +47,15 @@ services:
         sync: false
       - key: TELEGRAM_WEBHOOK_SECRET
         sync: false
-      # Botda /statistika ko'ra oladigan chat ID lar
+      
       - key: TELEGRAM_ADMIN_IDLAR
         sync: false
-      # Statistikani saqlash uchun tashqi ombor (Upstash Redis REST).
-      # Berilmasa statistika har deploy'da noldan boshlanadi.
+      
       - key: STATISTIKA_KV_URL
         sync: false
       - key: STATISTIKA_KV_TOKEN
         sync: false
-      # Webhook manzili — Render xizmatning o'z hostini beradi (sxemasiz,
-      # https:// config.py da qo'shiladi)
+      
       - key: TELEGRAM_WEBHOOK_URL
         fromService:
           type: web
