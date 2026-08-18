@@ -1,7 +1,3 @@
-# Telegram bot handler'lari.
-#
-# Bu yerda huquqiy mantiq YO'Q: barcha javoblar services/javob.py orqali
-# olinadi — sayt ham aynan o'sha modulni chaqiradi.
 import asyncio
 import html
 import logging
@@ -51,9 +47,7 @@ from . import formatlash, holat
 log = logging.getLogger(__name__)
 router = Router()
 
-# /start — birinchi taassurot. Odam bu yerda "bu bot menga nima bera oladi?"
-# degan savolga javob olishi kerak, shuning uchun imkoniyatlar aniq harakat
-# ko'rinishida yozilgan ("surat yuboring"), umumiy gap emas.
+
 SALOM = (
     "Assalomu alaykum! Men <b>HuquqiyAI</b> — O'zbekiston qonunchiligi bo'yicha "
     "yordamchingizman.\n\n"
@@ -99,10 +93,9 @@ YORDAM = (
 )
 
 BAND_XABARI = "⏳ Oldingi savolingiz ustida ishlayapman — javobni kuting."
-# Batafsil javob ~20 soniya oladi. Kutish muddatini oldindan aytish kerak:
-# aks holda odam bot ishlamayapti deb o'ylab, savolni qayta yuboraveradi.
+
 KUTING = "🔎 Qonun bazasidan qidiryapman va javob tayyorlayapman — 20-30 soniya oling..."
-# Shartnoma tahlili uzunroq: har band alohida tekshiriladi.
+
 SHARTNOMA_KUTING = (
     "📋 Shartnomani band-band tekshiryapman — 40-60 soniya oling...\n"
     "<i>Har bandni qonun moddalari bilan solishtiraman.</i>"
@@ -125,12 +118,11 @@ class JarimaHolati(StatesGroup):
     qaror_sanasi = State()
     kamera = State()
     radar = State()
-    radar_atrofi = State()  # trenoga tanlanganda: yonida patrul avtomobili bormidi
+    radar_atrofi = State()  
     modda = State()
-    tezlik = State()  # faqat tezlik moddasi ko'rsatilganda so'raladi
-    fish = State()    # shikoyat qoralamasi uchun
-    # Radar surati kutilmoqda. Alohida holat kerak: oddiy surat handleri
-    # rasmni hujjat deb o'qiydi, radar suratida esa o'qiladigan matn yo'q.
+    tezlik = State()  
+    fish = State()    
+    
     radar_surati = State()
 
 
@@ -477,10 +469,7 @@ async def jarima_radar(xabar: Message, state: FSMContext) -> None:
     turi = turlar.get(tanlov, "")
     await state.update_data(radar_turi=turi)
 
-    # Ko'chma radarda ASOSIY savol turi emas, atrofi: uch oyoqli tagliksa
-    # qo'yilgan radarning o'zi taqiqlanmagan (30, 31, 34-bandlar), qarorni
-    # kuchsiz qiladigan narsa esa yonida patrul avtomobili bo'lmagani yoki
-    # moslamani formadagi xodim boshqarmagani (32-band).
+   
     if turi == "trenoga":
         await state.set_state(JarimaHolati.radar_atrofi)
         await xabar.answer(
@@ -523,8 +512,7 @@ async def jarima_modda(xabar: Message, state: FSMContext) -> None:
     modda = (xabar.text or "").strip()
     await state.update_data(modda="" if modda == "-" else modda[:40])
 
-    # Tezlik moddasi bo'lsa, 5 km/soat chegirmasini hisoblash uchun tezliklar
-    # kerak — bu eng ko'p asos beradigan tekshiruv.
+    
     if jarima_xizmati._mjk_id(modda) == jarima_xizmati.TEZLIK_MODDASI:
         await state.set_state(JarimaHolati.tezlik)
         await xabar.answer(
@@ -561,8 +549,7 @@ async def _jarima_natijasi(xabar: Message, state: FSMContext) -> None:
     await _yubor(xabar, formatlash.jarima_xabari(javob))
     await asyncio.to_thread(jarimani_hisobla, javob.asoslar_soni, f"tg:{xabar.chat.id}")
 
-    # Shikoyat qoralamasi shu yerda taklif qilinadi: asoslar allaqachon
-    # hisoblangan, odam ularni qaytadan yozib o'tirmaydi.
+    
     await state.set_state(JarimaHolati.fish)
     await xabar.answer(
         "📄 <b>Shikoyat qoralamasini tayyorlab beraymi?</b>\n\n"
@@ -579,8 +566,7 @@ def _jarima_sorovi(malumot: dict) -> JarimaSorov:
         kamera=bool(malumot.get("kamera")),
         modda=malumot.get("modda", ""),
         radar_turi=malumot.get("radar_turi", ""),
-        # None (so'ralmagan/eslamaydi) va False (aniq yo'q edi) farq qiladi:
-        # 32-band bo'yicha asos faqat ikkinchisidan chiqadi
+        
         patrul_avtomobili=malumot.get("patrul_avtomobili"),
         xodim_formada=malumot.get("xodim_formada"),
         moslama_qarovsiz=bool(malumot.get("moslama_qarovsiz")),
